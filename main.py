@@ -1,6 +1,7 @@
-#Yudhishtra A/L S Sugumaran - TP061762
+#Yudhishthra A/L S Sugumaran - TP061762
 #Choong Wei Jun - TP061867
 
+'''
 import os, time
 
 def main() :
@@ -26,4 +27,7 @@ def exit():
     os._exit(0)
 
 main()
+'''
+
+
 
