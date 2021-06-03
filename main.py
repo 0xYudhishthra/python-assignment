@@ -1,7 +1,16 @@
-#Yudhishtra A/L S Sugumaran - TP061762
+#Yudhishthra A/L S Sugumaran - TP061762
 #Choong Wei Jun - TP061867
 
+#!/usr/bin/env python3
+from pyfiglet import Figlet # Importing module to decorate welcome message
 import os, time
+
+'''
+This part of code is to display the name of the program
+'''
+from pyfiglet import Figlet
+f = Figlet(font='univers')
+print (f.renderText('S O F S'))
 
 def main() :
     print("Types of dashboard:\n1. Customer\n2. Administrator\nQ. Quit")
@@ -22,8 +31,10 @@ def dashboardCustomer():
 
 def exit():
     print("\nExiting Program.")
-    time.sleep(3)
+    time.sleep(0.5)
     os._exit(0)
 
 main()
+
+
 
