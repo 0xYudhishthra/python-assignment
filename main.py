@@ -1,5 +1,6 @@
-#YUDHISHTHRA A/L S SUGUMARAN (TP061762)
-#Choong Wei Jun (TP061867)
+<<<<<<< HEAD
+#YUDHISHTHRA A/L S SUGUMARAN - TP061762
+#Choong Wei Jun - TP061867
 
 import os
 
@@ -21,3 +22,11 @@ def dashboardCustomer():
     print("customer")
 
 main()
+=======
+'''
+AUTHORS:
+YUDHISHTHRA A/L S SUGUMARAN - TP061762
+CHOONG WEI JUN - TP
+'''
+
+>>>>>>> c917a7106aad50bfb0f12ad6b36af24c46390bdb
