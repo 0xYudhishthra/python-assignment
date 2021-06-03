@@ -1,4 +1,5 @@
-def main() :
-    print("Hello, world!")
-
-def ifefe() : print("y8327rg77")
+'''
+AUTHORS:
+YUDHISHTHRA A/L S SUGUMARAN - TP061762
+CHOONG WEI JUN - TP
+'''
