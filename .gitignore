@@ -1,5 +1,6 @@
-#VSCode Files
+#Miscellanous Files
 *.json
+doubts.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
