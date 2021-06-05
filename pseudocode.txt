@@ -1,31 +1,12 @@
 Pseudocode for python assignment
 DEADLINE TO COMPLETE: 13th June
 
-BEGIN
+START
     mainMenu(cLogin, aLogin)
-END
+EXIT
 
-// cLogin = Customer Login Cache
-// aLogin = Admin Login Cache 
-FUNCTION menuMain(cLogin boolean, aLogin boolean)
-
-END FUNCTION
-
-FUNCTION getInput(menu string, cLogin, aLogin)
-    INPUT -> x
-
-    IF menu == "main"
-        IF x == 1
-            customer(cLogin, aLogin)
-            ELSE IF x == 2
-                admin(cLogin, aLogin)
-            ELSE IF (x == q) | (x == Q)
-                quit()
-            ELSE 
-                retry("main", cLogin, aLogin)
-        END IF
-    END IF
-END FUNCTION
+mainMenu(cLogin boolean, aLogin boolean)
+    
 
 FUNCTION login(userLoginType string, cLogin boolean, aLogin boolean, retry int)
     IF userLoginType == "admin"
@@ -54,25 +35,6 @@ FUNCTION login(userLoginType string, cLogin boolean, aLogin boolean, retry int)
         ELSE IF userLoginType == "customer"
         
     END IF
-
-FUNCTIN mainMenu(cLogin boolean, aLogin boolean)
-    menuMain()
-END FUNCTION
-
-FUNCTION customer(cLogin boolean, aLogin boolean) 
-    menu("customer", cLogin, aLogin)
-    input("customer", cLogin, aLogin)
-END FUNCTION
-
-FUNCTION admin(cLogin boolean, aLogin boolean)
-    menu("admin", cLogin, aLogin)
-    input("admin", cLogin, aLogin)
-END FUNCTION
-
-FUNCTION adminPleaseLogin(cLogin boolean, aLogin boolean)
-    menu("adminPleaseLogin", cLogin, aLogin)
-    login("admin", cLogin, aLogin)
-END FUNCTION
 
 FUNCTION quit()
     PRINT("Exiting now...")

@@ -2,32 +2,35 @@
 #Choong Wei Jun - TP061867
 
 #!/usr/bin/env python3
-import os, time
 
+mainMenu()
+admin()
+adminMenu()
+foodCategory()
+addCategory()
+removeCategory()
+editFoodItem()
+foodItem()
+addFoodItem()
+removeFoodItem()
+editFoodItem()
+orders()
+cancelOrder()
+checkPayments()
+adminLogin()
+customer()
+viewCategoryList()
+viewItemList()
+registered()
+viewItemDetails()
+viewCategoryDetails()
+addFoodToCart()
+confirmAndPay()
 
-def main() :
-    print("Types of dashboard:\n1. Customer\n2. Administrator\nQ. Quit")
-    adminOrCustomer = input("Which dasboard would you like to get into?\n>> ")
-    if adminOrCustomer == "1" :
-        dashboardCustomer()
-    elif adminOrCustomer == "2":
-        dashboardAdmin()
-    elif (adminOrCustomer == "q") | (adminOrCustomer == "Q"):
-        exit()
-    else: main()
-
-def dashboardAdmin():
-    print("admin")
-
-def dashboardCustomer():
-    print("customer")
-
-def exit():
-    print("\nExiting Program.")
-    time.sleep(0.5)
-    os._exit(0)
-
-main()
-
-
-
+quit()
+login()
+logout()
+createFile()
+deleteFile()
+readFile()
+writeFile()
