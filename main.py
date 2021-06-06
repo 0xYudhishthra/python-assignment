@@ -40,7 +40,7 @@ def admin():
     authenticateAdmin(uName)
 
 def readAdminFile(): #Reads admin file and converts it to list
-    with open ('admins.csv', mode='r') as admin_file:
+    with open ('admins.txt', mode='r') as admin_file:
         csv_reader = (csv.reader(admin_file))
         header=next(csv_reader)
         admin_list = []
