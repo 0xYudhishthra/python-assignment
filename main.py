@@ -5,7 +5,7 @@
 
 import os
 import time
-import csv
+import csv as txt
 
 def main() :
     clearConsole()
@@ -41,10 +41,10 @@ def admin():
 
 def readAdminFile(): #Reads admin file and converts it to list
     with open ('admins.txt', mode='r') as admin_file:
-        csv_reader = (csv.reader(admin_file))
-        header=next(csv_reader)
+        txt_reader = (txt.reader(admin_file))
+        header=next(txt_reader)
         admin_list = []
-        for row in csv_reader:
+        for row in txt_reader:
             username = row[0]
             password = row[1]
             admin_list.append([username,password])
