@@ -34,12 +34,10 @@ def mainMenu(cSession , aSession) :
     elif cSession | aSession :
         if uInput == "3" :
             logout(cSession, aSession)
-    
     else :
         invalidInput()
         mainMenu(cSession, aSession)
         
-
 def admin(cSession, aSession) :
     clearConsole()
     if aSession :
