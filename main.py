@@ -5,259 +5,230 @@
 
 import os
 import time
+import csv
 
 def main() :
     clearConsole()
-    print("Welcome to SOFS!")
+    print("Welcome to Spiderman Online Food Service!")
     time.sleep(1)
-    mainMenu(False, False)
+    mainMenu()
 
-def mainMenu(cSession , aSession) :
-    print("Please select any option below.")
-    print("1. Customer")
-    print("2. Admin")
-    if cSession | aSession :
-        print("3. Logout")
-    print("Q. Quit Program")
+def mainMenu():
+    print("Please select any option below.", "1. Admin", "2. Customer", "3. Quit Program", sep=' \n')
+    redirectUser(userInput())
 
-    uInput = userInput()
+def redirectUser(_): #Redirects user based on selected choice
+    if _ == "1" :
+        admin()
 
-    if uInput == "1" :
-        customer(cSession, aSession)
-
-    elif uInput == "2" :
-        admin(cSession, aSession)
+    elif _ == "2" :
+        customerMenu()
     
-    elif (uInput == "q") | (uInput == "Q") :
+    elif (_== "3") :
         quit()
 
-    elif cSession | aSession :
-        if uInput == "3" :
-            logout(cSession, aSession)
+    else :
+        invalidInput()
+        mainMenu()
+
+def admin():
+    print("\nAdmin Authentication Section")
+    print("-" * 28)
+    uName = input("Username: ")
+    print("Checking if username exists...")
+    time.sleep(1)
+    authenticateAdmin(uName)
+
+def readAdminFile(): #Reads admin file and converts it to list
+    with open ('admins.csv', mode='r') as admin_file:
+        csv_reader = (csv.reader(admin_file))
+        header=next(csv_reader)
+        admin_list = []
+        for row in csv_reader:
+            username = row[0]
+            password = row[1]
+            admin_list.append([username,password])
+        return admin_list
+
+def authenticateAdmin(uName): #Authenticates admin login details
+    for data in readAdminFile():
+        if uName == data[0]:
+            print("Username exists. Please enter password")
+            if input("Password: ") == data[1]:
+                time.sleep(1)
+                adminMenu(uName)
+            else:
+                print("Fail")
+        else:
+            print("Username does not exist.")
+        break
+
+def adminMenu(uName) :
+    clearConsole()
+    print("Welcome {}!, what would you like to do today?\n".format(uName))
+    print("1. Food Category","2. Food Items","3. View Orders","4. Payments","0. Back to Main Menu", sep='\n')
+    redirectAdmin(userInput())
+
+def redirectAdmin(_) : #Redirects admin based on selected choice
+    if _ == "1" :
+        foodCategory()
+    elif _ == "2" :
+        foodItem()
+    elif _ == "3" :
+        order()
+    elif _ == "4" :
+        checkPayment()
+    elif _ == "0" :
+        mainMenu()
+    else :
+        invalidInput()
+
+def foodCategory() :
+    clearConsole()
+    print("\nPlease select any option below.")
+    print("1. Add Food Category","2. Remove Food Category","3. Edit Food Category","4. Back to Main Menu","0. Back",sep='\n')
+    redirectFoodCategory(userInput())
+
+def redirectFoodCategory(_):
+    if _ == "1" :
+        addCategory()
+    elif _ == "2" :
+        removeCategory()
+    elif _ == "3" :
+        editCategory()
+    elif _ == "4" :
+        mainMenu()
+    elif _ == "0" :
+        adminMenu()
+    else :
+        invalidInput()
+        foodCategory()
+
+def addCategory() : pass
+def removeCategory() : pass
+def editCategory() :pass
+
+def foodItem() :
+    clearConsole()
+    print("\nPlease select any option below.")
+    print("1. Add Food Item","2. Remove Food Item","3. Edit Food Item","4. Back to Main Menu","0. Back",sep='\n')
+    redirectFoodItem(userInput())
     
+def redirectFoodItem(_):
+    if _ == "1" :
+        addFoodItem()
+    elif _ == "2" :
+        removeFoodItem()
+    elif _ == "3" :
+        editFoodItem()
+    elif _ == "4" :
+        mainMenu()
+    elif _ == "0" :
+        adminMenu()
     else :
         invalidInput()
-        mainMenu(cSession, aSession)
-        
+        foodItem()
 
-def admin(cSession, aSession) :
+def addFoodItem() : pass
+def removeFoodItem() : pass
+def editFoodItem() : pass
+
+def order() :
     clearConsole()
-    if aSession :
-        adminMenu(cSession, aSession)
-    else : 
-        clearConsole()
-        print("Please login as an Admin.")
-        print("Do you want to go to login page? (Answer: y/n)")
-
-        uInput = userInput()        
-
-        if uInput == "y" :
-            clearConsole()
-            login(cSession, aSession)
-        elif uInput == "n" :
-            clearConsole()
-            mainMenu(cSession, aSession)
-        else :
-            invalidInput()
-            mainMenu(cSession, aSession)
-
-def adminMenu(cSession , aSession) :
-    clearConsole()
-    print("Please select any option below.")
-    print("1. Food Category")
-    print("2. Food Items")
-    print("3. View Orders")
-    print("4. Payments")
-    print("0. Back to Main Menu")
-
-    uInput = userInput()
-
-    if uInput == "1" :
-        foodCategory(cSession, aSession)
-    elif uInput == "2" :
-        foodItem(cSession, aSession)
-    elif uInput == "3" :
-        orders(cSession, aSession)
-    elif uInput == "4" :
-        payment(cSession, aSession)
-    elif uInput == "0" :
-        mainMenu(cSession, aSession)
-    else :
-        invalidInput(cSession, aSession)
-
-def foodCategory(cSession , aSession) :
-    clearConsole()
-    listOut("category")
     print("\nPlease select any option below.")
-    print("1. Add Food Category")
-    print("2. Remove Food Category")
-    print("3. Edit Food Category")
-    print("4. Back to Main Menu")
-    print("0. Back")
+    print("1. Cancel an order","2. Back to Main Menu","0. Back",sep='\n')
+    redirectOrder(userInput())
 
-    uInput = userInput()
-
-    if uInput == "1" :
-        addCategory(cSession, aSession)
-    elif uInput == "2" :
-        removeCategory(cSession, aSession)
-    elif uInput == "3" :
-        editCategory(cSession, aSession)
-    elif uInput == "4" :
-        mainMenu(cSession, aSession)
-    elif uInput == "0" :
-        adminMenu(cSession, aSession)
-    else :
-        invalidInput()
-        foodCategory(cSession, aSession)
-
-# def addCategory(cSession, aSession) :
-# def removeCategory(cSession, aSession) :
-# def editCategory(cSession, aSession) :
-
-def foodItem(cSession, aSession) :
-    clearConsole()
-    listOut("item")
-    print("\nPlease select any option below.")
-    print("1. Add Food Item")
-    print("2. Remove Food Item")
-    print("3. Edit Food Item")
-    print("4. Back to Main Menu")
-    print("0. Back")
-
-    uInput = userInput()
-
-    if uInput == "1" :
-        addFoodItem(cSession, aSession)
-    elif uInput == "2" :
-        removeFoodItem(cSession, aSession)
-    elif uInput == "3" :
-        editFoodItem(cSession, aSession)
-    elif uInput == "4" :
-        mainMenu(cSession, aSession)
-    elif uInput == "0" :
-        adminMenu(cSession, aSession)
-    else :
-        invalidInput()
-        foodItem(cSession, aSession)
-
-# def addFoodItem(cSession, aSession) :
-# def removeFoodItem(cSession, aSession) :
-# def editFoodItem(cSession, aSession) :
-
-def order(cSession, aSession) :
-    clearConsole()
-    listOut("order")
-    print("\nPlease select any option below.")
-    print("1. Cancel an order")
-    print("2. Back to Main Menu")
-    print("0. Back")
-
-    uInput = userInput()
-
-    if uInput == "1" : 
-        cancelOrder(cSession, aSession) 
-    elif uInput == "2" :
-        mainMenu(cSession, aSession)
-    elif uInput == "0" :
-        adminMenu(cSession, aSession)
+def redirectOrder(_):
+    if _ == "1" : 
+        cancelOrder() 
+    elif _ == "2" :
+        mainMenu()
+    elif _ == "0" :
+        adminMenu()
     else : 
         invalidInput()
-        order(cSession, aSession)
+        order()
 
-# def cancelOrder(cSession, aSession) :
-# def checkPayment(cSession, aSession) :
-# def adminLogin(cSession, aSession) :
+def cancelOrder() : pass
+def checkPayment() : pass
+def adminLogin() : pass
 
-def customer(cSession, aSession) :
+def customerMenu() :
     clearConsole()
     print("Please select any option below.")
-    print("1. View Menu")
-    
-    cExist = cartExist()
+    print("1. View Menu","2. Customer Login", "3. New Customer Registration", "4. Back to Main Menu", sep='\n')
+    redirectCustomer(userInput())
 
-    if cSession | aSession :
-        if cExist :
-            print("2. View Cart")
-            print("3. Checkout")
-            print("0. Back to Main Menu")
-        else :
-            print("0. Back to Main Menu")
-            print("\nYour cart is empty!")
-    else :
-        print("2. Login")
-        print("0. Back to Main Menu")
+def redirectCustomer(_):
+    if _ == "1":
+        viewCategoryList()
+    elif _ == "2":
+        authenticateCustomer()
+    elif _ == "3":
+        customerRegistration()
+    elif _ == "4":
+        mainMenu()
+    else:
+        invalidInput()
+        customerMenu()
 
-    uInput = userInput()
+def regCustomerMenu():
+    clearConsole()
+    print("Welcome {}!, what would you like to do today?")
+    print("1. View Item List", "2. View Item Details", "3. Add Food to Cart", "4. Checkout", "5. Main Menu", sep='\n')
+    redirectRegCustomer(userInput())
 
-    if (cSession | aSession) & cExist :
-        if uInput == "1" :
-            viewCategoryList(cSession, aSession)
-        elif uInput == "2" :
-            viewCart(cSession, aSession)
-        elif uInput == "3" :
-            checkout(cSession, aSession)
-        elif uInput == "4" :
-            mainMenu(cSession, aSession)
-        else :
-            invalidInput()
-            customer(cSession, aSession)
-    elif cSession | aSession :
-        if uInput == "1" :
-            viewCategoryList(cSession, aSession)
-        elif uInput == "0" :
-            mainMenu(cSession, aSession)
-        else :
-            invalidInput()
-            customer(cSession, aSession)
-    else :
-        if uInput == "1" :
-            viewCart(cSession, aSession)
-        elif uInput == "2" :
-            login(cSession, aSession)
-        elif uInput == "0" :
-            mainMenu(cSession, aSession)
-        else :
-            invalidInput()
-            customer(cSession, aSession)
+def redirectRegCustomer(_):
+    if _ == "1":
+        viewItemList()
+    elif _ =="2":
+        viewItemDetail()
+    elif _ == "3":
+        addFoodToCart()
+    elif _ =="4":
+        checkout()
+    elif _ == "5":
+        mainMenu()
+    else:
+        invalidInput()
+        regCustomerMenu()
 
-# def viewCategoryList(cSession, aSession) :
-# def viewItemList(cSession, aSession) :
-# def registered(cSession, aSession) :
-# def viewItemDetail(cSession, aSession) :
-# def viewCategoryDetail(cSession, aSession) :
-# def addFoodToCart(cSession, aSession) :
-# def checkout(cSession, aSession) :
+def viewCategoryList() : pass
+def viewItemList() : pass
+def registered() : pass
+def viewItemDetail() : pass
+def viewCategoryDetail() : pass
+def addFoodToCart() : pass
+def checkout() : pass
+def customerRegistration() : pass
+def authenticateCustomer() : pass
+def logout() : pass
+def createFile() : pass
+def deleteFile() : pass
+def readFile() : pass
+def writeFile() : pass
 
-def quit() :
+def clearConsole(): #Function to clear existing text in console
+    command = 'clear'
+    if os.name in ('nt', 'dos'):  
+        command = 'cls'
+    os.system(command)
+
+def invalidInput() : #Function to flag user if improper input is submitted
+    clearConsole()
+    print("Invalid input. Please enter a number")
+    time.sleep(1)
+    clearConsole()
+
+def quit() : #Exits program cleanly
     clearConsole()
     print("Exiting...")
     time.sleep(2)
     clearConsole()
     exit()
 
-# def register(cSession, aSession) :
-# def login(cSession, aSession) :
-# def logout(cSession, aSession) :
-# def createFile() :
-# def deleteFile() :
-# def readFile() :
-# def writeFile() :
-
-def userInput() :
+def userInput(): #Function to accept input from user
     return input("\nInput >> ")
-
-def invalidInput() :
-    clearConsole()
-    print("Invalid input.")
-    time.sleep(1)
-    clearConsole()
-    
-
-def clearConsole() :
-    command = 'clear'
-    if os.name in ('nt', 'dos'):  
-        command = 'cls'
-    os.system(command)
 
 main()
