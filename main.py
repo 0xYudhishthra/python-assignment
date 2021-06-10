@@ -3,9 +3,11 @@
 
 #!/usr/bin/env python3
 
+
 import os
 import time
-import csv as txt
+
+
 
 def main() :
     clearConsole()
@@ -41,32 +43,37 @@ def admin():
 
 def readAdminFile(): #Reads admin file and converts it to list
     with open ('admins.txt', mode='r') as admin_file:
-        txt_reader = (txt.reader(admin_file))
-        header=next(txt_reader)
         admin_list = []
-        for row in txt_reader:
-            username = row[0]
-            password = row[1]
-            admin_list.append([username,password])
+        for _ in range(1):
+                next(admin_file)
+        for row in admin_file:
+            adminDetails=row.strip("\n").split(",")
+            admin_list.append(adminDetails)
         return admin_list
 
 def authenticateAdmin(uName): #Authenticates admin login details
     for data in readAdminFile():
         if uName == data[0]:
-            print("Username exists. Please enter password")
+            print("Username found, please enter password\n")
             if input("Password: ") == data[1]:
+                print("Authenticating...")
                 time.sleep(1)
                 adminMenu(uName)
             else:
                 print("Fail")
         else:
-            print("Username does not exist.")
+            print("Admin username not found!")
+            time.sleep(0.5)
+            print("Redirecting...\n")
+            time.sleep(1)
+            clearConsole()
+            mainMenu()
         break
 
 def adminMenu(uName) :
     clearConsole()
-    print("Welcome {}!, what would you like to do today?\n".format(uName))
-    print("1. Food Category","2. Food Items","3. View Orders","4. Payments","0. Back to Main Menu", sep='\n')
+    print("Welcome {}, what would you like to do today?\n".format(uName))
+    print("1. Add food item","2. Modify food item","3. Display records","4. Search record","0. Back to Main Menu", sep='\n')
     redirectAdmin(userInput())
 
 def redirectAdmin(_) : #Redirects admin based on selected choice
