@@ -6,8 +6,7 @@
 
 import os
 import time
-
-
+from types import DynamicClassAttribute
 
 def main() :
     clearConsole()
@@ -52,23 +51,25 @@ def readAdminFile(): #Reads admin file and converts it to list
         return admin_list
 
 def authenticateAdmin(uName): #Authenticates admin login details
-    for data in readAdminFile():
-        if uName == data[0]:
+     for data in readAdminFile():
+      for i in range(0,len(data)):
+        if uName == data[i]:
             print("Username found, please enter password\n")
-            if input("Password: ") == data[1]:
+            if input("Password: ") == data[i+1]:
                 print("Authenticating...")
                 time.sleep(1)
                 adminMenu(uName)
-            else:
-                print("Fail")
-        else:
-            print("Admin username not found!")
-            time.sleep(0.5)
-            print("Redirecting...\n")
-            time.sleep(1)
-            clearConsole()
-            mainMenu()
-        break
+            else: print("Invalid pass")
+     if uName != data[i]:
+        print("Username not found")
+        time.sleep(0.5)
+        print("Redirecting...\n")
+        time.sleep(1)
+        clearConsole()
+        mainMenu()
+
+
+
 
 def adminMenu(uName) :
     clearConsole()
@@ -239,3 +240,11 @@ def userInput(): #Function to accept input from user
     return input("\nInput >> ")
 
 main()
+
+'''
+lines=["colombian","na","na","na","na","na"]
+with open('foods.txt', mode='a') as foods_file:
+    for line in lines:
+        foods_file.writelines(lines)
+
+'''
