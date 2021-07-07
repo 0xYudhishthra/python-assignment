@@ -34,6 +34,25 @@ def quit() : #Exits program cleanly
 def userInput(): #Function to accept input from user
     return input("\nInput >> ")
 
+def authUsername(username,filename):
+    userExistsCount = 0
+    for data in filename:
+        userExistsCount += data.count(username.lower())
+    if userExistsCount > 0:
+        print("Username found, please enter password\n")
+        return True
+    return False
+
+def authPassword(password,filename):
+    passwordExistsCount = 0
+    for data in filename:
+        passwordExistsCount += data.count(password)
+    if passwordExistsCount > 0:
+        print("Authenticating...")
+        time.sleep(1)
+        return True
+    return False 
+
 
 ###################################
 
@@ -68,38 +87,6 @@ def adminLoginPage():
         clearConsole()
         adminLoginPage()
 
-
-    
-
-
-def authUsername(username,filename):
-    userExistsCount = 0
-    for data in filename:
-        userExistsCount += data.count(username.lower())
-    if userExistsCount > 0:
-        print("Username found, please enter password\n")
-        return True
-    return False
-
-def authPassword(password,filename):
-    passwordExistsCount = 0
-    for data in filename:
-        passwordExistsCount += data.count(password)
-    if passwordExistsCount > 0:
-        print("Authenticating...")
-        time.sleep(1)
-        return True
-    return False        
-
-
- 
-
- 
-
-
-   
-
- 
 def adminMenu(uName) :
     clearConsole()
     print("Welcome {}, what would you like to do today?\n".format(uName))
