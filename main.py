@@ -3,43 +3,42 @@
 
 #!/usr/bin/env python3
 
-
+#############
 import os
 import time
-from types import DynamicClassAttribute
+#############
 
-def main() :
+'''
+These functions can be used across any part of the program
+'''
+###################################
+def clearConsole(): #Function to clear existing text in console
+    command = 'clear'
+    if os.name in ('nt', 'dos'):  
+        command = 'cls'
+    os.system(command)
+
+def invalidInput() : #Function to flag user if improper input is submitted
     clearConsole()
-    print("Welcome to Spiderman Online Food Service!")
+    print("Invalid input. Please enter a number")
     time.sleep(1)
-    mainMenu()
+    clearConsole()
 
-def mainMenu():
-    print("Please select any option below.", "1. Admin", "2. Customer", "3. Quit Program", sep=' \n')
-    redirectUser(userInput())
+def quit() : #Exits program cleanly
+    clearConsole()
+    print("Exiting...")
+    time.sleep(2)
+    clearConsole()
+    exit()
 
-def redirectUser(_): #Redirects user based on selected choice
-    if _ == "1" :
-        admin()
+def userInput(): #Function to accept input from user
+    return input("\nInput >> ")
 
-    elif _ == "2" :
-        customerMenu()
-    
-    elif (_== "3") :
-        quit()
 
-    else :
-        invalidInput()
-        mainMenu()
+###################################
 
-def admin():
-    print("\nAdmin Authentication Section")
-    print("-" * 28)
-    uName = input("Username: ")
-    print("Checking if username exists...")
-    time.sleep(1)
-    authenticateAdmin(uName)
-
+'''Functions for Admin Dashboard'''
+##############################################################################
 def readAdminFile(): #Reads admin file and converts it to list
     with open ('admins.txt', mode='r') as admin_file:
         admin_list = []
@@ -48,29 +47,59 @@ def readAdminFile(): #Reads admin file and converts it to list
         for row in admin_file:
             adminDetails=row.strip("\n").split(",")
             admin_list.append(adminDetails)
+        # print(admin_list)
         return admin_list
 
-def authenticateAdmin(uName): #Authenticates admin login details
-     for data in readAdminFile():
-      for i in range(0,len(data)):
-        if uName == data[i]:
-            print("Username found, please enter password\n")
-            if input("Password: ") == data[i+1]:
-                print("Authenticating...")
-                time.sleep(1)
+def adminLoginPage():
+    print("\nAdmin Authentication Section")
+    print("-" * 28)
+    uName = input("Username: ")
+    print("Checking if username exists...")
+    time.sleep(1)
+    if (authUsername(uName,readAdminFile())):
+        while True:
+            if (authPassword(input("Password: "),readAdminFile())):
                 adminMenu(uName)
-            else: print("Invalid pass")
-     if uName != data[i]:
-        print("Username not found")
-        time.sleep(0.5)
-        print("Redirecting...\n")
+            else:
+                print("Incorrect password")      
+    else:
+        print("Username not found, please retry\n")
         time.sleep(1)
         clearConsole()
-        mainMenu()
+        adminLoginPage()
 
 
+    
 
 
+def authUsername(username,filename):
+    userExistsCount = 0
+    for data in filename:
+        userExistsCount += data.count(username.lower())
+    if userExistsCount > 0:
+        print("Username found, please enter password\n")
+        return True
+    return False
+
+def authPassword(password,filename):
+    passwordExistsCount = 0
+    for data in filename:
+        passwordExistsCount += data.count(password)
+    if passwordExistsCount > 0:
+        print("Authenticating...")
+        time.sleep(1)
+        return True
+    return False        
+
+
+ 
+
+ 
+
+
+   
+
+ 
 def adminMenu(uName) :
     clearConsole()
     print("Welcome {}, what would you like to do today?\n".format(uName))
@@ -79,7 +108,8 @@ def adminMenu(uName) :
 
 def redirectAdmin(_) : #Redirects admin based on selected choice
     if _ == "1" :
-        foodCategory()
+        addFoodItem
+        ()
     elif _ == "2" :
         foodItem()
     elif _ == "3" :
@@ -99,7 +129,7 @@ def foodCategory() :
 
 def redirectFoodCategory(_):
     if _ == "1" :
-        addCategory()
+        addFoodCategory()
     elif _ == "2" :
         removeCategory()
     elif _ == "3" :
@@ -112,7 +142,7 @@ def redirectFoodCategory(_):
         invalidInput()
         foodCategory()
 
-def addCategory() : pass
+def addFoodCategory() : pass
 def removeCategory() : pass
 def editCategory() :pass
 
@@ -209,7 +239,7 @@ def viewItemDetail() : pass
 def viewCategoryDetail() : pass
 def addFoodToCart() : pass
 def checkout() : pass
-def customerRegistration() : pass
+
 def authenticateCustomer() : pass
 def logout() : pass
 def createFile() : pass
@@ -217,34 +247,38 @@ def deleteFile() : pass
 def readFile() : pass
 def writeFile() : pass
 
-def clearConsole(): #Function to clear existing text in console
-    command = 'clear'
-    if os.name in ('nt', 'dos'):  
-        command = 'cls'
-    os.system(command)
+'''Functionalities for Guest'''
+###################################################################
+def guestMenu():pass
+def viewFoodItem():pass
+def customerRegistration() : pass 
 
-def invalidInput() : #Function to flag user if improper input is submitted
+'''Functionalities for Registered Customer'''
+
+
+def redirectUser(_): #Redirects user based on selected choice
+    if _ == "1" :
+        adminLoginPage()
+
+    elif _ == "2" :
+        customerMenu()
+    
+    elif (_== "3") :
+        quit()
+
+    else :
+        invalidInput()
+        mainMenu()
+
+def mainMenu():
+    print("Please select any option below.", "1. Admin", "2. Customer", "3. Quit Program", sep=' \n')
+    redirectUser(userInput())
+
+def main() :
     clearConsole()
-    print("Invalid input. Please enter a number")
+    print("Welcome to Spiderman Online Food Service!")
     time.sleep(1)
-    clearConsole()
-
-def quit() : #Exits program cleanly
-    clearConsole()
-    print("Exiting...")
-    time.sleep(2)
-    clearConsole()
-    exit()
-
-def userInput(): #Function to accept input from user
-    return input("\nInput >> ")
+    mainMenu()
 
 main()
 
-'''
-lines=["colombian","na","na","na","na","na"]
-with open('foods.txt', mode='a') as foods_file:
-    for line in lines:
-        foods_file.writelines(lines)
-
-'''
