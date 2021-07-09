@@ -28,8 +28,8 @@ def quit() : #Exits program cleanly
     clearConsole()
     exit()
 
-def userInput(): #Function to accept input from user
-    return input("\nInput >> ")
+def userInput(inputString): #Function to accept input from user
+    return input("\n{} >> ".format(inputString))
 
 def authUsername(username,filename):
     userExistsCount = 0
@@ -98,7 +98,7 @@ def adminMenu(uName) :
     clearConsole()
     print("Welcome {}, what would you like to do today?\n".format(uName))
     print("1. Add food item","2. Modify food item","3. Display records","4. Search record","0. Back to Main Menu", sep='\n')
-    redirectAdmin(userInput())
+    redirectAdmin(userInput("I would like to"))
 
 def redirectAdmin(_) : #Redirects admin based on selected choice
     if _ == "1" :
@@ -136,7 +136,7 @@ def readFoodDetailsFile(): #Function to convert foodDetails text file to list
             foodDetails.append(row.replace("\n","").replace("_","").split(" | "))
         return removeExtraData(foodDetails)
 
-def displayFoodMenu(foodData):
+def displayFoodCategories(foodData):
     def extractFoodCategories():
         originalList = foodData
         foodMenuList=[]
@@ -149,6 +149,7 @@ def displayFoodMenu(foodData):
         for list in extractFoodCategories():
             print("{}. {}".format(count,list))
             count+=1
+    
 
 def writeFoodDetailsFile(foodCategory,foodItemName,foodItemDetails,foodItemPrice):
     with open ('foodDetails.txt','a') as foodDetailsFile:
@@ -157,17 +158,30 @@ def writeFoodDetailsFile(foodCategory,foodItemName,foodItemDetails,foodItemPrice
 
 def addFoodItem() : 
     print("You have chosen to add food item by category","Choose one food category\n",sep="\n")
-    displayFoodMenu(readFoodDetailsFile())
-    print("0. New Food Category")
-    selected=userInput()
-    if int(selected) == 0:
-        foodCategory = input("Please enter the name of the food category: ")
-        foodItemName = input("Please enter the food name: ")
-        foodItemDetails = input("Please enter food item details: ")
-        foodItemPrice = input("Food Price: ")
-        writeFoodDetailsFile(foodCategory,foodItemName,foodItemDetails,foodItemPrice)
-    elif int(selected) >= 1:
-        print("User selected: {}, Value: {}".format(selected,readFoodDetailsFile()[selected]))
+    displayFoodCategories(readFoodDetailsFile())
+    print("0. Add new Food Category")
+    selectedCategory = userInput("Food Category")
+    if int(selectedCategory) == 0:
+        categoryName = userInput("Category Name")
+        categoryDescription = userInput("Description")
+        addFoodCategory(categoryName,categoryDescription)
+        # foodCategory = input("Please enter the name of the food category: ")
+        # foodItemName = input("Please enter the food name: ")
+        # foodItemDetails = input("Please enter food item details: ")
+        # foodItemPrice = input("Food Price: ")
+        # writeFoodDetailsFile(foodCategory,foodItemName,foodItemDetails,foodItemPrice)
+    else:
+        print("User selectedCategory: {}, Value: {}".format(selectedCategory,readFoodDetailsFile()[selectedCategory]))
+
+def addFoodCategory(name,description):
+    uppercaseName = name.upper()
+    uppercaseDescription = description.upper()
+    with open('foodDetails.txt','a') as foodDetailsFile:
+            foodDetailsFile.write('\n' + '_'*88 + '\n\n')
+            foodDetailsFile.write("{} - {}".format(uppercaseName,uppercaseDescription) + '\n')
+            foodDetailsFile.write("_"*88 + '\n')
+
+        
 
 
     
@@ -187,7 +201,7 @@ def redirectFoodItem(_):
         foodItem()
 
 
-def addFoodCategory() : pass
+
 def removeCategory() : pass
 def editCategory() :pass
 
@@ -195,7 +209,7 @@ def foodItem() :
     clearConsole()
     print("\nPlease select any option below.")
     print("1. Remove Food Item","2. Edit Food Item","3. Back to Main Menu","0. Back",sep='\n')
-    redirectFoodItem(userInput())
+    redirectFoodItem(userInput("Option"))
     
 
 
@@ -206,7 +220,7 @@ def order() :
     clearConsole()
     print("\nPlease select any option below.")
     print("1. Cancel an order","2. Back to Main Menu","0. Back",sep='\n')
-    redirectOrder(userInput())
+    redirectOrder(userInput("Choice"))
 
 def redirectOrder(_):
     if _ == "1" : 
@@ -227,7 +241,7 @@ def customerMenu() :
     clearConsole()
     print("Please select any option below.")
     print("1. View Menu","2. Customer Login", "3. New Customer Registration", "4. Back to Main Menu", sep='\n')
-    redirectCustomer(userInput())
+    redirectCustomer(userInput("Choice"))
 
 def redirectCustomer(_):
     if _ == "1":
@@ -246,7 +260,7 @@ def regCustomerMenu():
     clearConsole()
     print("Welcome {}!, what would you like to do today?")
     print("1. View Item List", "2. View Item Details", "3. Add Food to Cart", "4. Checkout", "5. Main Menu", sep='\n')
-    redirectRegCustomer(userInput())
+    redirectRegCustomer(userInput("Choice"))
 
 def redirectRegCustomer(_):
     if _ == "1":
@@ -316,7 +330,7 @@ def redirectUser(_): #Redirects user based on selected choice
 
 def mainMenu():
     print("Please select any option below.", "1. Admin", "2. Customer", "3. Quit Program", sep=' \n')
-    redirectUser(userInput())
+    redirectUser(userInput("Login to"))
 
 def main() :
     clearConsole()
