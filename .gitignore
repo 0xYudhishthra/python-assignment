@@ -2,6 +2,8 @@
 *.json
 doubts.txt
 codeTesting.py
+pseudocode.txt
+workcheck.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
