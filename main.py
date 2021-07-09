@@ -51,7 +51,19 @@ def authPassword(password,filename):
     return False 
 
 
-'''Functions for Admin Dashboard'''
+'''
+Functions for Admin Dashboard
+0. Login to Access System
+1. Add food item by category
+2. Modify food item (Edit, Delete, Update)
+3. Display Records of Food Category
+4. Display Records of Food Items by Category
+5. Display Records of Customer Orders
+6. Display Records of Customer Payments
+7. Search Specific Customer Order Record
+8. Search Specific Customer Payment Record
+9. Exit
+'''
 #Login to Access System 
 def readAdminDetailsFile(): #Reads admin file and converts it to list
     with open ('adminDetails.txt', mode='r') as admin_file:
@@ -102,7 +114,7 @@ def redirectAdmin(_) : #Redirects admin based on selected choice
     else :
         invalidInput()
 
-#Add Food Item Category-wise
+#Add Food Item by category
 def readFoodDetailsFile():
     foodDetailsList = []
     with open ('foodDetails.txt', mode='r') as foodDetailsFile:
@@ -245,13 +257,26 @@ def deleteFile() : pass
 def readFile() : pass
 def writeFile() : pass
 
-'''Functionalities for Guest'''
-###################################################################
+'''
+Functionalities for Guest Dashboard
+0. View all food items as per category
+1. New customer registration to access other details
+2. Exit
+'''
+
 def guestMenu():pass
 def viewFoodItem():pass
 def customerRegistration() : pass 
 
-'''Functionalities for Registered Customer'''
+'''
+Functionalities for Registered Customer Dashboard
+0. Login to access system
+1. View detail of food category
+2. View detail of food items
+3. Select food item and add to cart
+4. Do payment to confirm order
+5. Exit
+'''
 
 
 def redirectUser(_): #Redirects user based on selected choice
