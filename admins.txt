@@ -1,6 +1,0 @@
-USERNAME,PASSWORD
-tectrix,123
-bryan,6969
-john,144
-admin,8898
-root,4969
