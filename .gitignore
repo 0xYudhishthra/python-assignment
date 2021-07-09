@@ -1,6 +1,7 @@
 #Miscellanous Files
 *.json
 doubts.txt
+codeTesting.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
