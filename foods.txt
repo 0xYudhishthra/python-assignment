@@ -1,2 +1,0 @@
-foodCategory,foodCategoryDetails,foodItem,foodItemDetails,foodItemIngredients,price
-asian,feel the asian with us,fried rice,best there is,chicken + rice,9.9
