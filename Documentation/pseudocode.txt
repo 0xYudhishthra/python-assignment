@@ -1,0 +1,56 @@
+Pseudocode for python assignment
+DEADLINE TO COMPLETE: 13th June
+
+START
+    mainMenu(cLogin, aLogin)
+EXIT
+
+mainMenu(cLogin boolean, aLogin boolean)
+    
+
+FUNCTION login(userLoginType string, cLogin boolean, aLogin boolean, retry int)
+    IF userLoginType == "admin"
+        PRINT "Admin ID: "
+        INPUT -> id
+        PRINT "Password: "
+        INPUT -> pass
+
+        GET PASSWORD FROM FILE
+        IF PASSWORD == pass 
+            DEF aLogin = true
+            admin(cLogin, aLogin)
+            ELSE 
+                PRINT "Wrong Password"
+                DEF retry = retry - 1
+
+                IF (retry > 0)
+                    login("admin", cLogin, aLogin, retry)
+                    ELSE
+                        PRINT "Too many attempts"
+                        SLEEP 3*seconds
+                        
+                END IF
+        ENDIF
+
+        ELSE IF userLoginType == "customer"
+        
+    END IF
+
+FUNCTION quit()
+    PRINT("Exiting now...")
+    EXIT
+END FUNCTION
+
+FUNCTION searchCustomerOrder(orderID int)  //assumption that order is searched by order ID    
+END FUNCTION
+
+FUNCTION displayAllCustomerOrders() // Possible data output needed: orderID, customerID (if customer is registered), foodCategory, foodItems, totalQuantity, totalPrice, dateOfPurchase
+OUTPUT("Where do you want to save the record file?")
+INPUT(fileLocation)
+getCustomerOrder(fileLocation) // calls this function to 
+OUTPUT
+ENDFUNCTIONS
+
+
+
+
