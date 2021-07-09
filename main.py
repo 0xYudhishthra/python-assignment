@@ -134,7 +134,21 @@ def readFoodDetailsFile(): #Function to convert foodDetails text file to list
             if row.startswith("_"):
                 skipFoodCategoryTitle(3)
             foodDetails.append(row.replace("\n","").replace("_","").split(" | "))
-        print(*removeExtraData(foodDetails),sep='\n')
+        return removeExtraData(foodDetails)
+
+def displayFoodMenu(foodData):
+    def extractFoodCategories():
+        originalList = foodData
+        foodMenuList=[]
+        for data in originalList:
+            if data[0] not in foodMenuList:
+                foodMenuList.append(data[0])
+        return foodMenuList
+    count=1
+    while (count<len(extractFoodCategories())):
+        for list in extractFoodCategories():
+            print("{}. {}".format(count,list))
+            count+=1
 
 def writeFoodDetailsFile(foodCategory,foodItemName,foodItemDetails,foodItemPrice):
     with open ('foodDetails.txt','a') as foodDetailsFile:
@@ -143,11 +157,7 @@ def writeFoodDetailsFile(foodCategory,foodItemName,foodItemDetails,foodItemPrice
 
 def addFoodItem() : 
     print("You have chosen to add food item by category","Choose one food category\n",sep="\n")
-    count=1
-    while (count<len(readFoodDetailsFile())):
-        for list in readFoodDetailsFile():
-            print("{}. {}".format(count,list[0]))
-            count+=1
+    displayFoodMenu(readFoodDetailsFile())
     print("0. New Food Category")
     selected=userInput()
     if int(selected) == 0:
