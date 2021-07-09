@@ -115,15 +115,26 @@ def redirectAdmin(_) : #Redirects admin based on selected choice
         invalidInput()
 
 #Add Food Item by category
-def readFoodDetailsFile():
-    foodDetailsList = []
-    with open ('foodDetails.txt', mode='r') as foodDetailsFile:
-        for _ in range (1): 
+def readFoodDetailsFile(): #Function to convert foodDetails text file to list
+    def skipFoodCategoryTitle(count) : 
+        for _ in range(count):
             next(foodDetailsFile)
+
+    def removeExtraData(list):
+        for data in list:
+            while ('' in data):
+                data.remove('')
+                new_list = [food for food in list if food != []]
+        return new_list
+
+    foodDetails=[]
+    with open ('foodDetails.txt', mode='r') as foodDetailsFile:
+        skipFoodCategoryTitle(2) 
         for row in foodDetailsFile:
-            foodDetails = row.strip("\n").split(" | ")
-            foodDetailsList.append(foodDetails)
-        return foodDetailsList
+            if row.startswith("_"):
+                skipFoodCategoryTitle(3)
+            foodDetails.append(row.replace("\n","").replace("_","").split(" | "))
+        print(*removeExtraData(foodDetails),sep='\n')
 
 def writeFoodDetailsFile(foodCategory,foodItemName,foodItemDetails,foodItemPrice):
     with open ('foodDetails.txt','a') as foodDetailsFile:
