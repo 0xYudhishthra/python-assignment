@@ -4,7 +4,6 @@
 #!/usr/bin/env python3
 import os
 import time
-
 '''
 These functions can be used across any part of the program
 '''
@@ -28,8 +27,11 @@ def quit() : #Exits program cleanly
     clearConsole()
     exit()
 
-def userInput(inputString): #Function to accept input from user
-    return input("\n{} >> ".format(inputString))
+def userInput(inputString, skipLine): #Function to accept input from user
+    if (skipLine):
+        return input("\n{} >> ".format(inputString))
+    else:
+        return input("{} >> ".format(inputString))
 
 def authUsername(username,filename):
     userExistsCount = 0
@@ -50,13 +52,25 @@ def authPassword(password,filename):
         return True
     return False 
 
+def skipFileLine(count,filename) : 
+        for _ in range(count):
+            next(filename)
+
+def removeEmptyList(list):
+    for data in list:
+        while ('' in data):
+            data.remove('')
+            new_list = [i for i in list if i != []]
+    return new_list
+
+
 
 '''
 Functions for Admin Dashboard
 0. Login to Access System
 1. Add food item by category
 2. Modify food item (Edit, Delete, Update)
-3. Display Records of Food Category
+3. Display Records of Food Category ( )
 4. Display Records of Food Items by Category
 5. Display Records of Customer Orders
 6. Display Records of Customer Payments
@@ -97,119 +111,167 @@ def adminLoginPage():
 def adminMenu(uName) :
     clearConsole()
     print("Welcome {}, what would you like to do today?\n".format(uName))
-    print("1. Add food item","2. Modify food item","3. Display records","4. Search record","0. Back to Main Menu", sep='\n')
-    redirectAdmin(userInput("I would like to"))
-
-def redirectAdmin(_) : #Redirects admin based on selected choice
-    if _ == "1" :
-        addFoodItem()
-    elif _ == "2" :
-        foodItem()
-    elif _ == "3" :
-        order()
-    elif _ == "4" :
-        checkPayment()
-    elif _ == "0" :
+    print("1. Add food item","2. Modify food item","3. Display records","4. Search record","0. Back to Main Menu", sep='\n')  
+    input = userInput("I would like to",True)
+    if input == "1" :
+        foodCategoriesMenu()
+    elif input == "2" :
+        modifyFoodItemMenu()
+    elif input == "3" :
+        displayRecordsMenu()
+    elif input == "4" :
+        searchRecordMenu()
+    elif input == "0" :
         mainMenu()
     else :
         invalidInput()
 
-#Add Food Item by category
-def readFoodDetailsFile(): #Function to convert foodDetails text file to list
-    def skipFoodCategoryTitle(count) : 
-        for _ in range(count):
-            next(foodDetailsFile)
 
-    def removeExtraData(list):
-        for data in list:
-            while ('' in data):
-                data.remove('')
-                new_list = [food for food in list if food != []]
-        return new_list
+def modifyFoodItemMenu():
+    clearConsole()
+    print("\nPlease select any option below.")
+    print("1. Remove Food Item","2. Edit Food Item","3. Back to Main Menu","0. Back",sep='\n')
+    input = userInput("Option",True)
+    if input == "1" :
+        removeFoodItem()
+    elif input == "2" :
+        editFoodItem()
+    elif input == "3" :
+        mainMenu()
+    elif input == "0" :
+        adminMenu()
+    else :
+        invalidInput()
+
+
+#Add Food Item by category
+def readFoodItemDetails(): #Function to convert foodDetails text file to list
 
     foodDetails=[]
     with open ('foodDetails.txt', mode='r') as foodDetailsFile:
-        skipFoodCategoryTitle(2) 
+        skipFileLine(2,foodDetailsFile) 
         for row in foodDetailsFile:
             if row.startswith("_"):
-                skipFoodCategoryTitle(3)
+                skipFileLine(3,foodDetailsFile)
             foodDetails.append(row.replace("\n","").replace("_","").split(" | "))
-        return removeExtraData(foodDetails)
+        return removeEmptyList(foodDetails)
 
-def displayFoodCategories(foodData):
-    def extractFoodCategories():
-        originalList = foodData
-        foodMenuList=[]
-        for data in originalList:
-            if data[0] not in foodMenuList:
-                foodMenuList.append(data[0])
-        return foodMenuList
+def extractFoodCategories():
+    originalList = readFoodItemDetails()
+    foodMenuList=[]
+    for data in originalList:
+        if data[0] not in foodMenuList:
+            foodMenuList.append(data[0])
+    return foodMenuList
+
+def displayFoodCategories():
     count=1
     while (count<len(extractFoodCategories())):
         for list in extractFoodCategories():
             print("{}. {}".format(count,list))
             count+=1
     
-
-def writeFoodDetailsFile(foodCategory,foodItemName,foodItemDetails,foodItemPrice):
-    with open ('foodDetails.txt','a') as foodDetailsFile:
-        foodDetailsFile.write("\n{} | {} | {} | {}".format(foodCategory,foodItemName,foodItemDetails,foodItemPrice))
-
-
-def addFoodItem() : 
-    print("You have chosen to add food item by category","Choose one food category\n",sep="\n")
-    displayFoodCategories(readFoodDetailsFile())
-    print("0. Add new Food Category")
-    selectedCategory = userInput("Food Category")
-    if int(selectedCategory) == 0:
-        categoryName = userInput("Category Name")
-        categoryDescription = userInput("Description")
+def foodCategoriesMenu() : 
+    print("You have chosen to add food item by category","Choose one category\n",sep="\n")
+    displayFoodCategories()
+    print("0. Add new food Category")
+    userSelection = userInput("Food Category",True)
+    if int(userSelection) == 0:
+        categoryName = userInput("Category Name",False)
+        categoryDescription = userInput("Description",False)
         addFoodCategory(categoryName,categoryDescription)
-        # foodCategory = input("Please enter the name of the food category: ")
-        # foodItemName = input("Please enter the food name: ")
-        # foodItemDetails = input("Please enter food item details: ")
-        # foodItemPrice = input("Food Price: ")
-        # writeFoodDetailsFile(foodCategory,foodItemName,foodItemDetails,foodItemPrice)
-    else:
-        print("User selectedCategory: {}, Value: {}".format(selectedCategory,readFoodDetailsFile()[selectedCategory]))
+    else: 
+        addFoodItem((extractFoodCategories()[int(userSelection)-1]))
 
 def addFoodCategory(name,description):
     uppercaseName = name.upper()
-    uppercaseDescription = description.upper()
+    capitalizeDescription = description.capitalize()
     with open('foodDetails.txt','a') as foodDetailsFile:
             foodDetailsFile.write('\n' + '_'*88 + '\n\n')
-            foodDetailsFile.write("{} - {}".format(uppercaseName,uppercaseDescription) + '\n')
+            foodDetailsFile.write("{} - {}".format(uppercaseName,capitalizeDescription) + '\n')
             foodDetailsFile.write("_"*88 + '\n')
 
-        
+def addFoodItem(chosenFoodCategory): #Still in progress
+    try:
+        foodItemName = userInput("Food Item Name",False)
+        foodItemDetails = userInput("Food Item Details",False)
+        foodItemPrice = float(userInput("Food Item Price",False))
+    except ValueError: 
+        print("Please enter the correct value")
+    clearConsole()
+    print("Please confirm if these are the details you would like to add")
+    print("""=====================
+| FOOD CATEGORY     | {}
+| FOOD ITEM NAME    | {}
+| FOOD ITEM DETAILS | {}
+| FOOD ITEM PRICE   | {}
+=====================""".format(chosenFoodCategory,foodItemName,foodItemDetails,foodItemPrice))
+    if (userInput("(Y)es/(N)o")=="Y|y"):
+        writeFoodDetailsToFile()
+
+def writeFoodDetailsToFile():
+    with open ('foodDetails.txt','a') as foodDetailsFile:
+         for row in foodDetailsFile:
+             print(row)      
 
 
-    
-def redirectFoodItem(_):
-    if _ == "1" :
-        addFoodItem()
-    elif _ == "2" :
-        removeFoodItem()
-    elif _ == "3" :
-        editFoodItem()
-    elif _ == "4" :
-        mainMenu()
-    elif _ == "0" :
+
+#Display records main page
+def displayRecordsMenu():
+    print("Records Display Page")
+    print("1. Food Categories","2. Food Items by Category","3. Customer Orders","4. Customer Payment","0. Back to Admin  Menu", sep='\n')  
+    input = userInput("Display all records of",True)
+    if input == "1" :
+        displayFoodCategoryRecords()
+    elif input == "2" :
+        displayFoodItemRecords()
+    elif input == "3" :
+        displayCustomerOrderRecords()
+    elif input == "4" :
+        displayCustomerPaymentRecords()
+    elif input == "0" :
         adminMenu()
     else :
         invalidInput()
-        foodItem()
+
+def displayFoodCategoryRecords():
+    foodCategoryDetails = []
+
+    '''Extract main category and descriptions and appends to list'''
+    raw_list = []
+    with open ('foodDetails.txt', mode='r') as foodDetailsFile:
+        skipFileLine(2,foodDetailsFile)
+        for line in foodDetailsFile:
+            raw_list.append(line.strip().replace('_','').split(","))
+        for data in removeEmptyList(raw_list):
+            if (" | " in data[0]):
+                index = raw_list.index(data)
+                raw_list.pop(index)
+    foodCategoryLists = [i for i in raw_list if i != []]
+
+    '''Split food category and descriptions to 2 separate variables'''
+    for list in foodCategoryLists:
+        for data in list:
+            for i in range(len(data)):
+                if data[i] == "-":
+                    foodCategoryDetails.append([''.join(data[0:i-1]), ''.join(data[i+2:-1])])
+                    #foodCategoryDescription.append(''.join(data[i+2:-1]))              
+    '''Print data in user readable form'''
+
+    print ("""
+==================   =========================          
+FOOD CATEGORY NAME   FOOD CATEGORY DESCRIPTION
+==================   =========================
+""")
+    for data in foodCategoryDetails:
+        print("{} {}".format(data[0],data[1]))
 
 
 
 def removeCategory() : pass
 def editCategory() :pass
 
-def foodItem() :
-    clearConsole()
-    print("\nPlease select any option below.")
-    print("1. Remove Food Item","2. Edit Food Item","3. Back to Main Menu","0. Back",sep='\n')
-    redirectFoodItem(userInput("Option"))
+
     
 
 
@@ -220,14 +282,12 @@ def order() :
     clearConsole()
     print("\nPlease select any option below.")
     print("1. Cancel an order","2. Back to Main Menu","0. Back",sep='\n')
-    redirectOrder(userInput("Choice"))
-
-def redirectOrder(_):
-    if _ == "1" : 
+    input = userInput("Choice",True)
+    if input == "1" : 
         cancelOrder() 
-    elif _ == "2" :
+    elif input == "2" :
         mainMenu()
-    elif _ == "0" :
+    elif input == "0" :
         adminMenu()
     else : 
         invalidInput()
@@ -241,16 +301,14 @@ def customerMenu() :
     clearConsole()
     print("Please select any option below.")
     print("1. View Menu","2. Customer Login", "3. New Customer Registration", "4. Back to Main Menu", sep='\n')
-    redirectCustomer(userInput("Choice"))
-
-def redirectCustomer(_):
-    if _ == "1":
+    input = userInput("Choice",True)
+    if input == "1":
         viewCategoryList()
-    elif _ == "2":
+    elif input == "2":
         authenticateCustomer()
-    elif _ == "3":
+    elif input == "3":
         customerRegistration()
-    elif _ == "4":
+    elif input == "4":
         mainMenu()
     else:
         invalidInput()
@@ -260,18 +318,16 @@ def regCustomerMenu():
     clearConsole()
     print("Welcome {}!, what would you like to do today?")
     print("1. View Item List", "2. View Item Details", "3. Add Food to Cart", "4. Checkout", "5. Main Menu", sep='\n')
-    redirectRegCustomer(userInput("Choice"))
-
-def redirectRegCustomer(_):
-    if _ == "1":
+    input = userInput("Choice",True)
+    if input == "1":
         viewItemList()
-    elif _ =="2":
+    elif input =="2":
         viewItemDetail()
-    elif _ == "3":
+    elif input == "3":
         addFoodToCart()
-    elif _ =="4":
+    elif input =="4":
         checkout()
-    elif _ == "5":
+    elif input == "5":
         mainMenu()
     else:
         invalidInput()
@@ -314,23 +370,20 @@ Functionalities for Registered Customer Dashboard
 '''
 
 
-def redirectUser(_): #Redirects user based on selected choice
-    if _ == "1" :
-        adminLoginPage()
 
-    elif _ == "2" :
-        customerMenu()
-    
-    elif (_== "3") :
-        quit()
-
-    else :
-        invalidInput()
-        mainMenu()
 
 def mainMenu():
     print("Please select any option below.", "1. Admin", "2. Customer", "3. Quit Program", sep=' \n')
-    redirectUser(userInput("Login to"))
+    input = userInput("Login to",True)
+    if input == "1" :
+        adminLoginPage()
+    elif input == "2" :
+        customerMenu() 
+    elif input== "3" :
+        quit()
+    else :
+        invalidInput()
+        mainMenu()
 
 def main() :
     clearConsole()
@@ -339,4 +392,3 @@ def main() :
     mainMenu()
 
 main()
-
