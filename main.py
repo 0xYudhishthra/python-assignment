@@ -4,6 +4,7 @@
 #!/usr/bin/env python3
 import os
 import time
+
 '''
 These functions can be used across any part of the program
 '''
@@ -63,22 +64,7 @@ def removeEmptyList(list):
             new_list = [i for i in list if i != []]
     return new_list
 
-
-
-'''
-Functions for Admin Dashboard
-0. Login to Access System (Done)
-1. Add food item by category (In progress)
-2. Modify food item (Edit, Delete, Update)
-3. Display Records of Food Category (Done)
-4. Display Records of Food Items by Category (Done)
-5. Display Records of Customer Orders
-6. Display Records of Customer Payments
-7. Search Specific Customer Order Record
-8. Search Specific Customer Payment Record
-9. Exit
-'''
-#Login to Access System 
+'''These functions reads the text files and converts them to lists'''
 def readAdminDetailsFile(): #Reads admin file and converts it to list
     with open ('adminDetails.txt', mode='r') as admin_file:
         admin_list = []
@@ -88,6 +74,40 @@ def readAdminDetailsFile(): #Reads admin file and converts it to list
             adminDetails=row.strip("\n").replace(" | "," ").split(" ")
             admin_list.append(adminDetails)
         return admin_list
+
+def readFoodDetailsFile(): #Function to convert foodDetails text file to list
+    foodDetails=[]
+    with open ('foodDetails.txt', mode='r') as foodDetailsFile:
+        skipFileLine(6,foodDetailsFile) 
+        for row in foodDetailsFile:
+            if row.startswith("_"):
+                skipFileLine(3,foodDetailsFile)
+            foodDetails.append(row.replace("\n","").replace("_","").split(" | "))
+        return removeEmptyList(foodDetails)
+
+def readOrderRecordsFile():
+    orderDetails = []
+    with open('orderRecords.txt', mode='r') as orderRecordsFile:
+        skipFileLine(6,orderRecordsFile)
+        for line in orderRecordsFile:
+            orderDetails.append(line.strip('\n').split(" | "))
+    return orderDetails
+
+'''
+Functions for Admin Dashboard
+0. Login to Access System (Done)
+1. Add food item by category (In progress)
+2. Modify food item (Edit, Delete, Update)
+3. Display Records of Food Category (Done)
+4. Display Records of Food Items by Category (Done)
+5. Display Records of Customer Orders (Done)
+6. Display Records of Customer Payments (Done)
+7. Search Specific Customer Order Record
+8. Search Specific Customer Payment Record
+9. Exit
+'''
+#Login to Access System 
+
 
 def adminLoginPage():
     print("\nAdmin Authentication Section")
@@ -145,19 +165,10 @@ def modifyFoodItemMenu():
 
 
 #Add Food Item by category
-def readFoodItemDetails(): #Function to convert foodDetails text file to list
 
-    foodDetails=[]
-    with open ('foodDetails.txt', mode='r') as foodDetailsFile:
-        skipFileLine(2,foodDetailsFile) 
-        for row in foodDetailsFile:
-            if row.startswith("_"):
-                skipFileLine(3,foodDetailsFile)
-            foodDetails.append(row.replace("\n","").replace("_","").split(" | "))
-        return removeEmptyList(foodDetails)
 
 def extractFoodCategories():
-    originalList = readFoodItemDetails()
+    originalList = readFoodDetailsFile()
     foodMenuList=[]
     for data in originalList:
         if data[0] not in foodMenuList:
@@ -226,9 +237,9 @@ def displayRecordsMenu():
     elif input == "2" :
         displayFoodItemRecords()
     elif input == "3" :
-        displayCustomerOrderRecords()
+        displayOrderRecords()
     elif input == "4" :
-        displayCustomerPaymentRecords()
+        displayPaymentRecords()
     elif input == "0" :
         adminMenu()
     else :
@@ -277,9 +288,26 @@ def displayFoodItemRecords():
 -----------------------------------------------""".format(extractFoodCategories()[int(chosenCategory)-1]).upper())
     print("""FOOD ITEM ID\tFOOD ITEM PRICE\t FOOD ITEM NAME
 -----------------------------------------------""")
-    for data in readFoodItemDetails():
+    for data in readFoodDetailsFile():
         if (extractFoodCategories()[int(chosenCategory)-1]) in data[0]:
             print('{:<16}{:<15}\t {}'.format(data[1],data[3],data[2]))
+
+def displayOrderRecords():
+    print("""\n\t\t\t\tREPORT OF ALL CUSTOMER ORDERS
+\t\t\t\t-----------------------------\n""")
+    print("""CUSTOMER USERNAME\tORDER ID\tTOTAL PAYABLE\tORDER STATUS\tFOOD ID(QUANTITY)
+-----------------       --------        -------------   ------------    -----------------""")
+    for data in readOrderRecordsFile():
+        print('{:<24}{:<16}{:<16}{:<16}{}'.format(data[0],data[1],data[3],data[7],data[2]))
+
+def displayPaymentRecords():
+    print("""\n\t\t\t\tREPORT OF ALL CUSTOMER PAYMENTS
+\t\t\t\t-------------------------------\n""")
+    print("""CUSTOMER USERNAME\tORDER ID\tTOTAL PAYABLE\tPAYMENT METHOD\tPAYMENT STATUS\tPAID ON
+-----------------       --------        -------------   ------------    --------------  -------""")
+    for data in readOrderRecordsFile():
+        print('{:<24}{:<16}{:<16}{:<16}{:<16}{}'.format(data[0],data[1],data[3],data[4],data[5],data[6]))
+
 
 def removeCategory() : pass
 def editCategory() :pass
