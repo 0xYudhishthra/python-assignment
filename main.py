@@ -263,10 +263,23 @@ def displayFoodCategoryRecords():
 FOOD CATEGORY NAME   FOOD CATEGORY DESCRIPTION
 ==================   =========================
 """)
-    for data in foodCategoryDetails:
-        print("{} {}".format(data[0],data[1]))
+    for row in zip(*foodCategoryDetails):
+        print('{:<10} {:<10}'.format(*row))
 
-
+def displayFoodItemRecords():
+    print("You have selected to display food items by category")
+    print("Select the food category that you want to be displayed")
+    displayFoodCategories()
+    chosenCategory = userInput("Food category",True)
+    print("Generating report...")
+    time.sleep(1)
+    print("""REPORT OF FOOD ITEMS IN {} FOOD CATEGORY
+-----------------------------------------------""".format(extractFoodCategories()[int(chosenCategory)-1]).upper())
+    print("""FOOD ITEM ID\tFOOD ITEM PRICE\t FOOD ITEM NAME
+-----------------------------------------------""".format('\t'*(4)))
+    for data in readFoodItemDetails():
+        if (extractFoodCategories()[int(chosenCategory)-1]) in data[0]:
+            print('{:<16}{:<15}\t {}'.format(data[1],data[3],data[2]))
 
 def removeCategory() : pass
 def editCategory() :pass
