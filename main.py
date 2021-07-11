@@ -70,7 +70,7 @@ Functions for Admin Dashboard
 0. Login to Access System (Done)
 1. Add food item by category (In progress)
 2. Modify food item (Edit, Delete, Update)
-3. Display Records of Food Category (In progress)
+3. Display Records of Food Category (Done)
 4. Display Records of Food Items by Category (Done)
 5. Display Records of Customer Orders
 6. Display Records of Customer Payments
@@ -256,15 +256,15 @@ def displayFoodCategoryRecords():
                 if data[i] == "-":
                     foodCategoryDetails.append([''.join(data[0:i-1]), ''.join(data[i+2:-1])])
                     #foodCategoryDescription.append(''.join(data[i+2:-1]))              
+    
     '''Print data in user readable form'''
+    print("""\t\tDETAILS OF FOOD CATEGORIES
+\t\t--------------------------""")
+    print("""CATEGORY NAME(S)\t\tCATEGORY DESCRIPTION(S)
+---------------\t\t\t----------------------""")
+    for data in foodCategoryDetails:
+        print('{:<32}{}'.format(data[0],data[1]))
 
-    print ("""
-==================   =========================          
-FOOD CATEGORY NAME   FOOD CATEGORY DESCRIPTION
-==================   =========================
-""")
-    for row in zip(*foodCategoryDetails):
-        print('{:<10} {:<10}'.format(*row))
 
 def displayFoodItemRecords():
     print("You have selected to display food items by category")
@@ -276,7 +276,7 @@ def displayFoodItemRecords():
     print("""REPORT OF FOOD ITEMS IN {} FOOD CATEGORY
 -----------------------------------------------""".format(extractFoodCategories()[int(chosenCategory)-1]).upper())
     print("""FOOD ITEM ID\tFOOD ITEM PRICE\t FOOD ITEM NAME
------------------------------------------------""".format('\t'*(4)))
+-----------------------------------------------""")
     for data in readFoodItemDetails():
         if (extractFoodCategories()[int(chosenCategory)-1]) in data[0]:
             print('{:<16}{:<15}\t {}'.format(data[1],data[3],data[2]))
