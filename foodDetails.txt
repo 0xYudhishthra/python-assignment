@@ -1,5 +1,9 @@
-The food and beverage details in this file follows this format: 
-CATEGORY NAME | ITEM ID | ITEM NAME | PRICE 
+__________________________________________________________________
+SOFS FOOD DETAILS
+
+THIS FILE STORES THE DETAILS OF FOODS THAT CAN BE ORDERED IN SOFS.
+STORE FORMAT: CATEGORY NAME | ITEM ID | ITEM NAME | PRICE 
+__________________________________________________________________
 ________________________________________________________________________________________
 
 MALAYSIAN FOOD CATEGORY - A Variety of Malaysian Foods served here.
