@@ -67,11 +67,11 @@ def removeEmptyList(list):
 
 '''
 Functions for Admin Dashboard
-0. Login to Access System
-1. Add food item by category
+0. Login to Access System (Done)
+1. Add food item by category (In progress)
 2. Modify food item (Edit, Delete, Update)
-3. Display Records of Food Category ( )
-4. Display Records of Food Items by Category
+3. Display Records of Food Category (In progress)
+4. Display Records of Food Items by Category (Done)
 5. Display Records of Customer Orders
 6. Display Records of Customer Payments
 7. Search Specific Customer Order Record
