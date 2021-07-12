@@ -1,13 +1,71 @@
 #Yudhishthra A/L S Sugumaran - TP061762
 #Choong Wei Jun - TP061867
 
+"""
+Code Structure
+1. Import necessary external modules
+2. Declaring functions to read text files and convert it to lists
+3. Declaring functions that can be used in any part of the program
+4. Declaring functions for admin dashboard
+    0. Login to Access System (Done)
+    1. Add food item by category (In progress)
+    2. Modify food item (Edit, Delete, Update)
+    3. Display Records of Food Category (Done)
+    4. Display Records of Food Items by Category (Done)
+    5. Display Records of Customer Orders (Done)
+    6. Display Records of Customer Payments (Done)
+    7. Search Specific Customer Order Record
+    8. Search Specific Customer Payment Record
+    9. Exit
+5. Declaring functions for guest dashboard   
+    0. View all food items as per category
+    1. New customer registration to access other details
+    2. Exit
+6. Declaring functions for Registered Customer Dashboard
+    0. Login to access system
+    1. View detail of food category
+    2. View detail of food items
+    3. Select food item and add to cart
+    4. Do payment to confirm order
+    5. Exit
+7. Declaring main greeting page
+8. Execute main
+"""
+
+'''IMPORTING NECESSARY EXTERNAL MODULES'''
 #!/usr/bin/env python3
 import os
 import time
 
-'''
-These functions can be used across any part of the program
-'''
+'''DECLARING FUNCTIONS TO CONVERT TEXT FILES TO LISTS'''
+def readAdminDetailsFile(): #Reads admin file and converts it to list
+    with open ('adminDetails.txt', mode='r') as adminFile:
+        admin_list = []
+        skipFileLine(1,adminFile)
+        for row in adminFile:
+            adminDetails=row.strip("\n").replace(" | "," ").split(" ")
+            admin_list.append(adminDetails)
+        return admin_list
+
+def readFoodDetailsFile(): #Function to convert foodDetails text file to list
+    foodDetails=[]
+    with open ('foodDetails.txt', mode='r') as foodDetailsFile:
+        skipFileLine(6,foodDetailsFile) 
+        for row in foodDetailsFile:
+            if row.startswith("_"):
+                skipFileLine(3,foodDetailsFile)
+            foodDetails.append(row.replace("\n","").replace("_","").split(" | "))
+        return removeEmptyList(foodDetails)
+
+def readOrderRecordsFile():
+    orderDetails = []
+    with open('orderRecords.txt', mode='r') as orderRecordsFile:
+        skipFileLine(6,orderRecordsFile)
+        for line in orderRecordsFile:
+            orderDetails.append(line.strip('\n').split(" | "))
+    return orderDetails
+
+'''DECLARING FUNCTIONS THAT CAN BE USED ANYWHERE IN THE PROGRAM'''
 
 def clearConsole(): #Function to clear existing text in console
     command = 'clear'
@@ -28,15 +86,18 @@ def quit() : #Exits program cleanly
     clearConsole()
     exit()
 
-def userInput(inputString): #Function to accept input from user
-    return input("\n{} >> ".format(inputString))
+def userInput(inputString, skipLine): #Function to accept input from user
+    if (skipLine):
+        return input("\n{} >> ".format(inputString))
+    else:
+        return input("{} >> ".format(inputString))
 
 def authUsername(username,filename):
     userExistsCount = 0
     for data in filename:
         userExistsCount += data.count(username.lower())
     if userExistsCount > 0:
-        print("Username found, please enter password\n")
+        print(" Username found, please enter password\n")
         return True
     return False
 
@@ -45,41 +106,36 @@ def authPassword(password,filename):
     for data in filename:
         passwordExistsCount += data.count(password)
     if passwordExistsCount > 0:
-        print("Logging you in...")
+        progressBar("Logging you in")
         time.sleep(1)
         return True
     return False 
 
+def skipFileLine(count,filename) : 
+        for _ in range(count):
+            next(filename)
 
-'''
-Functions for Admin Dashboard
-0. Login to Access System
-1. Add food item by category
-2. Modify food item (Edit, Delete, Update)
-3. Display Records of Food Category
-4. Display Records of Food Items by Category
-5. Display Records of Customer Orders
-6. Display Records of Customer Payments
-7. Search Specific Customer Order Record
-8. Search Specific Customer Payment Record
-9. Exit
-'''
-#Login to Access System 
-def readAdminDetailsFile(): #Reads admin file and converts it to list
-    with open ('adminDetails.txt', mode='r') as admin_file:
-        admin_list = []
-        for _ in range(1):
-                next(admin_file)
-        for row in admin_file:
-            adminDetails=row.strip("\n").replace(" | "," ").split(" ")
-            admin_list.append(adminDetails)
-        return admin_list
+def removeEmptyList(list):
+    for data in list:
+        while ('' in data):
+            data.remove('')
+            new_list = [i for i in list if i != []]
+    return new_list
 
-def adminLoginPage():
+def progressBar(loadingMessage):
+    print('{}...'.format(loadingMessage))
+    animation = ["[■□□□□□□□□□]","[■■□□□□□□□□]", "[■■■□□□□□□□]", "[■■■■□□□□□□]", "[■■■■■□□□□□]", "[■■■■■■□□□□]", "[■■■■■■■□□□]", "[■■■■■■■■□□]", "[■■■■■■■■■□]", "[■■■■■■■■■■]"]
+    for i in range(len(animation)):
+        time.sleep(0.1)
+        print("\r" + animation[i],end="")
+
+'''DECLARING FUNCTIONS FOR ADMIN DASHBOARD'''
+'''Login to access system'''
+def adminLoginPage(): #Main Admin Login Page
     print("\nAdmin Authentication Section")
     print("-" * 28)
     uName = input("Username: ")
-    print("Checking if username exists...")
+    progressBar("Checking if username exists")
     time.sleep(1)
     if (authUsername(uName,readAdminDetailsFile())):
         while True:
@@ -94,189 +150,270 @@ def adminLoginPage():
         clearConsole()
         adminLoginPage()
 
-def adminMenu(uName) :
+def adminMenu(uName): #Admin Menu shown upon sucessful login
     clearConsole()
     print("Welcome {}, what would you like to do today?\n".format(uName))
-    print("1. Add food item","2. Modify food item","3. Display records","4. Search record","0. Back to Main Menu", sep='\n')
-    redirectAdmin(userInput("I would like to"))
-
-def redirectAdmin(_) : #Redirects admin based on selected choice
-    if _ == "1" :
-        addFoodItem()
-    elif _ == "2" :
-        foodItem()
-    elif _ == "3" :
-        order()
-    elif _ == "4" :
-        checkPayment()
-    elif _ == "0" :
+    print("1. Add food item","2. Modify food item","3. Display records","4. Search record","0. Back to Main Menu", sep='\n')  
+    input = userInput("I would like to",True)
+    if input == "1" :
+        foodCategoriesMenu()
+    elif input == "2" :
+        modifyFoodItemMenu()
+    elif input == "3" :
+        displayRecordsMenu()
+    elif input == "4" :
+        searchRecordMenu()
+    elif input == "0" :
         mainMenu()
     else :
         invalidInput()
 
-#Add Food Item by category
-def readFoodDetailsFile(): #Function to convert foodDetails text file to list
-    def skipFoodCategoryTitle(count) : 
-        for _ in range(count):
-            next(foodDetailsFile)
-
-    def removeExtraData(list):
-        for data in list:
-            while ('' in data):
-                data.remove('')
-                new_list = [food for food in list if food != []]
-        return new_list
-
-    foodDetails=[]
-    with open ('foodDetails.txt', mode='r') as foodDetailsFile:
-        skipFoodCategoryTitle(2) 
-        for row in foodDetailsFile:
-            if row.startswith("_"):
-                skipFoodCategoryTitle(3)
-            foodDetails.append(row.replace("\n","").replace("_","").split(" | "))
-        return removeExtraData(foodDetails)
-
-def displayFoodCategories(foodData):
-    def extractFoodCategories():
-        originalList = foodData
-        foodMenuList=[]
-        for data in originalList:
-            if data[0] not in foodMenuList:
-                foodMenuList.append(data[0])
-        return foodMenuList
+'''Add food item by category'''
+def displayFoodCategories(): #Retrieve food categories from extractFoodCategories function
     count=1
     while (count<len(extractFoodCategories())):
         for list in extractFoodCategories():
             print("{}. {}".format(count,list))
             count+=1
-    
 
-def writeFoodDetailsFile(foodCategory,foodItemName,foodItemDetails,foodItemPrice):
-    with open ('foodDetails.txt','a') as foodDetailsFile:
-        foodDetailsFile.write("\n{} | {} | {} | {}".format(foodCategory,foodItemName,foodItemDetails,foodItemPrice))
+def extractFoodCategories():
+    originalList = readFoodDetailsFile()
+    foodMenuList=[]
+    for data in originalList:
+        if data[0] not in foodMenuList:
+            foodMenuList.append(data[0])
+    return foodMenuList
 
-
-def addFoodItem() : 
-    print("You have chosen to add food item by category","Choose one food category\n",sep="\n")
-    displayFoodCategories(readFoodDetailsFile())
-    print("0. Add new Food Category")
-    selectedCategory = userInput("Food Category")
-    if int(selectedCategory) == 0:
-        categoryName = userInput("Category Name")
-        categoryDescription = userInput("Description")
+def foodCategoriesMenu(): #Prompts admin to select which category of food item they want to add or to add new category 
+    print("You have chosen to add food item by category","Choose one category\n",sep="\n")
+    displayFoodCategories()
+    print("0. Add new food Category")
+    userSelection = userInput("Food Category",True)
+    if int(userSelection) == 0:
+        categoryName = userInput("Category Name",False)
+        categoryDescription = userInput("Description",False)
         addFoodCategory(categoryName,categoryDescription)
-        # foodCategory = input("Please enter the name of the food category: ")
-        # foodItemName = input("Please enter the food name: ")
-        # foodItemDetails = input("Please enter food item details: ")
-        # foodItemPrice = input("Food Price: ")
-        # writeFoodDetailsFile(foodCategory,foodItemName,foodItemDetails,foodItemPrice)
-    else:
-        print("User selectedCategory: {}, Value: {}".format(selectedCategory,readFoodDetailsFile()[selectedCategory]))
+    else: 
+        addFoodItem((extractFoodCategories()[int(userSelection)-1]))
 
-def addFoodCategory(name,description):
+def addFoodCategory(name,description): #Adds new food category in foodDetails.txt file
     uppercaseName = name.upper()
-    uppercaseDescription = description.upper()
+    capitalizeDescription = description.capitalize()
     with open('foodDetails.txt','a') as foodDetailsFile:
             foodDetailsFile.write('\n' + '_'*88 + '\n\n')
-            foodDetailsFile.write("{} - {}".format(uppercaseName,uppercaseDescription) + '\n')
+            foodDetailsFile.write("{} - {}".format(uppercaseName,capitalizeDescription) + '\n')
             foodDetailsFile.write("_"*88 + '\n')
 
-        
+def addFoodItem(chosenFoodCategory): #Still in progress
+    try:
+        foodItemName = userInput("Food Item Name",False)
+        foodItemDetails = userInput("Food Item Details",False)
+        foodItemPrice = float(userInput("Food Item Price",False))
+    except ValueError: 
+        print("Please enter the correct value")
+    clearConsole()
+    print("Please confirm if these are the details you would like to add")
+    print("""=====================
+| FOOD CATEGORY     | {}
+| FOOD ITEM NAME    | {}
+| FOOD ITEM DETAILS | {}
+| FOOD ITEM PRICE   | {}
+=====================""".format(chosenFoodCategory,foodItemName,foodItemDetails,foodItemPrice))
+    if (userInput("(Y)es/(N)o")=="Y|y"):
+        pass
 
-
-    
-def redirectFoodItem(_):
-    if _ == "1" :
-        addFoodItem()
-    elif _ == "2" :
-        removeFoodItem()
-    elif _ == "3" :
-        editFoodItem()
-    elif _ == "4" :
-        mainMenu()
-    elif _ == "0" :
-        adminMenu()
-    else :
-        invalidInput()
-        foodItem()
-
-
-
-def removeCategory() : pass
-def editCategory() :pass
-
-def foodItem() :
+'''Modify food item'''
+def modifyFoodItemMenu():
     clearConsole()
     print("\nPlease select any option below.")
     print("1. Remove Food Item","2. Edit Food Item","3. Back to Main Menu","0. Back",sep='\n')
-    redirectFoodItem(userInput("Option"))
-    
-
-
-def removeFoodItem() : pass
-def editFoodItem() : pass
-
-def order() :
-    clearConsole()
-    print("\nPlease select any option below.")
-    print("1. Cancel an order","2. Back to Main Menu","0. Back",sep='\n')
-    redirectOrder(userInput("Choice"))
-
-def redirectOrder(_):
-    if _ == "1" : 
-        cancelOrder() 
-    elif _ == "2" :
+    input = userInput("Option",True)
+    if input == "1" :
+        removeFoodItem()
+    elif input == "2" :
+        editFoodItem()
+    elif input == "3" :
         mainMenu()
-    elif _ == "0" :
+    elif input == "0" :
         adminMenu()
-    else : 
+    else :
         invalidInput()
-        order()
 
-def cancelOrder() : pass
-def checkPayment() : pass
-def adminLogin() : pass
+'''Display records of food category'''
+def displayRecordsMenu(): #Dispaly records main page
+    print("Records Display Page")
+    print("1. Food Categories","2. Food Items by Category","3. Customer Orders","4. Customer Payment","0. Back to Admin  Menu", sep='\n')  
+    input = userInput("Display all records of",True)
+    if input == "1" :
+        displayFoodCategoryRecords()
+    elif input == "2" :
+        displayFoodItemRecords()
+    elif input == "3" :
+        displayOrderRecords()
+    elif input == "4" :
+        displayPaymentRecords()
+    elif input == "0" :
+        adminMenu()
+    else :
+        invalidInput()
 
-def customerMenu() :
+def displayFoodCategoryRecords():
+    foodCategoryDetails = []
+
+    '''Extract main category and descriptions and appends to list'''
+    raw_list = []
+    with open ('foodDetails.txt', mode='r') as foodDetailsFile:
+        skipFileLine(2,foodDetailsFile)
+        for line in foodDetailsFile:
+            raw_list.append(line.strip().replace('_','').split(","))
+        for data in removeEmptyList(raw_list):
+            if (" | " in data[0]):
+                index = raw_list.index(data)
+                raw_list.pop(index)
+    foodCategoryLists = [i for i in raw_list if i != []]
+
+    '''Split food category and descriptions to 2 separate variables'''
+    for list in foodCategoryLists:
+        for data in list:
+            for i in range(len(data)):
+                if data[i] == "-":
+                    foodCategoryDetails.append([''.join(data[0:i-1]), ''.join(data[i+2:-1])])
+                    #foodCategoryDescription.append(''.join(data[i+2:-1]))              
+    
+    '''Print data in user readable form'''
+    print("""\t\tDETAILS OF FOOD CATEGORIES
+\t\t--------------------------""")
+    print("""CATEGORY NAME(S)\t\tCATEGORY DESCRIPTION(S)
+---------------\t\t\t----------------------""")
+    for data in foodCategoryDetails:
+        print('{:<32}{}'.format(data[0],data[1]))
+
+'''Display records of food items by category'''
+def displayFoodItemRecords():
+    print("You have selected to display food items by category")
+    print("Select the food category that you want to be displayed")
+    displayFoodCategories()
+    chosenCategory = userInput("Food category",True)
+    print("Generating report...")
+    time.sleep(1)
+    print("""REPORT OF FOOD ITEMS IN {} FOOD CATEGORY
+-----------------------------------------------""".format(extractFoodCategories()[int(chosenCategory)-1]).upper())
+    print("""FOOD ITEM ID\tFOOD ITEM PRICE\t FOOD ITEM NAME
+-----------------------------------------------""")
+    for data in readFoodDetailsFile():
+        if (extractFoodCategories()[int(chosenCategory)-1]) in data[0]:
+            print('{:<16}{:<15}\t {}'.format(data[1],data[3],data[2]))
+
+'''Display Records of Customer Orders'''
+def displayOrderRecords():
+    print("""\n\t\t\t\tREPORT OF ALL CUSTOMER ORDERS
+\t\t\t\t-----------------------------\n""")
+    print("""CUSTOMER USERNAME\tORDER ID\tTOTAL PAYABLE\tORDER STATUS\tFOOD ID(QUANTITY)
+-----------------       --------        -------------   ------------    -----------------""")
+    for data in readOrderRecordsFile():
+        print('{:<24}{:<16}{:<16}{:<16}{}'.format(data[0],data[1],data[3],data[7],data[2]))
+
+'''Display Records of Customer Payments'''
+def displayPaymentRecords():
+    print("""\n\t\t\t\tREPORT OF ALL CUSTOMER PAYMENTS
+\t\t\t\t-------------------------------\n""")
+    print("""CUSTOMER USERNAME\tORDER ID\tTOTAL PAYABLE\tPAYMENT METHOD\tPAYMENT STATUS\tPAID ON
+-----------------       --------        -------------   ------------    --------------  -------""")
+    for data in readOrderRecordsFile():
+        print('{:<24}{:<16}{:<16}{:<16}{:<16}{}'.format(data[0],data[1],data[3],data[4],data[5],data[6]))
+
+'''Search Specific Customer Order Record'''
+'''Search Specific Customer Payment Record'''
+
+'''DECLARING FUNCTIONS FOR GUEST DASHBOARD'''
+def guestMenu(): #Guest Dashboard Main Page
     clearConsole()
     print("Please select any option below.")
     print("1. View Menu","2. Customer Login", "3. New Customer Registration", "4. Back to Main Menu", sep='\n')
-    redirectCustomer(userInput("Choice"))
-
-def redirectCustomer(_):
-    if _ == "1":
+    input = userInput("Choice",True)
+    if input == "1":
         viewCategoryList()
-    elif _ == "2":
+    elif input == "2":
         authenticateCustomer()
-    elif _ == "3":
+    elif input == "3":
         customerRegistration()
-    elif _ == "4":
+    elif input == "4":
         mainMenu()
     else:
         invalidInput()
-        customerMenu()
+        guestMenu()
+'''View all food items as per category'''
+'''New customer registration to access other details'''
 
-def regCustomerMenu():
+'''DECLARING FUNCTIONS FOR REGISTERED CUSTOMER DASHBOARD'''
+'''Login to access system'''
+def regCustomerMenu(): #Customer menu upon successful login
     clearConsole()
     print("Welcome {}!, what would you like to do today?")
     print("1. View Item List", "2. View Item Details", "3. Add Food to Cart", "4. Checkout", "5. Main Menu", sep='\n')
-    redirectRegCustomer(userInput("Choice"))
-
-def redirectRegCustomer(_):
-    if _ == "1":
+    input = userInput("Choice",True)
+    if input == "1":
         viewItemList()
-    elif _ =="2":
+    elif input =="2":
         viewItemDetail()
-    elif _ == "3":
+    elif input == "3":
         addFoodToCart()
-    elif _ =="4":
+    elif input =="4":
         checkout()
-    elif _ == "5":
+    elif input == "5":
         mainMenu()
     else:
         invalidInput()
         regCustomerMenu()
 
+'''View detail of food category'''
+'''View detail of food items'''
+'''Select food item and add to cart'''
+'''Do payment to confirm order'''
+
+'''DECLARING MAIN GREETING PAGE'''
+def main():
+    clearConsole()
+    print("Welcome to Spiderman Online Food Service!")
+    time.sleep(1)
+    print("Please select any option below.", "1. Admin", "2. Customer", "3. Quit Program", sep=' \n')
+    input = userInput("Login to",True)
+    if input == "1" :
+        adminLoginPage()
+    elif input == "2" :
+        guestMenu() 
+    elif input== "3" :
+        quit()
+    else :
+        invalidInput()
+        main()
+
+'''EXECUTE MAIN'''
+main()
+
+
+'''Empty functions'''
+def removeCategory() : pass
+def editCategory() :pass
+def removeFoodItem() : pass
+def editFoodItem() : pass
+def order() :
+    clearConsole()
+    print("\nPlease select any option below.")
+    print("1. Cancel an order","2. Back to Main Menu","0. Back",sep='\n')
+    input = userInput("Choice",True)
+    if input == "1" : 
+        cancelOrder() 
+    elif input == "2" :
+        mainMenu()
+    elif input == "0" :
+        adminMenu()
+    else : 
+        invalidInput()
+        order()
+def cancelOrder() : pass
+def checkPayment() : pass
+def adminLogin() : pass
 def viewCategoryList() : pass
 def viewItemList() : pass
 def registered() : pass
@@ -284,59 +421,12 @@ def viewItemDetail() : pass
 def viewCategoryDetail() : pass
 def addFoodToCart() : pass
 def checkout() : pass
-
 def authenticateCustomer() : pass
 def logout() : pass
 def createFile() : pass
 def deleteFile() : pass
 def readFile() : pass
 def writeFile() : pass
-
-'''
-Functionalities for Guest Dashboard
-0. View all food items as per category
-1. New customer registration to access other details
-2. Exit
-'''
-
 def guestMenu():pass
 def viewFoodItem():pass
 def customerRegistration() : pass 
-
-'''
-Functionalities for Registered Customer Dashboard
-0. Login to access system
-1. View detail of food category
-2. View detail of food items
-3. Select food item and add to cart
-4. Do payment to confirm order
-5. Exit
-'''
-
-
-def redirectUser(_): #Redirects user based on selected choice
-    if _ == "1" :
-        adminLoginPage()
-
-    elif _ == "2" :
-        customerMenu()
-    
-    elif (_== "3") :
-        quit()
-
-    else :
-        invalidInput()
-        mainMenu()
-
-def mainMenu():
-    print("Please select any option below.", "1. Admin", "2. Customer", "3. Quit Program", sep=' \n')
-    redirectUser(userInput("Login to"))
-
-def main() :
-    clearConsole()
-    print("Welcome to Spiderman Online Food Service!")
-    time.sleep(1)
-    mainMenu()
-
-main()
-
