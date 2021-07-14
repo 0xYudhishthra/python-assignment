@@ -162,9 +162,9 @@ def adminMenu(uName): #Admin Menu shown upon sucessful login
     elif input == "3" :
         displayRecordsMenu()
     elif input == "4" :
-        searchRecordMenu()
+        searchMainPage()
     elif input == "0" :
-        mainMenu()
+        main()
     else :
         invalidInput()
 
@@ -233,11 +233,16 @@ def modifyFoodItemMenu():
     elif input == "2" :
         editFoodItem()
     elif input == "3" :
-        mainMenu()
+        main()
     elif input == "0" :
         adminMenu()
     else :
         invalidInput()
+
+def removeFoodItem() : pass
+def editFoodItem() : pass
+def removeCategory() : pass
+def editCategory() :pass
 
 '''Display records of food category'''
 def displayRecordsMenu(): #Dispaly records main page
@@ -323,6 +328,28 @@ def displayPaymentRecords():
         print('{:<24}{:<16}{:<16}{:<16}{:<16}{}'.format(data[0],data[1],data[3],data[4],data[5],data[6]))
 
 '''Search Specific Customer Order Record'''
+def searchMainPage():
+    clearConsole()
+    print("_____________".center(50))
+    print("""
+                  SEARCH RECORD""")
+    print("_____________".center(50))
+    print("\n1. CUSTOMER ORDER RECORD\t2. CUSTOMER PAYMENT RECORD".center(50))
+    print("\nWhich record do you want to check?")
+    searchCategory = int(userInput("Input 1 or 2",False))
+
+def searchCustomerOrder():
+    clearConsole()
+    print("_____________".center(50))
+    print("""
+                  CUSTOMER ORDER RECORD""")
+    print("_____________".center(50))
+    print("\n1. CUSTOMER ORDER RECORD\t2. CUSTOMER PAYMENT RECORD".center(50))
+    print("\nWhich record do you want to check?")
+    searchCategory = userInput("Input 1 or 2",False)
+
+def searchCustomerPayment():pass
+
 '''Search Specific Customer Payment Record'''
 
 '''DECLARING FUNCTIONS FOR GUEST DASHBOARD'''
@@ -393,10 +420,7 @@ main()
 
 
 '''Empty functions'''
-def removeCategory() : pass
-def editCategory() :pass
-def removeFoodItem() : pass
-def editFoodItem() : pass
+
 def order() :
     clearConsole()
     print("\nPlease select any option below.")
@@ -405,7 +429,7 @@ def order() :
     if input == "1" : 
         cancelOrder() 
     elif input == "2" :
-        mainMenu()
+        main()
     elif input == "0" :
         adminMenu()
     else : 
@@ -413,7 +437,6 @@ def order() :
         order()
 def cancelOrder() : pass
 def checkPayment() : pass
-def adminLogin() : pass
 def viewCategoryList() : pass
 def viewItemList() : pass
 def registered() : pass
@@ -421,12 +444,5 @@ def viewItemDetail() : pass
 def viewCategoryDetail() : pass
 def addFoodToCart() : pass
 def checkout() : pass
-def authenticateCustomer() : pass
 def logout() : pass
-def createFile() : pass
-def deleteFile() : pass
-def readFile() : pass
-def writeFile() : pass
-def guestMenu():pass
-def viewFoodItem():pass
 def customerRegistration() : pass 
