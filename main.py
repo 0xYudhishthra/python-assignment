@@ -36,6 +36,7 @@ Code Structure
 #!/usr/bin/env python3
 import os
 import time
+from typing import Type
 
 '''DECLARING FUNCTIONS TO CONVERT TEXT FILES TO LISTS'''
 def readAdminDetailsFile(): #Reads admin file and converts it to list
@@ -404,16 +405,23 @@ def main():
     print("Welcome to Spiderman Online Food Service!")
     time.sleep(1)
     print("Please select any option below.", "1. Admin", "2. Customer", "3. Quit Program", sep=' \n')
-    input = userInput("Login to",True)
-    if input == "1" :
-        adminLoginPage()
-    elif input == "2" :
-        guestMenu() 
-    elif input== "3" :
-        quit()
-    else :
-        invalidInput()
-        main()
+    while (True):
+        try:
+            input = int(userInput("Login to",True))
+            if input == 1 :
+                adminLoginPage()
+            elif input == 2 :
+                guestMenu() 
+            elif input== 3 :
+                quit()
+            else:
+                print("Out of range, please enter a number between 1 and 3")
+                time.sleep(1)
+        except ValueError:
+            print("You entered an alphabet, please enter a number between 1 and 3")
+            time.sleep(1)
+            # main()
+            
 
 '''EXECUTE MAIN'''
 main()
