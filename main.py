@@ -15,7 +15,7 @@ Code Structure
     5. Display Records of Customer Orders (Done)
     6. Display Records of Customer Payments (Done)
     7. Search Specific Customer Order Record (Done)
-    8. Search Specific Customer Payment Record
+    8. Search Specific Customer Payment Record (Done)
     9. Exit
 5. Declaring functions for guest dashboard   
     0. View all food items as per category
@@ -36,7 +36,6 @@ Code Structure
 #!/usr/bin/env python3
 import os
 import time
-from typing import Type
 
 '''DECLARING FUNCTIONS TO CONVERT TEXT FILES TO LISTS'''
 def readAdminDetailsFile(): #Reads admin file and converts it to list
@@ -340,8 +339,10 @@ def searchMainPage():
         try:
             searchCategory = int(userInput("Input 1 or 2",False))
             if searchCategory == 1:
+                clearConsole()
                 searchCustomerOrder()
             elif searchCategory == 2:
+                clearConsole()
                 searchCustomerPayment()
             else:
                 print("The number you submitted is outside the allowed range!")
@@ -349,12 +350,8 @@ def searchMainPage():
         except ValueError:
             print("Please enter a number!")
 
-
-
-
-
+'''Search Specific Customer Order Record'''
 def searchCustomerOrder():
-    clearConsole()
     print("_____________________".center(50))
     print("""
               CUSTOMER ORDER RECORD""")
@@ -413,12 +410,67 @@ def searchCustomerOrder():
         except ValueError:
             print("Please submit a number")
             time.sleep(1.5)
-    
-
-
-def searchCustomerPayment():pass
 
 '''Search Specific Customer Payment Record'''
+def searchCustomerPayment():
+    print("_______________________".center(50))
+    print("""
+             CUSTOMER PAYMENT RECORD""")
+    print("_______________________".center(50))
+    print("""\n{}1. CUSTOMER USERNAME\t2. ORDER ID""".format(" "*4))
+    print("\nOn what basis should the records be searched?".center(100))
+    while (True):
+        try:
+            paymentList = readOrderRecordsFile()
+            searchCriteria = int(userInput("Input 1 or 2",False))
+            if (searchCriteria == 1) :
+                recordByUsername = []
+                username = userInput("Please enter Customer Username",True)
+                count = 0
+                for data in paymentList:
+                    if (username.lower() == data[0]):
+                        recordByUsername.append([data[1],data[3],data[4],data[5],data[6]])
+                        count+=1
+                if count >=1:
+                    print("{} order records have been found for {}".format(count,username))
+                    progressBar("Generating report")
+                    time.sleep(0.5)
+                    print("""\n\t\t\t\t\tPAYMENT REPORT FOR {}
+\t\t\t\t\t-------------------{}\n""".format(username.upper(),"-"*len(username)))
+                    print("""CUSTOMER USERNAME\tORDER ID\tTOTAL PAYABLE\tPAYMENT METHOD\tPAYMENT STATUS\t PAID ON
+-----------------       --------        -------------   --------------  --------------   -------""")
+                    for data in recordByUsername:
+                        print('{:<24}{:<16}{:<16}{:<16}{:<17}{}'.format(username.upper(),data[0],data[1],data[2],data[3],data[4]))
+                else:
+                    print("No order records found for {}".format(username))
+                break
+            if (searchCriteria == 2):
+                orderID = userInput("Please enter Order ID",True)
+                recordById = []
+                orderExists = False
+                for data in paymentList:
+                    if (orderID.upper() == data[1]):
+                        recordById.append([data[0],data[1],data[3],data[4],data[5],data[6]])
+                        orderExists = True
+                if (orderExists):
+                    print("1 Order record have been found for Order ID {}".format(orderID.upper()))
+                    progressBar("Generating report")
+                    time.sleep(0.5)
+                    print("""\n\t\t\t\t\tPAYMENT REPORT FOR {}
+\t\t\t\t\t-------------------{}\n""".format(orderID.upper(),"-"*len(orderID)))
+                    print("""CUSTOMER USERNAME\tORDER ID\tTOTAL PAYABLE\tPAYMENT METHOD\tPAYMENT STATUS\t PAID ON
+-----------------       --------        -------------   --------------  --------------   -------""")
+                    for data in recordById:
+                        print('{:<24}{:<16}{:<16}{:<16}{:<17}{}'.format(data[0].upper(),data[1],data[2],data[3],data[4],data[5]))
+                else:
+                    print("No order records found for {}".format(orderID.upper()))
+                break
+            else:
+                print("The number you submitted is outside the allowed range!")
+                time.sleep(1)
+        except ValueError:
+            print("Please submit a number")
+            time.sleep(1)
 
 '''DECLARING FUNCTIONS FOR GUEST DASHBOARD'''
 def guestMenu(): #Guest Dashboard Main Page
@@ -476,6 +528,7 @@ def main():
         try:
             input = int(userInput("Login to",True))
             if input == 1 :
+
                 adminLoginPage()
             elif input == 2 :
                 guestMenu() 
