@@ -14,7 +14,7 @@ Code Structure
     4. Display Records of Food Items by Category (Done)
     5. Display Records of Customer Orders (Done)
     6. Display Records of Customer Payments (Done)
-    7. Search Specific Customer Order Record
+    7. Search Specific Customer Order Record (Done)
     8. Search Specific Customer Payment Record
     9. Exit
 5. Declaring functions for guest dashboard   
@@ -108,7 +108,7 @@ def authPassword(password,filename):
         passwordExistsCount += data.count(password)
     if passwordExistsCount > 0:
         progressBar("Logging you in")
-        time.sleep(1)
+        time.sleep(0.05)
         return True
     return False 
 
@@ -127,7 +127,7 @@ def progressBar(loadingMessage):
     print('{}...'.format(loadingMessage))
     animation = ["[■□□□□□□□□□]","[■■□□□□□□□□]", "[■■■□□□□□□□]", "[■■■■□□□□□□]", "[■■■■■□□□□□]", "[■■■■■■□□□□]", "[■■■■■■■□□□]", "[■■■■■■■■□□]", "[■■■■■■■■■□]", "[■■■■■■■■■■]"]
     for i in range(len(animation)):
-        time.sleep(0.1)
+        time.sleep(0.05)
         print("\r" + animation[i],end="")
 
 '''DECLARING FUNCTIONS FOR ADMIN DASHBOARD'''
@@ -137,7 +137,7 @@ def adminLoginPage(): #Main Admin Login Page
     print("-" * 28)
     uName = input("Username: ")
     progressBar("Checking if username exists")
-    time.sleep(1)
+    time.sleep(0.05)
     if (authUsername(uName,readAdminDetailsFile())):
         while True:
             if (authPassword(input("Password: "),readAdminDetailsFile())):
@@ -283,8 +283,7 @@ def displayFoodCategoryRecords():
         for data in list:
             for i in range(len(data)):
                 if data[i] == "-":
-                    foodCategoryDetails.append([''.join(data[0:i-1]), ''.join(data[i+2:-1])])
-                    #foodCategoryDescription.append(''.join(data[i+2:-1]))              
+                    foodCategoryDetails.append([''.join(data[0:i-1]), ''.join(data[i+2:-1])])            
     
     '''Print data in user readable form'''
     print("""\t\tDETAILS OF FOOD CATEGORIES
@@ -337,17 +336,85 @@ def searchMainPage():
     print("_____________".center(50))
     print("\n1. CUSTOMER ORDER RECORD\t2. CUSTOMER PAYMENT RECORD".center(50))
     print("\nWhich record do you want to check?")
-    searchCategory = int(userInput("Input 1 or 2",False))
+    while (True):
+        try:
+            searchCategory = int(userInput("Input 1 or 2",False))
+            if searchCategory == 1:
+                searchCustomerOrder()
+            elif searchCategory == 2:
+                searchCustomerPayment()
+            else:
+                print("The number you submitted is outside the allowed range!")
+            break
+        except ValueError:
+            print("Please enter a number!")
+
+
+
+
 
 def searchCustomerOrder():
     clearConsole()
-    print("_____________".center(50))
+    print("_____________________".center(50))
     print("""
-                  CUSTOMER ORDER RECORD""")
-    print("_____________".center(50))
-    print("\n1. CUSTOMER ORDER RECORD\t2. CUSTOMER PAYMENT RECORD".center(50))
-    print("\nWhich record do you want to check?")
-    searchCategory = userInput("Input 1 or 2",False)
+              CUSTOMER ORDER RECORD""")
+    print("_____________________".center(50))
+    print("""\n{}1. CUSTOMER USERNAME\t2. ORDER ID""".format(" "*4))
+    print("\nOn what basis should the records be searched?".center(100))
+    while (True):
+        try:
+            orderList = readOrderRecordsFile()
+            searchCriteria = int(userInput("Input 1 or 2",False))
+            if (searchCriteria == 1) :
+                recordByUsername = []
+                username = userInput("Please enter Customer Username",True)
+                count = 0
+                for data in orderList:
+                    if (username.lower() == data[0]):
+                        recordByUsername.append([data[1],data[2],data[3],data[7]])
+                        count+=1
+                if count >=1:
+                    print("{} order records have been found for {}".format(count,username))
+                    progressBar("Generating report")
+                    time.sleep(0.5)
+                    print("""\n\t\t\t\tORDER REPORT FOR {}
+\t\t\t\t-----------------{}\n""".format(username.upper(),"-"*len(username)))
+                    print("""CUSTOMER USERNAME\tORDER ID\tTOTAL PAYABLE\tORDER STATUS\tFOOD ID(QUANTITY)
+-----------------       --------        -------------   ------------    -----------------""")
+                    for data in recordByUsername:
+                        print('{:<24}{:<16}{:<16}{:<16}{}'.format(username.upper(),data[0],data[2],data[3],data[1]))
+                else:
+                    print("No order records found for {}".format(username))
+                break
+            if (searchCriteria == 2):
+                orderID = userInput("Please enter Order ID",True)
+                recordById = []
+                orderExists = False
+                for data in orderList:
+                    if (orderID.upper() == data[1]):
+                        recordById.append([data[0],data[1],data[2],data[3],data[7]])
+                        orderExists = True
+                if (orderExists):
+                    print("1 Order record have been found for Order ID {}".format(orderID.upper()))
+                    progressBar("Generating report")
+                    time.sleep(0.5)
+                    print("""\n\t\t\t\tORDER REPORT FOR {}
+\t\t\t\t-----------------{}\n""".format(orderID.upper(),"-"*len(orderID)))
+                    print("""CUSTOMER USERNAME\tORDER ID\tTOTAL PAYABLE\tORDER STATUS\tFOOD ID(QUANTITY)
+-----------------       --------        -------------   ------------    -----------------""")
+                    for data in recordById:
+                        print('{:<24}{:<16}{:<16}{:<16}{}'.format(data[0].upper(),data[1],data[3],data[4],data[2]))
+                else:
+                    print("No order records found for {}".format(orderID.upper()))
+                break
+            else:
+                print("The number you submitted is outside the allowed range!")
+                time.sleep(1)
+        except ValueError:
+            print("Please submit a number")
+            time.sleep(1.5)
+    
+
 
 def searchCustomerPayment():pass
 
@@ -417,10 +484,10 @@ def main():
             else:
                 print("Out of range, please enter a number between 1 and 3")
                 time.sleep(1)
+            break
         except ValueError:
             print("You entered an alphabet, please enter a number between 1 and 3")
             time.sleep(1)
-            # main()
             
 
 '''EXECUTE MAIN'''
