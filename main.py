@@ -8,7 +8,7 @@ Code Structure
 3. Declaring functions that can be used in any part of the program
 4. Declaring functions for admin dashboard
     0. Login to Access System (Done)
-    1. Add food item by category (In progress)
+    1. Add food item by category (Done)
     2. Modify food item (Edit, Delete, Update)
     3. Display Records of Food Category (Done)
     4. Display Records of Food Items by Category (Done)
@@ -204,23 +204,41 @@ def addFoodCategory(name,description): #Adds new food category in foodDetails.tx
             foodDetailsFile.write("{} - {}".format(uppercaseName,capitalizeDescription) + '\n')
             foodDetailsFile.write("_"*88 + '\n')
 
-def addFoodItem(chosenFoodCategory): #Still in progress
+def addFoodItem(chosenFoodCategory):
     try:
         foodItemName = userInput("Food Item Name",False)
-        foodItemDetails = userInput("Food Item Details",False)
         foodItemPrice = float(userInput("Food Item Price",False))
-    except ValueError: 
-        print("Please enter the correct value")
-    clearConsole()
-    print("Please confirm if these are the details you would like to add")
-    print("""=====================
+        print("Please confirm if these are the details you would like to add")
+        print("""=====================
 | FOOD CATEGORY     | {}
 | FOOD ITEM NAME    | {}
-| FOOD ITEM DETAILS | {}
 | FOOD ITEM PRICE   | {}
-=====================""".format(chosenFoodCategory,foodItemName,foodItemDetails,foodItemPrice))
-    if (userInput("(Y)es/(N)o")=="Y|y"):
-        pass
+=====================""".format(chosenFoodCategory,foodItemName,foodItemPrice))
+        if (userInput("(Y)es/(N)o",True) == 'Y'):
+            orderRecordsFile = []
+            itemIndexes = []
+            with open ('foodDetails(testing).txt', mode='r') as f:
+                for row in f:   
+                    orderRecordsFile.append([row])
+                for data in orderRecordsFile:
+                    if chosenFoodCategory in data[0]:
+                        itemIndexes.append(orderRecordsFile.index(data))
+                for index in itemIndexes:
+                    lastItemIndex = itemIndexes[0]
+                    if index > lastItemIndex:
+                        lastItemIndex = index
+                temp = orderRecordsFile[lastItemIndex][0].split(" | ")
+                newFoodID = temp[0][0] + str(int(temp[1].strip(temp[0][0]))+1)     
+                if (lastItemIndex == (len(orderRecordsFile)-1)):
+                    orderRecordsFile.insert(lastItemIndex+1, ['\n{} | {} | {} | {}'.format(chosenFoodCategory,newFoodID, foodItemName,foodItemPrice)])
+                else:
+                    orderRecordsFile.insert(lastItemIndex+1, ['{} | {} | {} | {}\n'.format(chosenFoodCategory,newFoodID, foodItemName,foodItemPrice)])
+            with open ('foodDetails(testing).txt', mode='w') as food:
+                for data in orderRecordsFile:
+                    food.write(data[0])
+    except ValueError: 
+        print("Please enter the correct value")
+
 
 '''Modify food item'''
 def modifyFoodItemMenu():
