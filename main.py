@@ -9,7 +9,7 @@ Code Structure
 4. Declaring functions for admin dashboard
     0. Login to Access System (Done)
     1. Add food item by category (Done)
-    2. Modify food item (Edit, Delete, Update)
+    2. Modify food item (Update, Delete) (In progress)
     3. Display Records of Food Category (Done)
     4. Display Records of Food Items by Category (Done)
     5. Display Records of Customer Orders (Done)
@@ -150,6 +150,7 @@ def adminLoginPage(): #Main Admin Login Page
         clearConsole()
         adminLoginPage()
 
+
 def adminMenu(uName): #Admin Menu shown upon sucessful login
     clearConsole()
     print("Welcome {}, what would you like to do today?\n".format(uName))
@@ -217,7 +218,7 @@ def addFoodItem(chosenFoodCategory):
         if (userInput("(Y)es/(N)o",True) == 'Y'):
             orderRecordsFile = []
             itemIndexes = []
-            with open ('foodDetails(testing).txt', mode='r') as f:
+            with open ('foodDetails.txt', mode='r') as f:
                 for row in f:   
                     orderRecordsFile.append([row])
                 for data in orderRecordsFile:
@@ -233,7 +234,7 @@ def addFoodItem(chosenFoodCategory):
                     orderRecordsFile.insert(lastItemIndex+1, ['\n{} | {} | {} | {}'.format(chosenFoodCategory,newFoodID, foodItemName,foodItemPrice)])
                 else:
                     orderRecordsFile.insert(lastItemIndex+1, ['{} | {} | {} | {}\n'.format(chosenFoodCategory,newFoodID, foodItemName,foodItemPrice)])
-            with open ('foodDetails(testing).txt', mode='w') as food:
+            with open ('foodDetails.txt', mode='w') as food:
                 for data in orderRecordsFile:
                     food.write(data[0])
     except ValueError: 
@@ -243,22 +244,110 @@ def addFoodItem(chosenFoodCategory):
 '''Modify food item'''
 def modifyFoodItemMenu():
     clearConsole()
-    print("\nPlease select any option below.")
-    print("1. Remove Food Item","2. Edit Food Item","3. Back to Main Menu","0. Back",sep='\n')
-    input = userInput("Option",True)
-    if input == "1" :
-        removeFoodItem()
-    elif input == "2" :
-        editFoodItem()
-    elif input == "3" :
-        main()
-    elif input == "0" :
-        adminMenu()
-    else :
-        invalidInput()
+    print("________________________".center(50))
+    print("""
+             RECORD MODIFICATION PAGE""")
+    print("________________________".center(50))
+    print("\n{}1. FOOD ITEM\t2. FOOD CATEGORY".format(" "*10))
+    print("\nWhich record do you want to modify?")
+    while (True):
+        try:
+            searchCriteria = int(userInput("Input 1 or 2",False))
+            if searchCriteria == 1 :
+                clearConsole()
+                print("______________________".center(50))
+                print("""
+                        FOOD ITEM MODIFICATION""")
+                print("______________________".center(50))
+                print("\n{}1. UPDATE RECORD\t2. DELETE RECORD".format(" "*5))
+                print("\nWhat would you like to do?")
+                action = int(userInput("Input 1 or 2",False))
+                modifyFoodItem(action)
+            elif searchCriteria == 2 :
+                modifyFoodCategory()
+            else :
+                print("The number you submitted is outside the allowed range!")
+        except ValueError:
+            print("Please submit a number")
+            time.sleep(1)
 
-def removeFoodItem() : pass
-def editFoodItem() : pass
+
+def modifyFoodItem(action):
+    foodDetailsFile = []
+    with open('foodDetails.txt',mode='r') as foodFile:
+        for row in foodFile:
+            foodDetailsFile.append([row])
+    while (True):
+        try:  
+            if action == 1 :
+                print("\nIn which category would you like to update the food item?")
+                displayFoodCategories()
+                chosenCategory = int(userInput("Category number",True))
+                progressBar("Retrieving food item records")
+                time.sleep(0.5)
+                clearConsole()
+                print("""REPORT OF FOOD ITEMS IN {} FOOD CATEGORY
+---------------------------------------------""".format(extractFoodCategories()[int(chosenCategory)-1]).upper())
+                print("""FOOD ITEM ID\tFOOD ITEM PRICE\t FOOD ITEM NAME
+------------    ---------------  --------------""")
+                for data in readFoodDetailsFile():
+                    if (extractFoodCategories()[int(chosenCategory)-1]) in data[0]:
+                        print('{:<16}{:<15}\t {}'.format(data[1],data[3],data[2]))
+                print("\nEnter the food item id that you would like to update")
+                foodItemId = userInput("Food Item ID",False)
+                print(f"Food item selected: {foodItemId}")
+                print("What would you like to update?","1. Food Item Price","2. Food Item Details","3. Both",sep='\n')
+                updateCriteria = int(userInput("Update choice",True))
+                if updateCriteria == 1:
+                    newPrice = userInput("New food item price")
+                    for data in foodDetailsFile:
+                        if foodItemId in data[0]:
+                            temp = (data[0].split(" | "))
+                            index = foodDetailsFile.index(data)
+                    if '\n' in temp[3]:
+                        temp[3] = f'{newPrice}\n'
+                        foodDetailsFile[index] = [" | ".join(temp)]
+                    else:
+                        temp[3] = f'{newPrice}'
+                        foodDetailsFile[index] = [" | ".join(temp)]
+                    with open ('foodDetails(testing).txt',mode='w') as f:
+                        for data in foodDetailsFile:
+                            f.write(data)   
+                break
+            elif (action == 2):
+                print("\nIn which category would you like to delete the food item?")
+                displayFoodCategories()
+                chosenCategory = int(userInput("Category number",True))
+                progressBar("Retrieving food item records")
+                time.sleep(0.5)
+                clearConsole()
+                print("""REPORT OF FOOD ITEMS IN {} FOOD CATEGORY
+---------------------------------------------""".format(extractFoodCategories()[int(chosenCategory)-1]).upper())
+                print("""FOOD ITEM ID\tFOOD ITEM PRICE\t FOOD ITEM NAME
+------------    ---------------  --------------""")
+                for data in readFoodDetailsFile():
+                    if (extractFoodCategories()[int(chosenCategory)-1]) in data[0]:
+                        print('{:<16}{:<15}\t {}'.format(data[1],data[3],data[2]))
+                print("\nEnter the food item id that you would like to delete")
+                foodItemId = userInput("Food Item ID",False)
+                print(f"Are you sure you want to delete {foodItemId}?")
+                for data in foodDetailsFile:
+                    if foodItemId in data[0]:
+                        foodDetailsFile.pop(foodDetailsFile.index(data))
+                    if '\n' in foodDetailsFile[-1][-1]:
+                        temp = foodDetailsFile[-1][-1].strip("\n")
+                        foodDetailsFile[-1][-1] = temp
+                with open ('foodDetails.txt',mode='w') as f:
+                    for data in foodDetailsFile:
+                        f.write(data[0])
+                break
+            elif updateCriteria == 3:pass
+            else :
+                print("The number you submitted is outside the allowed range!")           
+        except ValueError:
+                print("Please submit a number")
+                time.sleep(1)
+
 def removeCategory() : pass
 def editCategory() :pass
 
