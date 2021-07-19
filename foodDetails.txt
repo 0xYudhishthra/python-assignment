@@ -8,35 +8,35 @@ ________________________________________________________________________________
 
 MALAYSIAN FOOD CATEGORY - A Variety of Malaysian Foods served here.
 ________________________________________________________________________________________
-Malaysian | M01 | Nasi Lemak Rendang Ayam | 12.90
-Malaysian | M02 | Nasi Kerabu Daging Bakar | 15.60
-Malaysian | M03 | Nasi Goreng Kampung | 6.50
-Malaysian | M04 | Penang Asam Laksa | 8.80
-Malaysian | M05 | Mee Goreng Ayam | 9.90
+Malaysian | M1 | Nasi Lemak Rendang Ayam | 12.90
+Malaysian | M2 | Nasi Kerabu Daging Bakar | 15.60
+Malaysian | M3 | Nasi Goreng Kampung | 6.50
+Malaysian | M4 | Penang Asam Laksa | 8.80
+Malaysian | M5 | Mee Goreng Ayam | 9.90
 ________________________________________________________________________________________
 
 WESTERN FOOD CATEGORY - We bring the Western to you.
 ________________________________________________________________________________________
-Western | W01 | Mac & Cheese | 9.00
-Western | W02 | Irish Lamb Shank | 40.11
-Western | W03 | Fish & Chips | 20.11
-Western | W04 | Aglio Oglio with Shrimp | 25.00
-Western | W05 | Chicken Cordon Bleu | 22.76
+Western | W1 | Mac & Cheese | 9.00
+Western | W2 | Irish Lamb Shank | 40.11
+Western | W3 | Fish & Chips | 20.11
+Western | W4 | Aglio Oglio with Shrimp | 25.00
+Western | W5 | Chicken Cordon Bleu | 22.76
 ________________________________________________________________________________________
 
 FUSION FOOD CATEGORY - Combining the best of both worlds.
 ________________________________________________________________________________________
-Fusion | F01 | Sushi Pizza | 15.00
-Fusion | F02 | Donut Grilled Cheese | 4.50
-Fusion | F03 | Ramen Burger | 9.00
-Fusion | F04 | Mac and Cheese Waffles | 5.50
-Fusion | F05 | Ice Cream Trdelnik | 9.00
+Fusion | F1 | Sushi Pizza | 15.00
+Fusion | F2 | Donut Grilled Cheese | 4.50
+Fusion | F3 | Ramen Burger | 9.00
+Fusion | F4 | Mac and Cheese Waffles | 5.50
+Fusion | F5 | Ice Cream Trdelnik | 9.00
 ________________________________________________________________________________________
 
 BEVERAGES CATEGORY - Chill yourself with a nice cold drink.
 ________________________________________________________________________________________
-Beverages | B01 | Fiery Brown Sugar Black Whale Milk | 13.90
-Beverages | B02 | Brown Sugar Milk Tea | 11.90
-Beverages | B03 | Brown Sugar Brulee Milk | 13.90
-Beverages | B04 | Mango Macchiato | 13.90
-Beverages | B05 | Passion Fruit Whalcano | 9.90
+Beverages | B1 | Fiery Brown Sugar Black Whale Milk | 13.90
+Beverages | B2 | Brown Sugar Milk Tea | 11.90
+Beverages | B3 | Brown Sugar Brulee Milk | 13.90
+Beverages | B4 | Mango Macchiato | 13.90
+Beverages | B5 | Passion Fruit Whalcano | 9.90

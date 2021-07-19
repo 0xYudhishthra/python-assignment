@@ -4,5 +4,5 @@ SOFS ORDER RECORDS
 THIS FILE STORES THE DETAILS OF SOFS ORDERS
 STORE FORMAT: CUSTOMER USERNAME | ORDER ID | FOOD ITEM ID WITH QUANTITY | TOTAL PAYABLE | PAYMENT METHOD | PAYMENT STATUS | PAID ON | ORDER STATUS
 __________________________________________________________________________________________________________________________________________________
-yudhx | O1 | M01(1), B01(1) | 26.80 | E-Wallet | PAID | 12/7/2021 | DELIVERED
-john | O100 | M01(1), B01(1) | 26.80 | E-Wallet | PAID | 12/7/2021 | DELIVERED
+yudhx | O1 | M1(1), B1(1) | 26.80 | E-Wallet | PAID | 12/7/2021 | DELIVERED
+john | O100 | M1(1), B1(1) | 26.80 | E-Wallet | PAID | 12/7/2021 | DELIVERED
