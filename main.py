@@ -38,46 +38,51 @@ import os
 import time
 
 '''DECLARING FUNCTIONS TO CONVERT TEXT FILES TO LISTS'''
-def readAdminDetailsFile(): #Reads admin file and converts it to list
-    with open ('adminDetails.txt', mode='r') as adminFile:
-        admin_list = []
-        skipFileLine(1,adminFile)
-        for row in adminFile:
-            adminDetails=row.strip("\n").replace(" | "," ").split(" ")
-            admin_list.append(adminDetails)
-        return admin_list
+def readAdminDetailsFile(): #Reads file with admin details, extracts username and passwords without headers and appends it to list
+    adminDetailsList = [] 
+    while (True):
+        try:
+            with open ('adminDetails.txt',mode='r') as adminDetailsFile:
+                skipFileLine(6,adminDetailsFile)
+                for row in adminDetailsFile:
+                    adminDetailsList.append(row.strip("\n").replace(" | "," ").split(" "))
+                return adminDetailsList
+        except FileNotFoundError:
+            print("Admin database is missing!") 
+        break
 
-def readFoodDetailsFile(): #Function to convert foodDetails text file to list
-    foodDetails=[]
-    with open ('foodDetails.txt', mode='r') as foodDetailsFile:
-        skipFileLine(6,foodDetailsFile) 
-        for row in foodDetailsFile:
-            if row.startswith("_"):
-                skipFileLine(3,foodDetailsFile)
-            foodDetails.append(row.replace("\n","").replace("_","").split(" | "))
-        return removeEmptyList(foodDetails)
+def readFoodDetailsFile(): #Reads file with food details, extract food details without headers and appends it to list 
+    foodDetailsList=[]
+    while True:
+        try:
+            with open ('foodDetails.txt', mode='r') as foodDetailsFile:
+                skipFileLine(6,foodDetailsFile) 
+                for row in foodDetailsFile:
+                    if row.startswith("_"):
+                        skipFileLine(3,foodDetailsFile)
+                    foodDetailsList.append(row.replace("\n","").replace("_","").split(" | "))
+                return removeEmptyList(foodDetailsList)
+        except FileNotFoundError:
+            print("Food details database is missing!") 
+        break
 
-def readOrderRecordsFile():
-    orderDetails = []
-    with open('orderRecords.txt', mode='r') as orderRecordsFile:
-        skipFileLine(6,orderRecordsFile)
-        for line in orderRecordsFile:
-            orderDetails.append(line.strip('\n').split(" | "))
-    return orderDetails
+def readOrderRecordsFile(): #Reads file with order records, extract order records without headers and append to list
+    while True:
+        try:
+            with open('orderRecords.txt', mode='r') as orderRecordsFile:
+                skipFileLine(6,orderRecordsFile)
+                orderDetailsList = [line.strip('\n').split(" | ") for line in orderRecordsFile]
+            return orderDetailsList
+        except FileNotFoundError:
+            print("Order records database is missing!")
+        break
 
 '''DECLARING FUNCTIONS THAT CAN BE USED ANYWHERE IN THE PROGRAM'''
-
-def clearConsole(): #Function to clear existing text in console
-    command = 'clear'
+def clearConsole(): #Function to clear all existing text in console
     if os.name in ('nt', 'dos'):  
-        command = 'cls'
-    os.system(command)
-
-def invalidInput() : #Function to flag user if improper input is submitted
-    clearConsole()
-    print("Invalid input. Please enter a number")
-    time.sleep(1)
-    clearConsole()
+        os.system('cls')
+    else:
+        os.system("clear")
 
 def quit() : #Exits program cleanly
     clearConsole()
@@ -86,294 +91,351 @@ def quit() : #Exits program cleanly
     clearConsole()
     exit()
 
-def userInput(inputString, skipLine): #Function to accept input from user
+def userInput(inputString, skipLine): #Function to accept input from users
     if (skipLine):
         return input("\n{} >> ".format(inputString))
     else:
         return input("{} >> ".format(inputString))
 
-def authUsername(username,filename):
-    userExistsCount = 0
-    for data in filename:
-        userExistsCount += data.count(username.lower())
-    if userExistsCount > 0:
-        print(" Username found, please enter password\n")
-        return True
-    return False
+def authUsername(username,filename):  #Checks if username exists in the respective filename given
+        for data in filename:
+            if username == data[0]:
+                return True
 
-def authPassword(password,filename):
-    passwordExistsCount = 0
+def authPassword(username, password,filename):  #Checks if password exists in the respective filename given
     for data in filename:
-        passwordExistsCount += data.count(password)
-    if passwordExistsCount > 0:
-        progressBar("Logging you in")
-        time.sleep(0.05)
-        return True
-    return False 
+        if username == data[0] and password == data[1]:
+            return True
 
-def skipFileLine(count,filename) : 
+def skipFileLine(count,filename): #Skips n number of lines in a file that is being read/write 
         for _ in range(count):
             next(filename)
 
-def removeEmptyList(list):
+def removeEmptyList(list): #Removes list with empty strings and lists with no elements
     for data in list:
         while ('' in data):
             data.remove('')
-            new_list = [i for i in list if i != []]
+        new_list = [i for i in list if i != []]
     return new_list
 
-def progressBar(loadingMessage):
+def progressBar(loadingMessage): #Loading animation
     print('{}...'.format(loadingMessage))
     animation = ["[■□□□□□□□□□]","[■■□□□□□□□□]", "[■■■□□□□□□□]", "[■■■■□□□□□□]", "[■■■■■□□□□□]", "[■■■■■■□□□□]", "[■■■■■■■□□□]", "[■■■■■■■■□□]", "[■■■■■■■■■□]", "[■■■■■■■■■■]"]
-    for i in range(len(animation)):
+    for item in animation:
         time.sleep(0.05)
-        print("\r" + animation[i],end="")
+        print("\r" + item, end="")
+
+def pageBanners(pageTitle,centerLength): #Main page banner
+    print(f'{"_"*(len(pageTitle))}\n'.center(centerLength))
+    print(f'{pageTitle}'.center(centerLength))
+    print(f'{"_"*len(pageTitle)}'.center(centerLength))
 
 '''DECLARING FUNCTIONS FOR ADMIN DASHBOARD'''
 '''Login to access system'''
-def adminLoginPage(): #Main Admin Login Page
-    print("\nAdmin Authentication Section")
-    print("-" * 28)
-    uName = input("Username: ")
-    progressBar("Checking if username exists")
-    time.sleep(0.05)
-    if (authUsername(uName,readAdminDetailsFile())):
-        while True:
-            if (authPassword(input("Password: "),readAdminDetailsFile())):
-                adminMenu(uName)
-                break
-            else:
-                print("Incorrect password, please retry\n")      
-    else:
-        print("Username not found, please retry\n")
-        time.sleep(1)
-        clearConsole()
-        adminLoginPage()
+def adminLoginPage(): #Login Page for SOFS adminstrators
+    while True:
+        try: 
+            uName = userInput("Username",True)
+            progressBar("Checking if username exists")
+            time.sleep(0.05)
+            if (authUsername(uName,readAdminDetailsFile())):
+                print(" Username found, please enter password\n")
+                while True:
+                    uPass = userInput("Password",True)
+                    if (authPassword(uName, uPass,readAdminDetailsFile())):
+                        progressBar("Logging you in")
+                        time.sleep(0.05)
+                        adminMenu(uName)
+                        break
+                    else:
+                        print("Incorrect password, please retry\n")
+            else: 
+                print(" Username not found, please retry")
+                continue
+            break
+        except TypeError:
+            print("Admin details file is corrupted!")
+            break
 
 
-def adminMenu(uName): #Admin Menu shown upon sucessful login
-    clearConsole()
-    print("Welcome {}, what would you like to do today?\n".format(uName))
-    print("1. Add food item","2. Modify food item","3. Display records","4. Search record","0. Back to Main Menu", sep='\n')  
-    input = userInput("I would like to",True)
-    if input == "1" :
-        foodCategoriesMenu()
-    elif input == "2" :
-        modifyFoodItemMenu()
-    elif input == "3" :
-        displayRecordsMenu()
-    elif input == "4" :
-        searchMainPage()
-    elif input == "0" :
-        main()
-    else :
-        invalidInput()
+def adminMenu(uName=""): #Admin Menu shown upon successful login
+    while True:
+        try:
+            clearConsole()
+            pageBanners("ADMIN DASHBOARD",50)
+            print(f'\nHey, {uName.capitalize()}! What would you like to do today?\n')
+            print("1. Add food item","2. Modify food item","3. Display records","4. Search record","0. Log out", sep='\n')  
+            input = int(userInput("I would like to",True))
+            if input == 1 :
+                clearConsole()
+                pageBanners("ADD NEW FOOD ITEM",50)
+                addFoodItemMenu()
+            elif input == 2 :
+                clearConsole()
+                pageBanners("MODIFY FOOD ITEM",50)
+                modifyFoodItemMenu()
+            elif input == 3 :
+                displayRecordsMenu()
+            elif input == 4 :
+                searchRecordsMenu()
+            elif input == 0 :
+                progressBar("Logging out")
+                main()
+            else :
+                print("Number is out of range!")
+                time.sleep(1) 
+                continue
+            break
+        except ValueError:
+            print("Please submit a number")
+            time.sleep(1) 
 
 '''Add food item by category'''
-def displayFoodCategories(): #Retrieve food categories from extractFoodCategories function
-    count=1
-    while (count<len(extractFoodCategories())):
-        for list in extractFoodCategories():
-            print("{}. {}".format(count,list))
-            count+=1
+def addFoodItemMenu(): #Prompts admin to select which category of food item they want to add or to add new food category 
+    while True:
+        try:
+            print(f"\nIn which category would you like to add the food item?\n\n0. Add new food category")
+            displayFoodCategories()
+            chosenFoodCategoryNumber = int(userInput("Food Category Number",True))
+            if (chosenFoodCategoryNumber == 0): 
+                writeNewFoodCategoryToFile(userInput("Category Name",False),userInput("Description",False))
+            elif (chosenFoodCategoryNumber > 0 and chosenFoodCategoryNumber <= len(extractFoodCategories())): 
+                chosenFoodCategoryName = extractFoodCategories()[int(chosenFoodCategoryNumber)-1][0].replace("FOOD CATEGORY","").strip().capitalize()
+                foodItemName = userInput("New Food Item Name",False)
+                foodItemPrice = format(float(userInput("New Food Item Price",False)),".2f")
+                print(f"\nFOOD CATEGORY\tFOOD ITEM PRICE\t FOOD ITEM NAME\n{'-'*13}{' '*3}{'-'*15}{' '*2}{'-'*14}")
+                print('{:<16}{:<17}{}'.format(chosenFoodCategoryName,foodItemPrice,foodItemName))
+                print("\nPlease confirm the new food details you would like to add")
+                userConfirmation = userInput("(Y)es/(N)o",False)
+                if (userConfirmation.upper() == 'Y'):
+                    writeNewFoodItemToFile(chosenFoodCategoryName,foodItemName,foodItemPrice)
+                elif (userConfirmation.upper() == 'N'):
+                    addFoodItemMenu()
+                else:
+                    print("Please enter either Y or N")
+                    continue
+                break
+            else:
+                print("Invalid food category number")
+                time.sleep(1)
+                continue
+            break
+        except ValueError:
+            print("Please submit a number!")
+            time.sleep(1)
+        except TypeError:
+            print("Food details file is corrupted!")
+            break
 
-def extractFoodCategories():
-    raw_list = []
-    foodCategoryDetails = []
-    with open ('foodDetails.txt', mode='r') as foodDetailsFile:
-        skipFileLine(2,foodDetailsFile)
-        for line in foodDetailsFile:
-            raw_list.append(line.strip().replace('_','').split(","))
-        for data in removeEmptyList(raw_list):
-            if (" | " in data[0]):
-                index = raw_list.index(data)
-                raw_list.pop(index)
-    foodCategoryLists = [i for i in raw_list if i != []]
-
-    for list in foodCategoryLists:
-            for data in list:
-                for i in range(len(data)):
-                    if data[i] == "-":
-                        foodCategoryDetails.append([''.join(data[0:i-1])])
-    foodCategoryDetails = [i[0] for i in foodCategoryDetails]
-    return foodCategoryDetails
-
-def foodCategoriesMenu(): #Prompts admin to select which category of food item they want to add or to add new category 
-    print("You have chosen to add food item by category","Choose one category\n",sep="\n")
-    displayFoodCategories()
-    print("0. Add new food Category")
-    userSelection = userInput("Food Category",True)
-    if int(userSelection) == 0:
-        categoryName = userInput("Category Name",False)
-        categoryDescription = userInput("Description",False)
-        addFoodCategory(categoryName,categoryDescription)
-    else: 
-        addFoodItem((extractFoodCategories()[int(userSelection)-1]))
-
-def addFoodCategory(name,description): #Adds new food category in foodDetails.txt file
-    uppercaseName = name.upper()
-    capitalizeDescription = description.capitalize()
+def writeNewFoodCategoryToFile(categoryName,categoryDescription): #Adds new food category in food details file
+    uppercaseName = categoryName.upper()
+    capitalizedDescription = categoryDescription.capitalize()
     with open('foodDetails.txt','a') as foodDetailsFile:
             foodDetailsFile.write('\n' + '_'*88 + '\n\n')
-            foodDetailsFile.write("{} - {}".format(uppercaseName,capitalizeDescription) + '\n')
+            foodDetailsFile.write(f"{uppercaseName} FOOD CATEGORY - {capitalizedDescription}\n")
             foodDetailsFile.write("_"*88 + '\n')
 
-def addFoodItem(chosenFoodCategory):
+def writeNewFoodItemToFile(foodCategoryName,foodItemName,foodItemPrice): #Directly writes new food item data to food details file
     try:
-        foodItemName = userInput("Food Item Name",False)
-        foodItemPrice = float(userInput("Food Item Price",False))
-        print("Please confirm if these are the details you would like to add")
-        print("""=====================
-| FOOD CATEGORY     | {}
-| FOOD ITEM NAME    | {}
-| FOOD ITEM PRICE   | {}
-=====================""".format(chosenFoodCategory,foodItemName,foodItemPrice))
-        if (userInput("(Y)es/(N)o",True) == 'Y'):
-            orderRecordsFile = []
-            itemIndexes = []
-            with open ('foodDetails.txt', mode='r') as f:
-                for row in f:   
-                    orderRecordsFile.append([row])
-                for data in orderRecordsFile:
-                    if chosenFoodCategory in data[0]:
-                        itemIndexes.append(orderRecordsFile.index(data))
-                for index in itemIndexes:
-                    lastItemIndex = itemIndexes[0]
-                    if index > lastItemIndex:
-                        lastItemIndex = index
-                temp = orderRecordsFile[lastItemIndex][0].split(" | ")
-                newFoodID = temp[0][0] + str(int(temp[1].strip(temp[0][0]))+1)     
-                if (lastItemIndex == (len(orderRecordsFile)-1)):
-                    orderRecordsFile.insert(lastItemIndex+1, ['\n{} | {} | {} | {}'.format(chosenFoodCategory,newFoodID, foodItemName,foodItemPrice)])
-                else:
-                    orderRecordsFile.insert(lastItemIndex+1, ['{} | {} | {} | {}\n'.format(chosenFoodCategory,newFoodID, foodItemName,foodItemPrice)])
-            with open ('foodDetails.txt', mode='w') as food:
-                for data in orderRecordsFile:
-                    food.write(data[0])
-    except ValueError: 
-        print("Please enter the correct value")
+        orderRecordsFile = []
+        with open ('foodDetails.txt', mode='r') as f:
+            for row in f:   
+                orderRecordsFile.append([row])
+        foodItemIndexes = [
+            orderRecordsFile.index(data)
+            for data in orderRecordsFile
+            if foodCategoryName in data[0]
+        ]
+        lastFoodItemIndex = foodItemIndexes[-1]
+        lastFoodItemRecord = orderRecordsFile[lastFoodItemIndex][0].split(" | ")
+        newFoodID = lastFoodItemRecord[0][0] + str(int(lastFoodItemRecord[1].strip(lastFoodItemRecord[0][0]))+1)
+        if (lastFoodItemIndex == (len(orderRecordsFile)-1)):
+            orderRecordsFile.insert(lastFoodItemIndex+1, [f'\n{foodCategoryName} | {newFoodID} | {foodItemName} | {foodItemPrice}'])
+        else:
+            orderRecordsFile.insert(lastFoodItemIndex+1, [f'{foodCategoryName} | {newFoodID} | {foodItemName} | {foodItemPrice}\n'])
+        with open ('foodDetails.txt', mode='w') as food:
+            for data in orderRecordsFile:       
+                food.write(data[0])
+    except TypeError:
+        print("Food details text file is corrupted!")
+    except FileNotFoundError:
+        print("Food details text file is missing!")
+
+def displayFoodCategories(): #Displays list of food categories as ordered list
+    while True:
+        try:     
+            count=1
+            while (count<len(extractFoodCategories())):
+                for list in extractFoodCategories():
+                    print(f'{count}. {list[0].capitalize()}')
+                    count+=1
+            break
+        except TypeError:
+            print("Food details file is corrupted!")
+            break
+
+def extractFoodCategories(): #Gets the title and description of the food categories from the food details text file and append it to list
+    while True:
+        try:
+            rawList = []
+            foodCategoryDetails = []
+            with open ('foodDetails.txt', mode='r') as foodDetailsFile:
+                skipFileLine(4,foodDetailsFile)
+                for line in foodDetailsFile:
+                    rawList.append(line.strip().replace('_','').split(","))
+            for data in removeEmptyList(rawList):
+                if " | " in data[0]:
+                    rawList.pop(rawList.index(data))
+            for list in removeEmptyList(rawList):
+                    for data in list:
+                        for i in range(len(data)):
+                            if data[i] == "-":
+                                foodCategoryDetails.append([''.join(data[0:i-1]),''.join(data[i+2:-1])])
+            return foodCategoryDetails         
+        except TypeError:
+            print("Food details text file is corrupted!")
+        except FileNotFoundError:
+            print("Food details text file is missing!")
+        break
 
 
 '''Modify food item'''
-def modifyFoodItemMenu():
-    while (True):
-        try:
-                clearConsole() 
-                print("______________________".center(50))
-                print("""
-              FOOD ITEM MODIFICATION""")
-                print("______________________".center(50))
-                print("\n{}1. UPDATE RECORD\t2. DELETE RECORD".format(" "*5))
-                print("\nWhat would you like to do?")
-                modifyFoodItem(int(userInput("Input 1 or 2",False)))
-                break
-        except ValueError:
-            print("Please submit a number")
-            time.sleep(1)
-
-
-def modifyFoodItem(action):
+def modifyFoodItemMenu(): #Main page for admins to modify records of food items
     foodDetailsFile = []
     with open('foodDetails.txt',mode='r') as foodFile:
         for row in foodFile:
             foodDetailsFile.append([row])
+    print("\n{}1. UPDATE RECORD\t2. DELETE RECORD".format(" "*5))
+    print("\nWhat would you like to do?")
     while (True):
-        try:  
-            if action == 1 :
-                print("\nIn which category would you like to update the food item?")
-                displayFoodCategories()
-                chosenCategory = int(userInput("Category number",True))
-                progressBar("Retrieving food item records")
-                time.sleep(0.5)
+        try:
+            modifyChoice = int(userInput("Input 1 or 2",False))
+            if modifyChoice == 1:
                 clearConsole()
-                print("""REPORT OF FOOD ITEMS IN {}
----------------------------------------------""".format(extractFoodCategories()[int(chosenCategory)-1]).upper())
-                print("""FOOD ITEM ID\tFOOD ITEM PRICE\t FOOD ITEM NAME
-------------    ---------------  --------------""")
-                for data in readFoodDetailsFile():
-                    if (extractFoodCategories()[int(chosenCategory-1)].replace("FOOD CATEGORY", "").strip().capitalize()) in data:
-                        print('{:<16}{:<15}\t {}'.format(data[1],data[3],data[2]))
-                print("\nEnter the food item id that you would like to update")
-                foodItemId = userInput("Food Item ID",False)
-                print(f"Food item selected: {foodItemId}")
-                print("What would you like to update?","1. Food Item Price","2. Food Item Name","3. Both",sep='\n')
+                pageBanners("UPDATE FOOD ITEM",50)
+                updateFoodItemRecord(foodDetailsFile)
+            elif modifyChoice == 2:
+                clearConsole()
+                pageBanners("DELETE FOOD ITEM",50)
+                deleteFoodItemRecord(foodDetailsFile)
+            else:
+                print("Number is out of range")
+                continue
+            break
+        except ValueError:
+            print("Please submit a number")
+            continue
+
+def updateFoodItemRecord(foodDetailsFile): #Updates record of food items in food details text file
+    # sourcery no-metrics
+    while True:
+        try:
+            print("\nIn which category would you like to update the food item?")
+            displayFoodCategories()
+            categoryNumber = int(userInput("Category number",True))
+            if 0 < categoryNumber <= len(extractFoodCategories()):
+                listOutFoodItems(extractFoodCategories()[categoryNumber-1][0])  
+            else:
+                print("Number is out of range")
+                continue
+            foodItemId = userInput("Enter the Food Item ID that you would like to update",True).upper()
+            if (verifyFoodItemId(foodItemId,foodDetailsFile)):
+                for data in foodDetailsFile:
+                    if foodItemId in data[0]:
+                        foodItemIdList = (data[0].split(" | "))
+                        foodItemIdIndex = foodDetailsFile.index(data)
+                    if foodItemId not in data[0]:
+                        print("Invalid Food Item ID")
+                        break
+                    continue
+                print("\nWhat would you like to update?","1. Food Item Price","2. Food Item Name","3. Both",sep='\n')
                 updateCriteria = int(userInput("Update choice",True))
                 if updateCriteria == 1:
-                    newPrice = userInput("New food item price",False)
-                    for data in foodDetailsFile:
-                        if foodItemId in data[0]:
-                            temp = (data[0].split(" | "))
-                            index = foodDetailsFile.index(data)
-                            if '\n' in temp[3]:
-                                temp[3] = f'{newPrice}\n'
-                            else:
-                                temp[3] = f'{newPrice}'
-                    foodDetailsFile[index] = [" | ".join(temp)]
-                    with open ('foodDetails.txt',mode='w') as f:
-                        for data in foodDetailsFile:
-                            f.write(data[0])  
+                    newPrice = float(userInput("New food item price",False))
+                    newPrice = format(newPrice,'.2f')
+                    foodItemIdList[3] = f'{newPrice}\n' if '\n' in foodItemIdList[3] else f'{newPrice}'
                 elif updateCriteria == 2:
-                    newName = userInput("New food item name",False)
-                    for data in foodDetailsFile:
-                        if foodItemId in data[0]:
-                            temp = (data[0].split(" | "))
-                            index = foodDetailsFile.index(data)
-                            temp[2] = f'{newName}'
-                            foodDetailsFile[index] = [" | ".join(temp)]
-                    with open ('foodDetails.txt',mode='w') as f:
-                        for data in foodDetailsFile:
-                            f.write(data[0]) 
+                    foodItemIdList[2] = f'{userInput("New food item name",False)}'
                 elif updateCriteria == 3:
-                    newName = userInput("New food item name",False)
                     newPrice = userInput("New food item price",False)
+                    foodItemIdList[2] = f'{userInput("New food item name",False)}'
+                    foodItemIdList[3] = f'{newPrice}\n' if '\n' in foodItemIdList[3] else f'{newPrice}' 
+                else:
+                    print("Number out of range")
+                    continue
+            else:
+                print("Invalid food item id")
+                continue
+            foodDetailsFile[foodItemIdIndex] = [" | ".join(foodItemIdList)]
+            with open ('foodDetails.txt',mode='w') as f:
+                f.write(data[0] for data in foodDetailsFile)
+            break
+        except FileNotFoundError:
+            print("Food details file not found")
+            break
+        except ValueError:
+            print("Please submit a number")
+            continue
+
+def verifyFoodItemId(foodItemId,foodDetailsFile):
+    if foodItemId == '' : 
+        return False
+    if (foodItemId[0].isalpha() and foodItemId[1 : len(foodItemId)].isdigit()):
+        print(f"Food item id selected: {foodItemId}")
+        for data in foodDetailsFile:
+            if foodItemId in data[0]:
+                return True
+
+def listOutFoodItems(chosenFoodCategoryName):
+    while True:
+        try:
+            progressBar("Retrieving food item records")
+            time.sleep(0.5)
+            print(f"\n\nREPORT OF FOOD ITEMS IN {chosenFoodCategoryName.upper()}\n{'-'*24}{'-'*len(chosenFoodCategoryName)}")
+            print(f"FOOD ITEM ID\tFOOD ITEM PRICE\t FOOD ITEM NAME\n{'-'*12}{' '*4}{'-'*15}{' '*2}{'-'*14}")
+            for data in readFoodDetailsFile():
+                if (chosenFoodCategoryName.replace("FOOD CATEGORY", "").strip().capitalize()) in data:
+                    print('{:<16}{:<15}\t {}'.format(data[1],data[3],data[2]))
+            break
+        except TypeError:
+            print("Please enter a number")
+
+def deleteFoodItemRecord(foodDetailsFile):
+    while True:
+        try:
+            print("\nIn which category would you like to delete the food item?")
+            displayFoodCategories()
+            categoryNumber = int(userInput("Category number",True))
+            if 0 < categoryNumber <= len(extractFoodCategories()):
+                listOutFoodItems(extractFoodCategories()[categoryNumber-1][0])  
+            else:
+                print("Number is out of range")
+                continue
+            foodItemId = userInput("Enter the Food Item ID that you would like to delete",True).upper()
+            if(verifyFoodItemId(foodItemId,foodDetailsFile)):
+                print(f"Are you sure you want to delete {foodItemId}?")
+                userConfirmation = userInput("(Y)es/(N)o",True).upper()
+                if (userConfirmation=="Y"):
                     for data in foodDetailsFile:
                         if foodItemId in data[0]:
-                            index = foodDetailsFile.index(data)
-                            temp = data[0].split(" | ")
-                            temp[2] = f'{newName}'
-                            if '\n' in temp[3]:
-                                temp[3] = f'{newPrice}\n'
-                            else:
-                                temp[3] = f'{newPrice}'
-                    foodDetailsFile[index] = [" | ".join(temp)]
+                            foodDetailsFile.pop(foodDetailsFile.index(data))
+                        if '\n' in foodDetailsFile[-1][-1]:
+                            temp = foodDetailsFile[-1][-1].strip("\n")
+                            foodDetailsFile[-1][-1] = temp
                     with open ('foodDetails.txt',mode='w') as f:
                         for data in foodDetailsFile:
                             f.write(data[0])
-                break
-            elif (action == 2):
-                print("\nIn which category would you like to delete the food item?")
-                displayFoodCategories()
-                chosenCategory = int(userInput("Category number",True))
-                progressBar("Retrieving food item records")
-                time.sleep(0.5)
-                clearConsole()
-                print("""REPORT OF FOOD ITEMS IN {} FOOD CATEGORY
----------------------------------------------""".format(extractFoodCategories()[int(chosenCategory)-1]).upper())
-                print("""FOOD ITEM ID\tFOOD ITEM PRICE\t FOOD ITEM NAME
-------------    ---------------  --------------""")
-                for data in readFoodDetailsFile():
-                    if (extractFoodCategories()[int(chosenCategory)-1]) in data[0]:
-                        print('{:<16}{:<15}\t {}'.format(data[1],data[3],data[2]))
-                print("\nEnter the food item id that you would like to delete")
-                foodItemId = userInput("Food Item ID",False)
-                print(f"Are you sure you want to delete {foodItemId}?")
-                for data in foodDetailsFile:
-                    if foodItemId in data[0]:
-                        foodDetailsFile.pop(foodDetailsFile.index(data))
-                    if '\n' in foodDetailsFile[-1][-1]:
-                        temp = foodDetailsFile[-1][-1].strip("\n")
-                        foodDetailsFile[-1][-1] = temp
-                with open ('foodDetails.txt',mode='w') as f:
-                    for data in foodDetailsFile:
-                        f.write(data[0])
-                break
-            elif updateCriteria == 3:pass
-            else :
-                print("The number you submitted is outside the allowed range!")           
+                    break
+                elif (userConfirmation == "N"):
+                    adminMenu()
+                else:
+                    print("Invalid input")
+            else:
+                print("Invalid Food Item ID")
+                continue
         except ValueError:
-                print("Please submit a number")
-                time.sleep(1)
-
+            print("Please submit a number")
+            time.sleep(1)
 
 '''Display records of food category'''
 def displayRecordsMenu(): #Dispaly records main page
@@ -397,16 +459,16 @@ def displayFoodCategoryRecords():
     foodCategoryDetails = []
 
     '''Extract main category and descriptions and appends to list'''
-    raw_list = []
+    rawList = []
     with open ('foodDetails.txt', mode='r') as foodDetailsFile:
         skipFileLine(2,foodDetailsFile)
         for line in foodDetailsFile:
-            raw_list.append(line.strip().replace('_','').split(","))
-        for data in removeEmptyList(raw_list):
+            rawList.append(line.strip().replace('_','').split(","))
+        for data in removeEmptyList(rawList):
             if (" | " in data[0]):
-                index = raw_list.index(data)
-                raw_list.pop(index)
-    foodCategoryLists = [i for i in raw_list if i != []]
+                index = rawList.index(data)
+                rawList.pop(index)
+    foodCategoryLists = [i for i in rawList if i != []]
 
     '''Split food category and descriptions to 2 separate variables'''
     for list in foodCategoryLists:
@@ -458,7 +520,7 @@ def displayPaymentRecords():
         print('{:<24}{:<16}{:<16}{:<16}{:<16}{}'.format(data[0],data[1],data[3],data[4],data[5],data[6]))
 
 '''Search Specific Customer Order Record'''
-def searchMainPage():
+def searchRecordsMenu():
     clearConsole()
     print("_____________".center(50))
     print("""
@@ -489,11 +551,11 @@ def searchCustomerOrder():
     print("_____________________".center(50))
     print("""\n{}1. CUSTOMER USERNAME\t2. ORDER ID""".format(" "*4))
     print("\nOn what basis should the records be searched?".center(100))
-    while (True):
+    while True:
         try:
             orderList = readOrderRecordsFile()
             searchCriteria = int(userInput("Input 1 or 2",False))
-            if (searchCriteria == 1) :
+            if (searchCriteria == 1):
                 recordByUsername = []
                 username = userInput("Please enter Customer Username",True)
                 count = 0
@@ -503,12 +565,7 @@ def searchCustomerOrder():
                         count+=1
                 if count >=1:
                     print("{} order records have been found for {}".format(count,username))
-                    progressBar("Generating report")
-                    time.sleep(0.5)
-                    print("""\n\t\t\t\tORDER REPORT FOR {}
-\t\t\t\t-----------------{}\n""".format(username.upper(),"-"*len(username)))
-                    print("""CUSTOMER USERNAME\tORDER ID\tTOTAL PAYABLE\tORDER STATUS\tFOOD ID(QUANTITY)
------------------       --------        -------------   ------------    -----------------""")
+                    displayCustomerOrders(username)
                     for data in recordByUsername:
                         print('{:<24}{:<16}{:<16}{:<16}{}'.format(username.upper(),data[0],data[2],data[3],data[1]))
                 else:
@@ -524,12 +581,7 @@ def searchCustomerOrder():
                         orderExists = True
                 if (orderExists):
                     print("1 Order record have been found for Order ID {}".format(orderID.upper()))
-                    progressBar("Generating report")
-                    time.sleep(0.5)
-                    print("""\n\t\t\t\tORDER REPORT FOR {}
-\t\t\t\t-----------------{}\n""".format(orderID.upper(),"-"*len(orderID)))
-                    print("""CUSTOMER USERNAME\tORDER ID\tTOTAL PAYABLE\tORDER STATUS\tFOOD ID(QUANTITY)
------------------       --------        -------------   ------------    -----------------""")
+                    displayCustomerOrders(orderID)
                     for data in recordById:
                         print('{:<24}{:<16}{:<16}{:<16}{}'.format(data[0].upper(),data[1],data[3],data[4],data[2]))
                 else:
@@ -542,6 +594,19 @@ def searchCustomerOrder():
             print("Please submit a number")
             time.sleep(1.5)
 
+def displayCustomerOrders(criteria):
+    progressBar("Generating report")
+    time.sleep(0.5)
+    print(
+        """\n\t\t\t\tORDER REPORT FOR {}
+\t\t\t\t-----------------{}\n""".format(
+            criteria.upper(), "-" * len(criteria)
+        )
+    )
+
+    print("""CUSTOMER USERNAME\tORDER ID\tTOTAL PAYABLE\tORDER STATUS\tFOOD ID(QUANTITY)
+-----------------       --------        -------------   ------------    -----------------""")
+
 '''Search Specific Customer Payment Record'''
 def searchCustomerPayment():
     print("_______________________".center(50))
@@ -550,11 +615,11 @@ def searchCustomerPayment():
     print("_______________________".center(50))
     print("""\n{}1. CUSTOMER USERNAME\t2. ORDER ID""".format(" "*4))
     print("\nOn what basis should the records be searched?".center(100))
-    while (True):
+    while True:
         try:
             paymentList = readOrderRecordsFile()
             searchCriteria = int(userInput("Input 1 or 2",False))
-            if (searchCriteria == 1) :
+            if (searchCriteria == 1):
                 recordByUsername = []
                 username = userInput("Please enter Customer Username",True)
                 count = 0
@@ -564,12 +629,7 @@ def searchCustomerPayment():
                         count+=1
                 if count >=1:
                     print("{} order records have been found for {}".format(count,username))
-                    progressBar("Generating report")
-                    time.sleep(0.5)
-                    print("""\n\t\t\t\t\tPAYMENT REPORT FOR {}
-\t\t\t\t\t-------------------{}\n""".format(username.upper(),"-"*len(username)))
-                    print("""CUSTOMER USERNAME\tORDER ID\tTOTAL PAYABLE\tPAYMENT METHOD\tPAYMENT STATUS\t PAID ON
------------------       --------        -------------   --------------  --------------   -------""")
+                    displayCustomerPayments(username)
                     for data in recordByUsername:
                         print('{:<24}{:<16}{:<16}{:<16}{:<17}{}'.format(username.upper(),data[0],data[1],data[2],data[3],data[4]))
                 else:
@@ -585,12 +645,7 @@ def searchCustomerPayment():
                         orderExists = True
                 if (orderExists):
                     print("1 Order record have been found for Order ID {}".format(orderID.upper()))
-                    progressBar("Generating report")
-                    time.sleep(0.5)
-                    print("""\n\t\t\t\t\tPAYMENT REPORT FOR {}
-\t\t\t\t\t-------------------{}\n""".format(orderID.upper(),"-"*len(orderID)))
-                    print("""CUSTOMER USERNAME\tORDER ID\tTOTAL PAYABLE\tPAYMENT METHOD\tPAYMENT STATUS\t PAID ON
------------------       --------        -------------   --------------  --------------   -------""")
+                    displayCustomerPayments(orderID)
                     for data in recordById:
                         print('{:<24}{:<16}{:<16}{:<16}{:<17}{}'.format(data[0].upper(),data[1],data[2],data[3],data[4],data[5]))
                 else:
@@ -602,6 +657,19 @@ def searchCustomerPayment():
         except ValueError:
             print("Please submit a number")
             time.sleep(1)
+
+def displayCustomerPayments(criteria):
+    progressBar("Generating report")
+    time.sleep(0.5)
+    print(
+        """\n\t\t\t\t\tPAYMENT REPORT FOR {}
+\t\t\t\t\t-------------------{}\n""".format(
+            criteria.upper(), "-" * len(criteria)
+        )
+    )
+
+    print("""CUSTOMER USERNAME\tORDER ID\tTOTAL PAYABLE\tPAYMENT METHOD\tPAYMENT STATUS\t PAID ON
+-----------------       --------        -------------   --------------  --------------   -------""")
 
 '''DECLARING FUNCTIONS FOR GUEST DASHBOARD'''
 def guestMenu(): #Guest Dashboard Main Page
@@ -652,14 +720,21 @@ def regCustomerMenu(): #Customer menu upon successful login
 '''DECLARING MAIN GREETING PAGE'''
 def main():
     clearConsole()
-    print("Welcome to Spiderman Online Food Service!")
+    print(" ____   ___  _____ ____".center(78))
+    print("/ ___| / _ \|  ___/ ___|".center(78))
+    print("\___ \| | | | |_  \___ \\".center(78))
+    print(" ___) | |_| |  _|  ___) |".center(80))
+    print("|____/ \___/|_|   |____/".center(78))
+    print("")
+    print(f' {"Welcome to the Online Food Ordering Management System"} '.center(85, '='))
     time.sleep(1)
-    print("Please select any option below.", "1. Admin", "2. Customer", "3. Quit Program", sep=' \n')
+    print("\nWho are you logging in as?", "1. Admin", "2. Customer", "3. Quit Program", sep=' \n')
     while (True):
         try:
-            input = int(userInput("Login to",True))
+            input = int(userInput("Login as (1/2/3)",True))
             if input == 1 :
-
+                clearConsole()
+                pageBanners("ADMIN LOGIN PAGE",50)
                 adminLoginPage()
             elif input == 2 :
                 guestMenu() 
@@ -667,11 +742,10 @@ def main():
                 quit()
             else:
                 print("Out of range, please enter a number between 1 and 3")
-                time.sleep(1)
+                continue
             break
         except ValueError:
             print("You entered an alphabet, please enter a number between 1 and 3")
-            time.sleep(1)
             
 
 '''EXECUTE MAIN'''
