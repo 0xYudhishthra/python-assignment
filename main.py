@@ -264,7 +264,7 @@ def writeNewFoodItemToFile(foodCategoryName,foodItemName,foodItemPrice): #Direct
     except FileNotFoundError:
         print("Food details text file is missing!")
 
-def displayFoodCategories(): #Displays list of food categories as ordered list
+def displayFoodCategories(): #Displays list of food categories ONLY as ordered list
     while True:
         try:     
             count=1
@@ -328,7 +328,7 @@ def modifyFoodItemMenu(): #Main page for admins to modify records of food items
             print("Please submit a number")
             continue
 
-def updateFoodItemRecord(foodDetailsFile): #Updates record of food items in food details text file
+def updateFoodItemRecord(foodDetailsFile): #Updates a specific record of food item in the food details text file
     # sourcery no-metrics
     while True:
         try:
@@ -379,7 +379,7 @@ def updateFoodItemRecord(foodDetailsFile): #Updates record of food items in food
             print("Please submit a number")
             continue
 
-def verifyFoodItemId(foodItemId,foodDetailsFile):
+def verifyFoodItemId(foodItemId,foodDetailsFile): #Verifies the format of the food item ID that has been received by the user
     if foodItemId == '' : 
         return False
     if (foodItemId[0].isalpha() and foodItemId[1 : len(foodItemId)].isdigit()):
@@ -388,7 +388,7 @@ def verifyFoodItemId(foodItemId,foodDetailsFile):
             if foodItemId in data[0]:
                 return True
 
-def listOutFoodItems(chosenFoodCategoryName):
+def listOutFoodItems(chosenFoodCategoryName): #Displays the details of all food items in the food details file based on the category chosen by the user
     while True:
         try:
             progressBar("Retrieving food item records")
@@ -402,7 +402,7 @@ def listOutFoodItems(chosenFoodCategoryName):
         except TypeError:
             print("Please enter a number")
 
-def deleteFoodItemRecord(foodDetailsFile):
+def deleteFoodItemRecord(foodDetailsFile): #Deletes a specific food item record in the food details text file
     while True:
         try:
             print("\nIn which category would you like to delete the food item?")
@@ -469,14 +469,14 @@ def displayRecordsMenu(): #Display records main page
         except ValueError:
             print("Please enter a number")
 
-def displayFoodCategoryRecords(foodCategoryList):
+def displayFoodCategoryRecords(foodCategoryList): #Displays the records of food categories and descriptions cleanly
     '''Print data in user readable form'''
     print(f'\n\t\tDETAILS OF FOOD CATEGORIES\n\t\t{"-"*26}')
     print(f"CATEGORY NAME(S)\t\tCATEGORY DESCRIPTION(S)\n{'-'*15}\t\t\t{'-'*22}")
     for data in foodCategoryList:
         print('{:<32}{}'.format(data[0],data[1]))
 
-def displayOrderOrPaymentRecords(displayChoice,orderRecordsList):
+def displayOrderOrPaymentRecords(displayChoice,orderRecordsList): #Displays either order or payment records based on parameters given 
     print(f"\n\t\t\t\tREPORT OF ALL CUSTOMER {displayChoice.upper()}\n\t\t\t\t{'-'*31}\n")
     if displayChoice == 'orders':
         print(f"CUSTOMER USERNAME\tORDER ID\tTOTAL PAYABLE\tORDER STATUS\tFOOD ID (QUANTITY)\n{'-'*17}{' '*7}{'-'*8}{' '*8}{'-'*13}{' '*3}{'-'*12}{' '*4}{'-'*18}")
@@ -488,7 +488,7 @@ def displayOrderOrPaymentRecords(displayChoice,orderRecordsList):
             print('{:<24}{:<16}{:<16}{:<16}{:<16}{}'.format(data[0],data[1],data[3],data[4],data[5],data[6]))
 
 '''Search Menu Main Page'''
-def searchRecordsMenu():
+def searchRecordsMenu(): #Main page to search records
     print("\n1. CUSTOMER ORDER RECORD\t2. CUSTOMER PAYMENT RECORD".center(50))
     print("\nWhich record do you want to check?")
     while (True):
@@ -510,7 +510,7 @@ def searchRecordsMenu():
             print("Please enter a number!")
 
 '''Search Specific Customer Order Record'''
-def searchCustomerOrder(orderRecordsList):
+def searchCustomerOrder(orderRecordsList): #Searches the order records file for a specific customer order record
     print("""\n{}1. CUSTOMER USERNAME\t2. ORDER ID""".format(" "*4))
     print("\nOn what basis should the records be searched?".center(100))
     while True:
@@ -554,7 +554,7 @@ def searchCustomerOrder(orderRecordsList):
             time.sleep(1.5)
 
 '''Search Specific Customer Payment Record'''
-def searchCustomerPayment(paymentList):
+def searchCustomerPayment(paymentList): #Searches the order records file for a specific customer payment record
     print("""\n{}1. CUSTOMER USERNAME\t2. ORDER ID""".format(" "*4))
     print("\nOn what basis should the records be searched?".center(100))
     while True:
@@ -596,7 +596,7 @@ def searchCustomerPayment(paymentList):
             time.sleep(1)
 
 '''Display Search Results'''
-def displaySearchResults(recordName,searchBasis,resultsList):
+def displaySearchResults(recordName,searchBasis,resultsList): #Gets search results from the earlier search functions and displays it cleanly
     while True:
         progressBar("Generating report")
         time.sleep(0.5)
@@ -611,7 +611,6 @@ def displaySearchResults(recordName,searchBasis,resultsList):
             for data in resultsList:
                 print('{:<24}{:<16}{:<16}{:<16}{:<16}{}'.format(data[0].upper(),data[1],data[2],data[3],data[4],data[5]))  
         break
-
 
 '''DECLARING FUNCTIONS FOR GUEST DASHBOARD'''
 def guestMenu(): #Guest Dashboard Main Page
@@ -660,7 +659,7 @@ def regCustomerMenu(): #Customer menu upon successful login
 '''Do payment to confirm order'''
 
 '''DECLARING MAIN GREETING PAGE'''
-def main():
+def main(): #The main module that will be executed first
     clearConsole()
     print(" ____   ___  _____ ____".center(78))
     print("/ ___| / _ \|  ___/ ___|".center(78))
