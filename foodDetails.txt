@@ -8,11 +8,11 @@ ________________________________________________________________________________
 
 MALAYSIAN FOOD CATEGORY - A Variety of Malaysian Foods served here.
 ________________________________________________________________________________________
-Malaysian | M1 | Nasi Lemak Rendang Ayam | 12.90
+Malaysian | M1 | Nasi Lemak Rendang Ayam | 13.00
 Malaysian | M2 | Nasi Kerabu Daging Bakar | 15.60
 Malaysian | M3 | Nasi Goreng Kampung | 6.50
-Malaysian | M4 | Penang Asam Laksa | 8.80
-Malaysian | M5 | Mee Goreng Ayam | 9.90
+Malaysian | M4 | Penang Asam Laksa | 9.00
+Malaysian | M5 | Mee Goreng Ayam | 10.00
 ________________________________________________________________________________________
 
 WESTERN FOOD CATEGORY - We bring the Western to you.
@@ -20,7 +20,7 @@ ________________________________________________________________________________
 Western | W1 | Mac & Cheese | 9.00
 Western | W2 | Irish Lamb Shank | 40.11
 Western | W3 | Fish & Chips | 20.11
-Western | W4 | Aglio Oglio with Shrimp | 25.00
+Western | W4 | Aglio Oglio | 30.00
 Western | W5 | Chicken Cordon Bleu | 22.76
 ________________________________________________________________________________________
 
@@ -31,12 +31,3 @@ Fusion | F2 | Donut Grilled Cheese | 4.50
 Fusion | F3 | Ramen Burger | 9.00
 Fusion | F4 | Mac and Cheese Waffles | 5.50
 Fusion | F5 | Ice Cream Trdelnik | 9.00
-________________________________________________________________________________________
-
-BEVERAGES CATEGORY - Chill yourself with a nice cold drink.
-________________________________________________________________________________________
-Beverages | B1 | Fiery Brown Sugar Black Whale Milk | 13.90
-Beverages | B2 | Brown Sugar Milk Tea | 11.90
-Beverages | B3 | Brown Sugar Brulee Milk | 13.90
-Beverages | B4 | Mango Macchiato | 13.90
-Beverages | B5 | Passion Fruit Whalcano | 9.90

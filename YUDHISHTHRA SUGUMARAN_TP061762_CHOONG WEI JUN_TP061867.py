@@ -606,7 +606,7 @@ def displaySearchResults(recordName,searchBasis,resultsList): #Gets search resul
             for data in resultsList:
                 print('{:<24}{:<16}{:<16}{:<16}{}'.format(data[0].upper(),data[1],data[3],data[4],data[2]))           
         else:
-            print("""\n\t\t\t\tPAYMENT REPORT FOR {}\n\t\t\t\t-------------------{}\n""".format(searchBasis.upper(), "-" * len(searchBasis)))
+            print(f"\n\t\t\t\tPAYMENT REPORT FOR {searchBasis.upper()}\n\t\t\t\t{'-'*19}{'-' * len(searchBasis)}\n")
             print(f"CUSTOMER USERNAME\tORDER ID\tTOTAL PAYABLE\tPAYMENT METHOD\tPAYMENT STATUS\tPAID ON\n{'-'*17}{' '*7}{'-'*8}{' '*8}{'-'*13}{' '*3}{'-'*14}{' '*2}{'-'*14}{' '*2}{'-'*7}")
             for data in resultsList:
                 print('{:<24}{:<16}{:<16}{:<16}{:<16}{}'.format(data[0].upper(),data[1],data[2],data[3],data[4],data[5]))  
