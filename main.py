@@ -616,20 +616,62 @@ def displaySearchResults(recordName,searchBasis,resultsList): #Gets search resul
 def guestMenu(): #Guest Dashboard Main Page
     clearConsole()
     print("Please select any option below.")
-    print("1. View Menu","2. Customer Login", "3. New Customer Registration", "4. Back to Main Menu", sep='\n')
+    print("1. View Menu","2. Customer Login", "3. New Customer Registration", "0. Back to Main Menu", sep='\n')
     input = userInput("Choice",True)
     if input == "1":
         viewCategoryList()
     elif input == "2":
+        clearConsole()
+        pageBanners("LOGIN",50)
         authenticateCustomer()
     elif input == "3":
+        pageBanners("NEW ACCOUNT",50)
         customerRegistration()
-    elif input == "4":
+    elif input == "0":
         mainMenu()
     else:
         invalidInput()
         guestMenu()
+        
 '''View all food items as per category'''
+def viewCategoryList() :
+    while True:
+        clearConsole()
+        pageBanners("MENU CATEGORIES",50)
+        displayFoodCategories()
+        print("\n0. Back To Guest Menu")
+        try:
+            print("\nSelect the food category that you want to be displayed")
+            chosenCategory = int(userInput("Food category",True))
+            if chosenCategory == 0 :
+                guestMenu()
+            elif chosenCategory <= 4 :
+                listOutFoodItemsNoDetails((extractFoodCategories()[chosenCategory-1][0]))
+            else :
+                print("\nNumber out of range!")
+                time.sleep(1.5)
+                viewCategoryList()
+        except ValueError:
+            print("\nPlease enter a number!")
+            time.sleep(1.5)
+            viewCategoryList()
+
+def listOutFoodItemsNoDetails(chosenFoodCategoryName): #Displays the details of all food items in the food details file based on the category chosen by the user
+    clearConsole()
+    while True:
+        try:
+            progressBar("Retrieving food item menu")
+            time.sleep(0.5)
+            clearConsole()
+            print(f"FOOD ITEMS IN {chosenFoodCategoryName.upper()}\n{'-'*24}{'-'*len(chosenFoodCategoryName)}")
+            for data in readFoodDetailsFile():
+                if (chosenFoodCategoryName.replace("FOOD CATEGORY", "").strip().capitalize()) in data:
+                    print(data[2])
+            input("\nPress Enter to Return")
+            break
+        except TypeError:
+            print("Please enter a number")
+
 '''New customer registration to access other details'''
 
 '''DECLARING FUNCTIONS FOR REGISTERED CUSTOMER DASHBOARD'''
@@ -640,6 +682,7 @@ def regCustomerMenu(): #Customer menu upon successful login
     print("1. View Item List", "2. View Item Details", "3. Add Food to Cart", "4. Checkout", "5. Main Menu", sep='\n')
     input = userInput("Choice",True)
     if input == "1":
+        clearConsole()
         viewItemList()
     elif input =="2":
         viewItemDetail()
@@ -694,7 +737,6 @@ main()
 
 
 '''Empty functions'''
-
 def order() :
     clearConsole()
     print("\nPlease select any option below.")
@@ -711,7 +753,6 @@ def order() :
         order()
 def cancelOrder() : pass
 def checkPayment() : pass
-def viewCategoryList() : pass
 def viewItemList() : pass
 def registered() : pass
 def viewItemDetail() : pass
