@@ -77,6 +77,20 @@ def readOrderRecordsFile(): #Reads file with order records, extract order record
             print("Order records database is missing!")
         break
 
+def readCustomerDetailsFile(): #Reads file with customer details, extracts username and passwords without headers and appends it to list
+    customerDetailsList = [] 
+    while (True):
+        try:
+            with open ('customerDetails.txt',mode='r') as customerDetailsFile:
+                skipFileLine(6,customerDetailsFile)
+                for row in customerDetailsFile:
+                    customerDetailsList.append(row.strip("\n").replace(" | "," ").split(" "))
+                return customerDetailsList
+        except FileNotFoundError:
+            print("Customers database is missing!") 
+        break
+
+
 '''DECLARING FUNCTIONS THAT CAN BE USED ANYWHERE IN THE PROGRAM'''
 def clearConsole(): #Function to clear all existing text in console
     if os.name in ('nt', 'dos'):  
@@ -614,37 +628,39 @@ def displaySearchResults(recordName,searchBasis,resultsList): #Gets search resul
 
 '''DECLARING FUNCTIONS FOR GUEST DASHBOARD'''
 def guestMenu(): #Guest Dashboard Main Page
-    clearConsole()
-    print("Please select any option below.")
-    print("1. View Menu","2. Customer Login", "3. New Customer Registration", "0. Back to Main Menu", sep='\n')
-    input = userInput("Choice",True)
-    if input == "1":
-        viewCategoryList()
-    elif input == "2":
+    while True:
         clearConsole()
-        pageBanners("LOGIN",50)
-        authenticateCustomer()
-    elif input == "3":
-        pageBanners("NEW ACCOUNT",50)
-        customerRegistration()
-    elif input == "0":
-        mainMenu()
-    else:
-        invalidInput()
-        guestMenu()
+        pageBanners("GUEST DASHBOARD", 50)
+        print("\nPlease select any option below.")
+        print("1. View Menu","2. Customer Login", "3. New Customer Registration", "\n0. Back to Main Menu", sep='\n')
+        input = userInput("Choice",True)
+        if input == "1":
+            viewCategoryList()
+        elif input == "2":
+            customerLoginPage()
+            regCustomerMenu()
+        elif input == "3":
+            pageBanners("NEW ACCOUNT",50)
+            customerRegistration()
+        elif input == "0":
+            break
+        else:
+            invalidInput()
+            guestMenu()
         
 '''View all food items as per category'''
 def viewCategoryList() :
     while True:
         clearConsole()
         pageBanners("MENU CATEGORIES",50)
+        print("\n")
         displayFoodCategories()
         print("\n0. Back To Guest Menu")
         try:
             print("\nSelect the food category that you want to be displayed")
             chosenCategory = int(userInput("Food category",True))
             if chosenCategory == 0 :
-                guestMenu()
+                break
             elif chosenCategory <= 4 :
                 listOutFoodItemsNoDetails((extractFoodCategories()[chosenCategory-1][0]))
             else :
@@ -656,6 +672,7 @@ def viewCategoryList() :
             time.sleep(1.5)
             viewCategoryList()
 
+'''List out food items without details (Price and Descriptions)'''
 def listOutFoodItemsNoDetails(chosenFoodCategoryName): #Displays the details of all food items in the food details file based on the category chosen by the user
     clearConsole()
     while True:
@@ -676,25 +693,52 @@ def listOutFoodItemsNoDetails(chosenFoodCategoryName): #Displays the details of 
 
 '''DECLARING FUNCTIONS FOR REGISTERED CUSTOMER DASHBOARD'''
 '''Login to access system'''
-def regCustomerMenu(): #Customer menu upon successful login
-    clearConsole()
-    print("Welcome {}!, what would you like to do today?")
-    print("1. View Item List", "2. View Item Details", "3. Add Food to Cart", "4. Checkout", "5. Main Menu", sep='\n')
-    input = userInput("Choice",True)
-    if input == "1":
+def customerLoginPage():
+    while True:
         clearConsole()
-        viewItemList()
-    elif input =="2":
-        viewItemDetail()
-    elif input == "3":
-        addFoodToCart()
-    elif input =="4":
-        checkout()
-    elif input == "5":
-        mainMenu()
-    else:
-        invalidInput()
-        regCustomerMenu()
+        pageBanners("Login as Customer", 50)
+        try: 
+            uName = userInput("Username",True)
+            progressBar("Checking if username exists")
+            time.sleep(0.05)
+            if (authUsername(uName,readCustomerDetailsFile())):
+                print(" Username found, please enter password\n")
+                while True:
+                    uPass = userInput("Password",True)
+                    if (authPassword(uName, uPass,readCustomerDetailsFile())):
+                        progressBar("Logging you in")
+                        time.sleep(0.05)
+                        break
+                    else:
+                        print("Incorrect password, please retry\n")
+            else: 
+                print(" Username not found, please retry")
+                continue
+            break
+        except TypeError:
+            print("Customers details file is corrupted!")
+            break
+
+def regCustomerMenu(): #Customer menu upon successful login
+    while True:
+        clearConsole()
+        pageBanners("Customer Menu", 50)
+        print("\nWelcome!, what would you like to do today?")
+        print("1. View Item List", "2. View Item Details", "3. Add Food to Cart", "4. Checkout", "\n0. Main Menu", sep='\n')
+        input = userInput("Choice",True)
+        if input == "1":
+            clearConsole()
+            viewItemList()
+        elif input =="2":
+            viewItemDetail()
+        elif input == "3":
+            addFoodToCart()
+        elif input =="4":
+            checkout()
+        elif input == "0":
+            break
+        else:
+            invalidInput()
 
 '''View detail of food category'''
 '''View detail of food items'''
@@ -703,17 +747,17 @@ def regCustomerMenu(): #Customer menu upon successful login
 
 '''DECLARING MAIN GREETING PAGE'''
 def main(): #The main module that will be executed first
-    clearConsole()
-    print(" ____   ___  _____ ____".center(78))
-    print("/ ___| / _ \|  ___/ ___|".center(78))
-    print("\___ \| | | | |_  \___ \\".center(78))
-    print(" ___) | |_| |  _|  ___) |".center(80))
-    print("|____/ \___/|_|   |____/".center(78))
-    print("")
-    print(f' {"Welcome to the Online Food Ordering Management System"} '.center(85, '='))
-    time.sleep(1)
-    print("\nWho are you logging in as?", "1. Admin", "2. Customer", "3. Quit Program", sep=' \n')
-    while (True):
+    while True:
+        clearConsole()
+        print(" ____   ___  _____ ____".center(78))
+        print("/ ___| / _ \|  ___/ ___|".center(78))
+        print("\___ \| | | | |_  \___ \\".center(78))
+        print(" ___) | |_| |  _|  ___) |".center(80))
+        print("|____/ \___/|_|   |____/".center(78))
+        print("")
+        print(f' {"Welcome to the Online Food Ordering Management System"} '.center(85, '='))
+        time.sleep(1)
+        print("\nWho are you logging in as?", "1. Admin", "2. Customer", "3. Quit Program", sep=' \n')
         try:
             input = int(userInput("Login as (1/2/3)",True))
             if input == 1 :
@@ -726,8 +770,6 @@ def main(): #The main module that will be executed first
                 quit()
             else:
                 print("Out of range, please enter a number between 1 and 3")
-                continue
-            break
         except ValueError:
             print("You entered an alphabet, please enter a number between 1 and 3")
             
