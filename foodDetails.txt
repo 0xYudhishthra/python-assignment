@@ -1,0 +1,33 @@
+__________________________________________________________________
+SOFS FOOD DETAILS
+
+THIS FILE STORES THE DETAILS OF FOODS THAT CAN BE ORDERED IN SOFS.
+STORE FORMAT: CATEGORY NAME | ITEM ID | ITEM NAME | PRICE 
+__________________________________________________________________
+________________________________________________________________________________________
+
+MALAYSIAN FOOD CATEGORY - A Variety of Malaysian Foods served here.
+________________________________________________________________________________________
+Malaysian | M1 | Nasi Lemak Rendang Ayam | 13.00
+Malaysian | M2 | Nasi Kerabu Daging Bakar | 15.60
+Malaysian | M3 | Nasi Goreng Kampung | 6.50
+Malaysian | M4 | Penang Asam Laksa | 9.00
+Malaysian | M5 | Mee Goreng Ayam | 10.00
+________________________________________________________________________________________
+
+WESTERN FOOD CATEGORY - We bring the Western to you.
+________________________________________________________________________________________
+Western | W1 | Mac & Cheese | 9.00
+Western | W2 | Irish Lamb Shank | 40.11
+Western | W3 | Fish & Chips | 20.11
+Western | W4 | Aglio Oglio | 30.00
+Western | W5 | Chicken Cordon Bleu | 22.76
+________________________________________________________________________________________
+
+FUSION FOOD CATEGORY - Combining the best of both worlds.
+________________________________________________________________________________________
+Fusion | F1 | Sushi Pizza | 15.00
+Fusion | F2 | Donut Grilled Cheese | 4.50
+Fusion | F3 | Ramen Burger | 9.00
+Fusion | F4 | Mac and Cheese Waffles | 5.50
+Fusion | F5 | Ice Cream Trdelnik | 9.00

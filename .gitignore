@@ -1,6 +1,8 @@
 #Miscellanous Files
 *.json
 doubts.txt
+codeTesting.py
+foodDetails(testing).txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -131,3 +133,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
