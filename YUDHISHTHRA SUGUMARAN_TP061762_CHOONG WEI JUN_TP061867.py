@@ -724,10 +724,9 @@ def regCustomerMenu(): #Customer menu upon successful login
         clearConsole()
         pageBanners("Customer Menu", 50)
         print("\nWelcome!, what would you like to do today?")
-        print("1. View Item List", "2. View Item Details", "3. Add Food to Cart", "4. Checkout", "\n0. Main Menu", sep='\n')
+        print("1. View Item List", "2. View Item Details", "3. Add Food to Cart", "4. Checkout", "\n0. Logout", sep='\n')
         input = userInput("Choice",True)
         if input == "1":
-            clearConsole()
             viewItemList()
         elif input =="2":
             viewItemDetail()
