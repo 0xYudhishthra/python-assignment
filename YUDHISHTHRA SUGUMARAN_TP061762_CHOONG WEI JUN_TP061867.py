@@ -1,37 +1,6 @@
 #Yudhishthra A/L S Sugumaran - TP061762
 #Choong Wei Jun - TP061867
 
-"""
-Code Structure
-1. Import necessary external modules
-2. Declaring functions to read text files and convert it to lists
-3. Declaring functions that can be used in any part of the program
-4. Declaring functions for admin dashboard
-    0. Login to Access System (Done)
-    1. Add food item by category (Done)
-    2. Modify food item (Update, Delete) (Done)
-    3. Display Records of Food Category (Done)
-    4. Display Records of Food Items by Category (Done)
-    5. Display Records of Customer Orders (Done)
-    6. Display Records of Customer Payments (Done)
-    7. Search Specific Customer Order Record (Done)
-    8. Search Specific Customer Payment Record (Done)
-    9. Exit
-5. Declaring functions for guest dashboard   
-    0. View all food items as per category
-    1. New customer registration to access other details
-    2. Exit
-6. Declaring functions for Registered Customer Dashboard
-    0. Login to access system
-    1. View detail of food category
-    2. View detail of food items
-    3. Select food item and add to cart
-    4. Do payment to confirm order
-    5. Exit
-7. Declaring main greeting page
-8. Execute main
-"""
-
 '''IMPORTING NECESSARY EXTERNAL MODULES'''
 #!/usr/bin/env python3
 import os
