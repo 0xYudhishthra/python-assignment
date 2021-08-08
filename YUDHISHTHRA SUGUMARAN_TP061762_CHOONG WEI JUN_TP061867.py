@@ -316,7 +316,7 @@ def updateFoodItemMenu(foodDetailsList): #Menu for user to choose which specific
                         if foodItemId in data[0]:
                             foodItemIdList = data[0].split(" | ")
                             foodItemIdIndex = foodDetailsList.index(data)              
-                            updateFoodItemRecord(foodDetailsList, foodItemIdList, foodItemIdIndex)
+                    updateFoodItemRecord(foodDetailsList, foodItemIdList, foodItemIdIndex)
                     break
                 else:
                     print("Invalid Food Item ID")
@@ -347,15 +347,15 @@ def updateFoodItemRecord(foodDetailsList, foodItemIdList, foodItemIdIndex): #Upd
             else:
                 print("Number out of range")
                 continue
-            foodDetailsList[foodItemIdIndex] = [" | ".join(foodItemIdList)]
-            print(foodDetailsList)
-            # with open (FOOD_DETAILS_FILE,mode='w') as f:
-            #     f.write(data[0] for data in foodDetailsList)
-            break
+            break     
     except FileNotFoundError:
         print("Food details file not found")
     except ValueError:
         print("Please submit a number")
+    foodDetailsList[foodItemIdIndex] = [" | ".join(foodItemIdList)]
+    with open (FOOD_DETAILS_FILE,mode='w') as f:
+        for data in foodDetailsList:
+            f.write(data[0])
 
 
 
