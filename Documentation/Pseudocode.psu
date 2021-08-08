@@ -1,0 +1,1429 @@
+
+FUNCTION clearConsole()
+    IF (CALL os.name IN ("nt", "dos")) THEN  
+        CALL os.system("cls")
+    ELSE
+        CALL os.system("clear")
+    ENDIF
+ENDFUNCTION
+    
+FUNCTION quit() 
+    DISPLAY newline
+    DISPLAY "Thank you! Please come again"   
+    CALL time.sleep(1)
+    CALL exit()
+ENDFUNCTION
+	
+FUNCTION userInput(promptMessage, skipLine) 
+    IF (skipLine) THEN
+        DISPLAY newline
+        DISPLAY promptMessage + " >> "
+        READ input
+        RETURN input 
+    ELSE
+        DISPLAY promptMessage + " >> "
+        READ input
+        RETURN input 
+    ENDIF
+ENDFUNCTION
+
+FUNCTION authUsername(username,detailsList)
+    FOR EACH data IN detailsList
+        IF (username == data[0]) THEN
+            RETURN True
+        ENDIF
+    ENDFOR
+ENDFUNCTION
+
+FUNCTION authPassword(username, password, detailsList) 
+    FOR EACH data IN detailsList
+        IF ((username == data[0]) AND (password == data[1])) THEN
+            RETURN True
+        ENDIF
+    ENDFOR
+ENDFUNCTION
+
+FUNCTION skipFileLine(count, fileHandle) 
+    LOOP i FROM 0 TO (count-1) STEP 1
+        CALL next(fileHandle) 
+        NEXT i 
+    ENDLOOP
+ENDFUNCTION
+
+FUNCTION removeEmptyList(sourceList)
+    updatedList = []
+    FOR EACH data IN sourceList
+        DOWHILE ('' IN data)
+            REMOVE ('') FROM data
+        ENDDO
+    ENDFOR
+    FOR EACH data IN sourceList
+        IF data != [] THEN
+            APPEND data TO updatedList
+    ENDFOR
+    RETURN updatedList
+ENDFUNCTION
+
+FUNCTION progressBar(loadingMessage)
+    DISPLAY loadingMessage + "..."
+    animation = ["[■□□□□□□□□□]","[■■□□□□□□□□]", "[■■■□□□□□□□]", "[■■■■□□□□□□]", "[■■■■■□□□□□]", 
+                  "[■■■■■■□□□□]", "[■■■■■■■□□□]", "[■■■■■■■■□□]", "[■■■■■■■■■□]", "[■■■■■■■■■■]"]
+    FOR EACH item IN animation
+        CALL time.sleep(0.05)
+        DISPLAY "\r" + item WITH end = "" 
+    ENDFOR
+ENDFUNCTION
+
+FUNCTION pageBanners(pageTitle, centerLength)
+    DISPLAY "_" * (pageTitle LENGTH) WITH CALL center(centerLength)
+    DISPLAY newline
+    DISPLAY pageTitle WITH CALL center(centerLength)
+    DISPLAY "_" * (pageTitle LENGTH) WITH CALL center(centerLength)
+ENDFUNCTION
+
+
+'''FILE HANDLING FUNCTIONS'''
+
+FUNCTION readAdminDetailsFile()  
+    adminDetailsList = [] 
+    TRY
+        OPEN FILE ADMIN_DETAILS_FILE IN READ MODE AS adminDetailsFile
+            CALL skipFileLine(6,adminDetailsFile)
+            FOR EACH row IN adminDetailsFile
+                STRIP row BY "\n"
+                REPLACE row FROM " | " TO " "
+                SPLIT row BY " "
+                APPEND row to adminDetailsList
+            ENDFOR
+        CLOSE FILE ADMIN_DETAILS_FILE
+        RETURN adminDetailsList
+    EXCEPT ERROR THEN
+        DISPLAY "Admin details file is missing!" 
+    ENDTRY
+ENDFUNCTION
+
+
+
+FUNCTION readFoodDetailsFile()
+    foodDetailsList=[]
+        TRY
+            OPEN FILE FOOD_DETAILS_FILE IN READ MODE AS foodDetailsFile
+                CALL skipFileLine(6,foodDetailsFile) 
+                FOR EACH row IN foodDetailsFile
+                    IF (row[0] == "_") THEN
+                        CALL skipFileLine(3,foodDetailsFile)
+                    ENDIF
+                    REPLACE row FROM "\n" TO ""
+                    REPLACE row FROM "_" TO ""
+                    SPLIT row BY " | "
+                    APPEND row to foodDetailsList
+                ENDFOR
+            CLOSE FILE FOOD_DETAILS_FILE
+            foodDetailsList = CALL removeEmptyList(foodDetailsList)
+            RETURN foodDetailsList
+        EXCEPT ERROR THEN
+            DISPLAY "Food details file is missing!"
+        ENDTRY
+ENDFUNCTION
+
+
+FUNCTION readOrderRecordsFile()
+    orderDetailsList = []
+    TRY
+        OPEN FILE ORDER_RECORDS_FILE IN READ MODE AS orderRecordsFile
+            CALL skipFileLine(6,orderRecordsFile)
+            FOR EACH row IN orderRecordsFile
+                STRIP row BY '\n'
+                SPLIT row BY " | "
+                APPEND row TO orderDetailsList
+            ENDFOR
+        CLOSE FILE ORDER_RECORDS_FILE
+        RETURN orderDetailsList
+    EXCEPT ERROR THEN
+        DISPLAY "Order records file is missing!"
+    ENDTRY
+ENDFUNCTION
+
+
+FUNCTION readCustomerDetailsFile()
+    customerDetailsList = [] 
+    TRY
+        OPEN CUSTOMER_DETAILS_FILE IN READ MODE AS customerDetailsFile
+            CALL skipFileLine(6,customerDetailsFile)
+            FOR EACH row IN customerDetailsFile
+                STRIP row BY "\n"
+                REPLACE row FROM " | " TO " "
+                SPLIT row BY " "
+                APPEND row TO customerDetailsList
+            ENDFOR
+        CLOSE FILE CUSTOMER_DETAILS_FILE
+        RETURN customerDetailsList
+    EXCEPT ERROR THEN
+        DISPLAY "Customers database is missing!" 
+    ENDTRY
+ENDFUNCTION      
+
+
+
+'''DECLARING FUNCTIONS FOR ADMIN DASHBOARD'''
+
+'''Login to access system'''
+
+FUNCTION adminLoginPage()
+    DOWHILE (True)
+        TRY 
+            adminDetailsList = CALL readAdminDetailsFile()
+            uName = CALL userInput("Username",True) WITH CALL lower()
+            CALL progressBar("Checking if username exists")
+            CALL time.sleep(0.05)
+            IF (CALL authUsername(uName,adminDetailsList)) THEN
+                DISPLAY " Username found, please enter password "
+                DISPLAY newline
+                DOWHILE (True)
+                    uPass = CALL userInput("Password",True)
+                    IF (CALL authPassword(uName, uPass,adminDetailsList)) THEN
+                        CALL progressBar("Logging you in")
+                        CALL time.sleep(0.05)
+                        CALL adminMenu(uName)
+                        BREAK
+                    ELSE
+                        DISPLAY "Incorrect password, please retry"
+                        DISPLAY newline
+                    ENDIF
+                ENDDO
+            ELSE 
+                DISPLAY " Username not found, please retry" 
+                CONTINUE
+            ENDIF
+        EXCEPT ERROR THEN
+            DISPLAY "Admin details file is corrupted!"
+        ENDTRY
+        BREAK
+    ENDDO
+ENDFUNCTION
+
+
+
+FUNCTION adminMenu(uName="")
+    DOWHILE (True)
+        TRY
+            CALL clearConsole()
+            CALL pageBanners("ADMIN DASHBOARD",50)
+            DISPLAY newline
+            DISPLAY "Hey, " + uName WITH CALL capitalize() + "! What would you like to do today?"
+            DISPLAY newline
+            DISPLAY "1. Add food item"
+            DISPLAY "2. Modify food item"
+            DISPLAY "3. Display records"
+            DISPLAY "4. Search record"
+            DISPLAY "0. Log out"
+            userSelection = (CALL userInput("I would like to",True)) AS INTEGER
+            IF (userSelection == 0) THEN
+                CALL progressBar("Logging out")
+                CALL main()
+            ELSE 
+                IF (userSelection == 1) THEN
+                    CALL clearConsole()
+                    CALL pageBanners("ADD NEW FOOD ITEM",50)
+                    CALL addFoodItemMenu()
+                ELSE 
+                    IF (userSelection == 2) THEN
+                        CALL clearConsole()
+                        CALL pageBanners("MODIFY FOOD ITEM",50)
+                        CALL modifyFoodItemMenu()
+                    ELSE 
+                        IF (userSelection == 3) THEN
+                            CALL clearConsole()
+                            CALL pageBanners("DISPLAY RECORDS",50)
+                            CALL displayRecordsMenu()
+                        ELSE 
+                            IF (userSelection == 4) THEN
+                                CALL clearConsole()
+                                CALL pageBanners("SEARCH RECORDS",50)
+                                CALL searchRecordsMenu()
+                            ELSE
+                                DISPLAY "Number is out of range!"
+                                CALL time.sleep(1)
+                                CONTINUE
+                            ENDIF
+                        ENDIF
+                    ENDIF
+                ENDIF
+            ENDIF
+            BREAK
+        EXCEPT ERROR THEN
+            DISPLAY "Please submit a number"
+            CALL time.sleep(1) 
+        ENDTRY
+    ENDDO
+ENDFUNCTION
+
+
+
+'''Add food item by category'''
+
+FUNCTION addFoodItemMenu()
+    DOWHILE (True)
+        TRY
+            foodCategoryTitles = CALL extractFoodCategories()
+            DISPLAY newline
+            DISPLAY "In which category would you like to add the food item?"
+            DISPLAY newline * 2
+            DISPLAY "0. Add new food category"
+            CALL displayFoodCategories()
+            chosenFoodCategoryNumber = (CALL userInput("Food Category Number",True)) AS INTEGER
+            IF (chosenFoodCategoryNumber == 0) THEN
+                newFoodCategoryName = CALL userInput("Category Name",False)
+                newFoodCategoryDescription = CALL userInput("Description",False)
+                CALL writeNewFoodCategoryToFile(newFoodCategoryName,newFoodCategoryDescription)
+                DISPLAY "Would you like to add a new food item in this category?"
+                userConfirmation = (CALL userInput("(Y)es/(N)o",False)) WITH CALL upper()
+                IF (userConfirmation == 'Y') THEN
+                    foodItemName,foodItemPrice = CALL getNewFoodItemDetails(newFoodCategoryName)
+                    CALL writeNewFoodItemToFile(newFoodCategoryName, foodItemName, foodItemPrice)
+                ELSE
+                    CALL addFoodItemMenu()
+                ENDIF
+            ELSE 
+                IF ((chosenFoodCategoryNumber > 0) AND (chosenFoodCategoryNumber <= (foodCategoryTitles LENGTH))) THEN
+                    chosenFoodCategoryName = foodCategoryTitles[(chosenFoodCategoryNumber AS INTEGER)-1][0] WITH CALL replace ("FOOD CATEGORY", ""), strip(), capitalize()
+                    foodItemName,foodItemPrice = CALL getNewFoodItemDetails(chosenFoodCategoryName)
+                    DISPLAY newline
+                    DISPLAY "Please confirm the new food details you would like to add"
+                    userConfirmation = CALL userInput("(Y)es/(N)o",False) WITH CALL upper()
+                        IF (userConfirmation == 'Y') THEN
+                            CALL writeNewFoodItemToFile(chosenFoodCategoryName,foodItemName,foodItemPrice)
+                        ELSE 
+                            IF (userConfirmation == 'N') THEN
+                                CALL addFoodItemMenu()
+                            ELSE
+                                DISPLAY("Please enter either Y or N")
+                                CONTINUE
+                            ENDIF
+                        ENDIF
+                ELSE
+                    DISPLAY "Invalid food category number"
+                    CALL time.sleep(1)
+                    CONTINUE
+                ENDIF
+            ENDIF
+            BREAK
+        EXCEPT ERROR THEN
+            DISPLAY "Please submit a number!"
+            CALL time.sleep(1)
+        EXCEPT ERROR THEN 
+            DISPLAY "Food details file is corrupted!"
+            BREAK
+        ENDTRY
+    ENDDO
+ENDFUNCTION
+
+FUNCTION getNewFoodItemDetails(chosenFoodCategoryName):
+    TRY
+        foodItemName = CALL userInput("New Food Item Name",False)
+        foodItemPrice = (CALL userInput("New Food Item Price",False)) AS FLOAT formatted to 2 decimal places
+        DISPLAY "FOOD CATEGORY  FOOD ITEM PRICE FOOD ITEM NAME"
+        DISPLAY chosenFoodCategoryName,foodItemPrice,foodItemName
+        RETURN foodItemName,foodItemPrice
+    EXCEPT ERROR THEN
+        DISPLAY "Invalid value entered"
+    ENDTRY
+ENDFUNCTION
+
+
+
+
+FUNCTION writeNewFoodCategoryToFile(categoryName,categoryDescription)
+    uppercaseName = categoryName WITH CALL upper()
+    capitalizedDescription = categoryDescription WITH CALL capitalize()
+    OPEN FILE FOOD_DETAILS_FILE IN APPEND MODE as foodDetailsFile
+        WRITE newline INTO foodDetailsFile
+        WRITE '_' * 88 INTO foodDetailsFile
+        WRITE newline * 2 INTO foodDetailsFile
+        WRITE uppercaseName + "FOOD CATEGORY - " + capitalizedDescription INTO foodDetailsFile
+        WRITE newline INTO foodDetailsFile
+        WRITE '_' * 88 INTO foodDetailsFile
+    CLOSE FILE FOOD_DETAILS_FILE
+ENDFUNCTION
+
+
+
+FUNCTION writeNewFoodItemToFile(foodCategoryName,foodItemName,foodItemPrice)
+    TRY
+        orderRecordsList = []
+        foodItemIndexes = []
+        OPEN FILE FOOD_DETAILS_FILE IN READ MODE AS f 
+            FOR EACH row IN f:   
+                APPEND [row] to orderRecordsList
+            ENDFOR
+        CLOSE FILE FOOD_DETAILS_FILE
+        FOR data IN orderRecordsList
+            IF (foodCategoryName IN data[0]) THEN
+                APPEND orderRecordsList WITH CALL index(data) TO foodItemIndexes
+            ENDIF
+        ENDFOR
+        IF (NOT foodItemIndexes) THEN
+            newFoodID = foodCategoryName[0] + '1'
+            lastFoodItemIndex = (orderRecordsList LENGTH)-1
+        ELSE 
+            lastFoodItemIndex = foodItemIndexes[-1]
+            lastFoodItemRecord = orderRecordsFile[lastFoodItemIndex][0] WITH CALL split(" | ")
+            newFoodID = lastFoodItemRecord[0][0] + (((lastFoodItemRecord[1] WITH CALL strip(lastFoodItemRecord[0][0]) AS INTEGER)+1) AS STRING)
+        ENDIF
+        IF (lastFoodItemIndex == ((orderRecordsFile LENGTH)-1)) THEN
+            INSERT [newline + foodCategoryName + '|' + newFoodID + '|' + foodItemName + '|' + foodItemPrice AS STRING] INTO orderRecordsList AT lastFoodItemIndex+1
+        ELSE
+            INSERT [foodCategoryName + '|' + newFoodID + '|' + foodItemName + '|' + foodItemPrice AS STRING] INTO orderRecordsList AT lastFoodItemIndex+1
+        ENDIF
+        OPEN FILE FOOD_DETAILS_FILE IN WRITE MODE AS foodDetailsFile
+            FOR EACH data IN orderRecordsList:       
+                WRITE data[0] INTO foodDetailsFile
+            ENDFOR
+        CLOSE FILE FOOD_DETAILS_FILE
+    EXCEPT ERROR THEN
+        DISPLAY "Food details text file is corrupted!"
+    EXCEPT ERROR THEN
+        DISPLAY "Food details text file is missing!"
+    ENDTRY
+ENDFUNCTION
+
+FUNCTION displayFoodCategories()
+    TRY  
+        foodCategoriesList = CALL extractFoodCategories()
+        count=1
+        DOWHILE (count < foodCategoriesList LENGTH)):
+            FOR EACH list IN foodCategoriesList
+                DISPLAY count AS STRING + ". " + list[0] WITH CALL capitalize()
+                DISPLAY(f'{count}. {list[0].capitalize()}')
+                count+=1
+    EXCEPT ERROR THEN 
+        DISPLAY "Food details file is corrupted!"
+    ENDTRY
+ENDFUNCTION
+
+
+FUNCTION extractFoodCategories(): #Gets the title and description of the food categories from the food details text file and append it to list
+
+    DOWHILE True:
+
+        TRY:
+
+            rawList = []
+
+            foodCategoryDetails = []
+
+            with open (FOOD_DETAILS_FILE, mode='r') as foodDetailsFile:
+
+                skipFileLine(4,foodDetailsFile)
+
+                FOR line IN foodDetailsFile:
+
+                    rawList.append(line.strip().replace('_','').split(","))
+
+            FOR data IN removeEmptyList(rawList):
+
+                IF " | " IN data[0]:
+
+                    rawList.pop(rawList.index(data))
+
+            FOR list IN removeEmptyList(rawList):
+
+                    FOR data IN list:
+
+                        FOR i IN range(len(data)):
+
+                            IF data[i] == "-":
+
+                                foodCategoryDetails.append([''.join(data[0:i-1]),''.join(data[i+2:-1])])
+
+            RETURN foodCategoryDetails         
+
+        except TypeError:
+
+            DISPLAY("Food details text file is corrupted!")
+
+        except FileNotFoundError:
+
+            DISPLAY("Food details text file is missing!")
+
+        break
+
+
+
+'''Modify food item'''
+
+FUNCTION modifyFoodItemMenu()
+    foodDetailsList = []
+    OPEN FILE FOOD_DETAILS_FILE IN READ MODE AS foodDetailsFile
+        FOR EACH row IN foodDetailsFile
+            APPEND [row] TO foodDetailsList
+        ENDFOR
+    CLOSE FILE FOOD_DETAILS_FILE
+    DISPLAY newline
+    DISPLAY (" " * 5) + "1. UPDATE RECORD   " + "2. DELETE RECORD"
+    DISPLAY newline
+    DISPLAY "What would you like to do?"
+    DOWHILE (True)
+        TRY
+            modifyChoice = (CALL userInput("Input 1 or 2",False)) AS INTEGER
+            IF (modifyChoice == 1) THEN
+                CALL clearConsole()
+                CALL pageBanners("UPDATE FOOD ITEM",50)
+                CALL updateFoodItemMenu(foodDetailsList)
+            ELSE 
+                IF (modifyChoice == 2) THEN
+                    CALL clearConsole()
+                    CALL pageBanners("DELETE FOOD ITEM",50)
+                    CALL deleteFoodItemMenu(foodDetailsList)
+                ELSE
+                    DISPLAY "Number is out of range"
+                    CONTINUE
+                BREAK
+                ENDIF
+            ENDIF
+        EXCEPT ERROR THEN
+            DISPLAY "Please submit a number"
+        ENDTRY
+    ENDDO
+ENDFUNCTION
+         
+
+
+
+FUNCTION updateFoodItemRecord(foodDetailsFile): #Updates a specific record of food item IN the food details text file
+
+    # sourcery no-metrics
+
+    DOWHILE True:
+
+        TRY:
+
+            DISPLAY("\nIn which category would you like to update the food item?")
+
+            displayFoodCategories()
+
+            categoryNumber = int(userInput("Category number",True))
+
+            IF 0 < categoryNumber <= len(extractFoodCategories()):
+
+                listOutFoodItems(extractFoodCategories()[categoryNumber-1][0])  
+
+            ELSE
+
+                DISPLAY("Number is out of range")
+
+                continue
+
+            foodItemId = userInput("Enter the Food Item ID that you would like to update",True).upper()
+
+            IF (verifyFoodItemId(foodItemId,foodDetailsFile)):
+
+                FOR data IN foodDetailsFile:
+
+                    IF foodItemId IN data[0]:
+
+                        foodItemIdList = (data[0].split(" | "))
+
+                        foodItemIdIndex = foodDetailsFile.index(data)
+
+                    IF foodItemId NOT IN data[0]:
+
+                        DISPLAY("Invalid Food Item ID")
+
+                        break
+
+                    continue
+
+                DISPLAY("\nWhat would you like to update?","1. Food Item Price","2. Food Item Name","3. Both",sep='\n')
+
+                updateCriteria = int(userInput("Update choice",True))
+
+                IF updateCriteria == 1:
+
+                    newPrice = float(userInput("New food item price",False))
+
+                    newPrice = format(newPrice,'.2f')
+
+                    foodItemIdList[3] = f'{newPrice}\n' IF '\n' IN foodItemIdList[3] else f'{newPrice}'
+
+                ELSE IF updateCriteria == 2:
+
+                    foodItemIdList[2] = f'{userInput("New food item name",False)}'
+
+                ELSE IF updateCriteria == 3:
+
+                    newPrice = userInput("New food item price",False)
+
+                    foodItemIdList[2] = f'{userInput("New food item name",False)}'
+
+                    foodItemIdList[3] = f'{newPrice}\n' IF '\n' IN foodItemIdList[3] else f'{newPrice}' 
+
+                ELSE
+
+                    DISPLAY("Number out of range")
+
+                    continue
+
+            ELSE
+
+                DISPLAY("Invalid food item id")
+
+                continue
+
+            foodDetailsFile[foodItemIdIndex] = [" | ".join(foodItemIdList)]
+
+            with open (FOOD_DETAILS_FILE,mode='w') as f:
+
+                f.write(data[0] FOR data IN foodDetailsFile)
+
+            break
+
+        except FileNotFoundError:
+
+            DISPLAY("Food details file NOT found")
+
+            break
+
+        except ValueError:
+
+            DISPLAY("Please submit a number")
+
+            continue
+
+
+
+FUNCTION verifyFoodItemId(foodItemId,foodDetailsFile): #Verifies the format of the food item ID that has been received by the user
+
+    IF foodItemId == '' : 
+
+        RETURN False
+
+    IF (foodItemId[0].isalpha() and foodItemId[1 : len(foodItemId)].isdigit()):
+
+        DISPLAY(f"Food item id selected: {foodItemId}")
+
+        FOR data IN foodDetailsFile:
+
+            IF foodItemId IN data[0]:
+
+                RETURN True
+
+
+
+FUNCTION listOutFoodItems(chosenFoodCategoryName): #Displays the details of all food items IN the food details file based on the category chosen by the user
+
+    DOWHILE True:
+
+        TRY:
+
+            progressBar("Retrieving food item records")
+
+            time.sleep(0.5)
+
+            DISPLAY(f"\n\nREPORT OF FOOD ITEMS IN {chosenFoodCategoryName.upper()}\n{'-'*24}{'-'*len(chosenFoodCategoryName)}")
+
+            DISPLAY(f"FOOD ITEM ID\tFOOD ITEM PRICE\t FOOD ITEM NAME\n{'-'*12}{' '*4}{'-'*15}{' '*2}{'-'*14}")
+
+            FOR data IN readFoodDetailsFile():
+
+                IF (chosenFoodCategoryName.replace("FOOD CATEGORY", "").strip().capitalize()) IN data:
+
+                    DISPLAY('{:<16}{:<15}\t {}'.format(data[1],data[3],data[2]))
+
+            break
+
+        except TypeError:
+
+            DISPLAY("Please enter a number")
+
+
+
+FUNCTION deleteFoodItemRecord(foodDetailsFile): #Deletes a specific food item record IN the food details text file
+
+    DOWHILE True:
+
+        TRY:
+
+            DISPLAY("\nIn which category would you like to delete the food item?")
+
+            displayFoodCategories()
+
+            categoryNumber = int(userInput("Category number",True))
+
+            IF 0 < categoryNumber <= len(extractFoodCategories()):
+
+                listOutFoodItems(extractFoodCategories()[categoryNumber-1][0])  
+
+            ELSE
+
+                DISPLAY("Number is out of range")
+
+                continue
+
+            foodItemId = userInput("Enter the Food Item ID that you would like to delete",True).upper()
+
+            if(verifyFoodItemId(foodItemId,foodDetailsFile)):
+
+                DISPLAY(f"Are you sure you want to delete {foodItemId}?")
+
+                userConfirmation = userInput("(Y)es/(N)o",True).upper()
+
+                IF (userConfirmation=="Y"):
+
+                    FOR data IN foodDetailsFile:
+
+                        IF foodItemId IN data[0]:
+
+                            foodDetailsFile.pop(foodDetailsFile.index(data))
+
+                        IF '\n' IN foodDetailsFile[-1][-1]:
+
+                            temp = foodDetailsFile[-1][-1].strip("\n")
+
+                            foodDetailsFile[-1][-1] = temp
+
+                    with open (FOOD_DETAILS_FILE,mode='w') as f:
+
+                        FOR data IN foodDetailsFile:
+
+                            f.write(data[0])
+
+                    break
+
+                ELSE IF (userConfirmation == "N"):
+
+                    adminMenu()
+
+                ELSE
+
+                    DISPLAY("Invalid READ")
+
+            ELSE
+
+                DISPLAY("Invalid Food Item ID")
+
+                continue
+
+        except ValueError:
+
+            DISPLAY("Please submit a number")
+
+            time.sleep(1)
+
+
+
+'''Main Menu Page FOR Display'''
+
+FUNCTION displayRecordsMenu(): #Display records main page
+
+    DISPLAY("\n1. Food Categories","2. Food Items by Category","3. Customer Orders","4. Customer Payment","0. Back to Admin  Menu", sep='\n')  
+
+    DOWHILE True:
+
+        TRY:
+
+            orderRecordsList = readOrderRecordsFile()
+
+            foodCategoryList = extractFoodCategories()
+
+            READ = userInput("Display all records of",True)
+
+            IF READ == "1" :
+
+                progressBar("Generating report")
+
+                displayFoodCategoryRecords(foodCategoryList)
+
+            ELSE IF READ == "2" :
+
+                DISPLAY("\nSelect the food category that you want to be displayed")
+
+                displayFoodCategories()
+
+                chosenCategory = int(userInput("Food category",True))
+
+                listOutFoodItems((extractFoodCategories()[chosenCategory-1][0]))
+
+            ELSE IF READ == "3" :
+
+                progressBar("Generating report")
+
+                displayOrderOrPaymentRecords('orders',orderRecordsList)
+
+            ELSE IF READ == "4" :
+
+                progressBar("Generating report")
+
+                displayOrderOrPaymentRecords('payments',orderRecordsList)
+
+            ELSE IF READ == "0" :
+
+                adminMenu()
+
+            else :
+
+                DISPLAY("Number out of range")
+
+            break
+
+        except ValueError:
+
+            DISPLAY("Please enter a number")
+
+
+
+FUNCTION displayFoodCategoryRecords(foodCategoryList): #Displays the records of food categories and descriptions cleanly
+
+    '''Print data IN user readable form'''
+
+    DISPLAY(f'\n\t\tDETAILS OF FOOD CATEGORIES\n\t\t{"-"*26}')
+
+    DISPLAY(f"CATEGORY NAME(S)\t\tCATEGORY DESCRIPTION(S)\n{'-'*15}\t\t\t{'-'*22}")
+
+    FOR data IN foodCategoryList:
+
+        DISPLAY('{:<32}{}'.format(data[0],data[1]))
+
+
+
+FUNCTION displayOrderOrPaymentRecords(displayChoice,orderRecordsList): #Displays either order or payment records based on parameters given 
+
+    DISPLAY(f"\n\t\t\t\tREPORT OF ALL CUSTOMER {displayChoice.upper()}\n\t\t\t\t{'-'*31}\n")
+
+    IF displayChoice == 'orders':
+
+        DISPLAY(f"CUSTOMER USERNAME\tORDER ID\tTOTAL PAYABLE\tORDER STATUS\tFOOD ID (QUANTITY)\n{'-'*17}{' '*7}{'-'*8}{' '*8}{'-'*13}{' '*3}{'-'*12}{' '*4}{'-'*18}")
+
+        FOR data IN orderRecordsList:
+
+            DISPLAY('{:<24}{:<16}{:<16}{:<16}{}'.format(data[0],data[1],data[3],data[7],data[2]))
+
+    ELSE
+
+        DISPLAY(f"CUSTOMER USERNAME\tORDER ID\tTOTAL PAYABLE\tPAYMENT METHOD\tPAYMENT STATUS\tPAID ON\n{'-'*17}{' '*7}{'-'*8}{' '*8}{'-'*13}{' '*3}{'-'*14}{' '*2}{'-'*14}{' '*2}{'-'*7}")
+
+        FOR data IN orderRecordsList:
+
+            DISPLAY('{:<24}{:<16}{:<16}{:<16}{:<16}{}'.format(data[0],data[1],data[3],data[4],data[5],data[6]))
+
+
+
+'''Search Menu Main Page'''
+
+FUNCTION searchRecordsMenu(): #Main page to search records
+
+    DISPLAY("\n1. CUSTOMER ORDER RECORD\t2. CUSTOMER PAYMENT RECORD".center(50))
+
+    DISPLAY("\nWhich record do you want to check?")
+
+    DOWHILE (True):
+
+        TRY:
+
+            orderRecordsList = readOrderRecordsFile()
+
+            searchCategory = int(userInput("Input 1 or 2",False))
+
+            IF searchCategory == 1:
+
+                clearConsole()
+
+                pageBanners("SEARCH CUSTOMER ORDER",50)
+
+                searchCustomerOrder(orderRecordsList)
+
+            ELSE IF searchCategory == 2:
+
+                clearConsole()
+
+                pageBanners("SEARCH CUSTOMER PAYMENT",50)
+
+                searchCustomerPayment(orderRecordsList)
+
+            ELSE
+
+                DISPLAY("The number you submitted is outside the allowed range!")
+
+            break
+
+        except ValueError:
+
+            DISPLAY("Please enter a number!")
+
+
+
+'''Search Specific Customer Order Record'''
+
+FUNCTION searchCustomerOrder(orderRecordsList): #Searches the order records file FOR a specific customer order record
+
+    DISPLAY("""\n{}1. CUSTOMER USERNAME\t2. ORDER ID""".format(" "*4))
+
+    DISPLAY("\nOn what basis should the records be searched?".center(100))
+
+    DOWHILE True:
+
+        TRY:
+
+            searchCriteria = int(userInput("Input 1 or 2",False))
+
+            IF (searchCriteria == 1):
+
+                recordByUsername = []
+
+                username = userInput("Please enter Customer Username",True)
+
+                count = 0
+
+                FOR data IN orderRecordsList:
+
+                    IF (username.lower() == data[0]):
+
+                        recordByUsername.append([data[0],data[1],data[2],data[3],data[7]])
+
+                        count+=1
+
+                IF count >=1:
+
+                    DISPLAY("{} order records have been found FOR {}".format(count,username))
+
+                    displaySearchResults('orders',username,recordByUsername)
+
+                ELSE
+
+                    DISPLAY("No order records found FOR {}".format(username))
+
+                    continue
+
+                break   
+
+            ELSE IF (searchCriteria == 2):
+
+                orderID = userInput("Please enter Order ID",True)
+
+                recordById = []
+
+                orderExists = False
+
+                FOR data IN orderRecordsList:
+
+                    IF (orderID.upper() == data[1]):
+
+                        recordById.append([data[0],data[1],data[2],data[3],data[7]])
+
+                        orderExists = True
+
+                IF (orderExists):
+
+                    DISPLAY("1 Order record have been found FOR Order ID {}".format(orderID.upper()))
+
+                    displaySearchResults('orders',orderID,recordById)
+
+                    FOR data IN recordById:
+
+                        DISPLAY('{:<24}{:<16}{:<16}{:<16}{}'.format(data[0].upper(),data[1],data[3],data[4],data[2]))
+
+                ELSE
+
+                    DISPLAY("No order records found FOR {}".format(orderID.upper()))
+
+                break
+
+            ELSE
+
+                DISPLAY("The number you submitted is outside the allowed range!")
+
+                time.sleep(1)
+
+        except ValueError:
+
+            DISPLAY("Please submit a number")
+
+            time.sleep(1.5)
+
+
+
+'''Search Specific Customer Payment Record'''
+
+FUNCTION searchCustomerPayment(paymentList): #Searches the order records file FOR a specific customer payment record
+
+    DISPLAY("""\n{}1. CUSTOMER USERNAME\t2. ORDER ID""".format(" "*4))
+
+    DISPLAY("\nOn what basis should the records be searched?".center(100))
+
+    DOWHILE True:
+
+        TRY:
+
+            searchCriteria = int(userInput("Input 1 or 2",False))
+
+            IF (searchCriteria == 1):
+
+                recordByUsername = []
+
+                username = userInput("Please enter Customer Username",True)
+
+                count = 0
+
+                FOR data IN paymentList:
+
+                    IF (username.lower() == data[0]):
+
+                        recordByUsername.append([data[0],data[1],data[3],data[4],data[5],data[6]])
+
+                        count+=1
+
+                IF count >=1:
+
+                    DISPLAY("{} order records have been found FOR {}".format(count,username))
+
+                    displaySearchResults('payments',username,recordByUsername)
+
+                ELSE
+
+                    DISPLAY("No order records found FOR {}".format(username))
+
+            IF (searchCriteria == 2):
+
+                orderID = userInput("Please enter Order ID",True)
+
+                recordById = []
+
+                orderIdExists = False
+
+                FOR data IN paymentList:
+
+                    IF (orderID.upper() == data[1]):
+
+                        recordById.append([data[0],data[1],data[3],data[4],data[5],data[6]])
+
+                        orderIdExists = True
+
+                IF (orderIdExists):
+
+                    DISPLAY("1 Order record have been found FOR Order ID {}".format(orderID.upper()))
+
+                    displaySearchResults('payments',orderID,recordById)
+
+                ELSE
+
+                    DISPLAY("No order records found FOR {}".format(orderID.upper()))
+
+            ELSE
+
+                DISPLAY("The number you submitted is outside the allowed range!")
+
+                time.sleep(1)
+
+            break
+
+        except ValueError:
+
+            DISPLAY("Please submit a number")
+
+            time.sleep(1)
+
+
+
+'''Display Search Results'''
+
+FUNCTION displaySearchResults(recordName,searchBasis,resultsList): #Gets search results from the earlier search functions and displays it cleanly
+
+    DOWHILE True:
+
+        progressBar("Generating report")
+
+        time.sleep(0.5)
+
+        IF recordName == 'orders':
+
+            DISPLAY(f"\n\t\t\t\tORDER REPORT FOR {searchBasis.upper()}\n{'-' * len(searchBasis)}{'-'*17}\n")
+
+            DISPLAY(f"CUSTOMER USERNAME\tORDER ID\tTOTAL PAYABLE\tORDER STATUS\tFOOD ID(QUANTITY)\n{'-'*17}{' '*7}{'-'*8}{' '*8}{'-'*13}{' '*3}{'-'*12}{' '*4}{'-'*17}")
+
+            FOR data IN resultsList:
+
+                DISPLAY('{:<24}{:<16}{:<16}{:<16}{}'.format(data[0].upper(),data[1],data[3],data[4],data[2]))           
+
+        ELSE
+
+            DISPLAY(f"\n\t\t\t\tPAYMENT REPORT FOR {searchBasis.upper()}\n\t\t\t\t{'-'*19}{'-' * len(searchBasis)}\n")
+
+            DISPLAY(f"CUSTOMER USERNAME\tORDER ID\tTOTAL PAYABLE\tPAYMENT METHOD\tPAYMENT STATUS\tPAID ON\n{'-'*17}{' '*7}{'-'*8}{' '*8}{'-'*13}{' '*3}{'-'*14}{' '*2}{'-'*14}{' '*2}{'-'*7}")
+
+            FOR data IN resultsList:
+
+                DISPLAY('{:<24}{:<16}{:<16}{:<16}{:<16}{}'.format(data[0].upper(),data[1],data[2],data[3],data[4],data[5]))  
+
+        break
+
+
+
+'''DECLARING FUNCTIONS FOR GUEST DASHBOARD'''
+
+FUNCTION guestMenu(): #Guest Dashboard Main Page
+
+    DOWHILE True:
+
+        clearConsole()
+
+        pageBanners("GUEST DASHBOARD", 50)
+
+        DISPLAY("\nPlease select any option below.")
+
+        DISPLAY("1. View Menu","2. Customer Login", "3. New Customer Registration", "\n0. Back to Main Menu", sep='\n')
+
+        READ = userInput("Choice",True)
+
+        IF READ == "1":
+
+            viewCategoryList()
+
+        ELSE IF READ == "2":
+
+            customerLoginPage()
+
+            regCustomerMenu()
+
+        ELSE IF READ == "3":
+
+            pageBanners("NEW ACCOUNT",50)
+
+            customerRegistration()
+
+        ELSE IF READ == "0":
+
+            break
+
+        ELSE
+
+            # invalidInput()
+
+            guestMenu()
+
+        
+
+'''View all food items as per category'''
+
+FUNCTION viewCategoryList() :
+
+    DOWHILE True:
+
+        clearConsole()
+
+        pageBanners("MENU CATEGORIES",50)
+
+        DISPLAY("\n")
+
+        displayFoodCategories()
+
+        DISPLAY("\n0. Back To Guest Menu")
+
+        TRY:
+
+            DISPLAY("\nSelect the food category that you want to be displayed")
+
+            chosenCategory = int(userInput("Food category",True))
+
+            IF chosenCategory == 0 :
+
+                break
+
+            ELSE IF chosenCategory <= 4 :
+
+                listOutFoodItemsNoDetails((extractFoodCategories()[chosenCategory-1][0]))
+
+            else :
+
+                DISPLAY("\nNumber out of range!")
+
+                time.sleep(1.5)
+
+                viewCategoryList()
+
+        except ValueError:
+
+            DISPLAY("\nPlease enter a number!")
+
+            time.sleep(1.5)
+
+            viewCategoryList()
+
+
+
+'''List out food items without details (Price and Descriptions)'''
+
+FUNCTION listOutFoodItemsNoDetails(chosenFoodCategoryName): #Displays the details of all food items IN the food details file based on the category chosen by the user
+
+    clearConsole()
+
+    DOWHILE True:
+
+        TRY:
+
+            progressBar("Retrieving food item menu")
+
+            time.sleep(0.5)
+
+            clearConsole()
+
+            DISPLAY(f"FOOD ITEMS IN {chosenFoodCategoryName.upper()}\n{'-'*24}{'-'*len(chosenFoodCategoryName)}")
+
+            FOR data IN readFoodDetailsFile():
+
+                IF (chosenFoodCategoryName.replace("FOOD CATEGORY", "").strip().capitalize()) IN data:
+
+                    DISPLAY(data[2])
+
+            READ("\nPress Enter to Return")
+
+            break
+
+        except TypeError:
+
+            DISPLAY("Please enter a number")
+
+
+
+'''New customer registration to access other details'''
+
+
+
+'''DECLARING FUNCTIONS FOR REGISTERED CUSTOMER DASHBOARD'''
+
+'''Login to access system'''
+
+FUNCTION customerLoginPage():
+
+    DOWHILE True:
+
+        clearConsole()
+
+        pageBanners("Login as Customer", 50)
+
+        TRY: 
+
+            uName = userInput("Username",True)
+
+            progressBar("Checking IF username exists")
+
+            time.sleep(0.05)
+
+            IF (authUsername(uName,readCustomerDetailsFile())):
+
+                DISPLAY(" Username found, please enter password\n")
+
+                DOWHILE True:
+
+                    uPass = userInput("Password",True)
+
+                    IF (authPassword(uName, uPass,readCustomerDetailsFile())):
+
+                        progressBar("Logging you in")
+
+                        time.sleep(0.05)
+
+                        break
+
+                    ELSE
+
+                        DISPLAY("Incorrect password, please retry\n")
+
+            ELSE 
+
+                DISPLAY(" Username NOT found, please retry")
+
+                continue
+
+            break
+
+        except TypeError:
+
+            DISPLAY("Customers details file is corrupted!")
+
+            break
+
+
+
+FUNCTION regCustomerMenu(): #Customer menu upon successful login
+
+    DOWHILE True:
+
+        clearConsole()
+
+        pageBanners("Customer Menu", 50)
+
+        DISPLAY("\nWelcome!, what would you like to do today?")
+
+        DISPLAY("1. View Item List", "2. View Item Details", "3. Add Food to Cart", "4. Checkout", "\n0. Main Menu", sep='\n')
+
+        READ = userInput("Choice",True)
+
+        IF READ == "1":
+
+            clearConsole()
+
+            viewItemList()
+
+        ELSE IF READ =="2":
+
+            viewItemDetail()
+
+        ELSE IF READ == "3":
+
+            addFoodToCart()
+
+        ELSE IF READ =="4":
+
+            checkout()
+
+        ELSE IF READ == "0":
+
+            break
+
+        else:pass
+
+            # invalidInput()
+
+
+
+'''View detail of food category'''
+
+'''View detail of food items'''
+
+'''Select food item and add to cart'''
+
+'''Do payment to confirm order'''
+
+
+
+'''DECLARING MAIN GREETING PAGE'''
+
+FUNCTION main(): #The main module that will be executed first
+
+    DOWHILE True:
+
+        clearConsole()
+
+        DISPLAY(" ____   ___  _____ ____".center(78))
+
+        DISPLAY("/ ___| / _ \|  ___/ ___|".center(78))
+
+        DISPLAY("\___ \| | | | |_  \___ \\".center(78))
+
+        DISPLAY(" ___) | |_| |  _|  ___) |".center(80))
+
+        DISPLAY("|____/ \___/|_|   |____/".center(78))
+
+        DISPLAY("")
+
+        DISPLAY(f' {"Welcome to the Online Food Ordering Management System"} '.center(85, '='))
+
+        time.sleep(1)
+
+        DISPLAY("\nWho are you logging IN as?", "1. Admin", "2. Customer", "3. Quit Program", sep=' \n')
+
+        TRY:
+
+            READ = int(userInput("Login as (1/2/3)",True))
+
+            IF READ == 1 :
+
+                clearConsole()
+
+                pageBanners("ADMIN LOGIN PAGE",50)
+
+                adminLoginPage()
+
+            ELSE IF READ == 2 :
+
+                guestMenu() 
+
+            ELSE IF READ== 3 :
+
+                quit()
+
+            ELSE
+
+                DISPLAY("Out of range, please enter a number between 1 and 3")
+
+            break
+
+        except ValueError:
+
+            DISPLAY("You entered an alphabet, please enter a number between 1 and 3")
+
+            
+
+
+
+'''EXECUTE MAIN'''
+
+
+
+DISPLAY("File one __name__ is set to: {}" .format(__name__))
+
+
+
+IF __name__ == '__main__': 
+
+    TRY:
+
+        main()
+
+    except KeyboardInterrupt:
+
+        quit()
+
+    
+
+'''Empty functions'''
+
+FUNCTION order() :
+
+    clearConsole()
+
+    DISPLAY("\nPlease select any option below.")
+
+    DISPLAY("1. Cancel an order","2. Back to Main Menu","0. Back",sep='\n')
+
+    READ = userInput("Choice",True)
+
+    IF READ == "1" : 
+
+        cancelOrder() 
+
+    ELSE IF READ == "2" :
+
+        main()
+
+    ELSE IF READ == "0" :
+
+        adminMenu()
+
+    else : 
+
+        # invalidInput()
+
+        order()
+
+
+
+FUNCTION cancelOrder() : PASS
+
+FUNCTION checkPayment() : PASS
+
+FUNCTION viewItemList() : PASS
+
+FUNCTION registered() : PASS
+
+FUNCTION viewItemDetail() : PASS
+
+FUNCTION viewCategoryDetail() : PASS
+
+FUNCTION addFoodToCart() : PASS
+
+FUNCTION checkout() : PASS
+
+FUNCTION logout() : PASS
+
+FUNCTION customerRegistration() : PASS 
