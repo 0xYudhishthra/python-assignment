@@ -4,7 +4,7 @@ doubts.txt
 codeTesting.py
 pythonToPseudo_V2.py
 YUDHISHTHRA SUGUMARAN_TP061762_CHOONG WEI JUN_TP061867.psu
-Documentation.docx
+*.docx
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -136,3 +136,4 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+Documentation/Documentation.docx
