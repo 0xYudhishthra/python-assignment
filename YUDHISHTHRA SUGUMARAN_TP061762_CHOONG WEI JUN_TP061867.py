@@ -205,7 +205,7 @@ def addFoodItemMenu(): #Prompts admin to select which category of food item they
             print("Food details file is corrupted!")
             break
 
-def getNewFoodItemDetails(chosenFoodCategoryName:str) -> str and float:
+def getNewFoodItemDetails(chosenFoodCategoryName:str) -> str: #Gets details of new food item details from user
         try:
             foodItemName = userInput("New Food Item Name",False)
             foodItemPrice = format(float(userInput("New Food Item Price",False)),".2f")
@@ -271,7 +271,7 @@ def modifyFoodItemMenu(): #Main page for admins to modify records of food items
             elif modifyChoice == 2:
                 clearConsole()
                 pageBanners("DELETE FOOD ITEM",50)
-                deleteFoodItemRecord(foodDetailsList)
+                deleteFoodItemMenu(foodDetailsList)
             else:
                 print("Number is out of range")
                 continue
@@ -279,15 +279,17 @@ def modifyFoodItemMenu(): #Main page for admins to modify records of food items
         except ValueError:
             print("Please submit a number")
 
-def verifyFoodItemId(foodItemId, foodDetailsList) -> bool: #Verifies the format and existence of the food item ID that has been received by the user
+def verifyFoodItemId(foodItemId:str, foodDetailsList:list) -> bool: #Verifies the format and existence of the food item ID that has been received by the user
     if foodItemId == '' : 
         return False
-    if (foodItemId[0].isalpha() and foodItemId[1 : len(foodItemId)].isdigit()):
+    elif (foodItemId[0].isalpha() and foodItemId[1 : len(foodItemId)].isdigit()):
         for data in foodDetailsList:
             if foodItemId in data[0]:
                 return True
+    else:
+        return False
 
-def listOutFoodItems(chosenFoodCategoryName): #Displays the details of all food items in the food details file based on the category chosen by the user
+def listOutFoodItems(chosenFoodCategoryName:str): #Displays the details of all food items in the food details file based on the category chosen by the user
     while True:
         try:
             progressBar("Retrieving food item records")
@@ -304,11 +306,12 @@ def listOutFoodItems(chosenFoodCategoryName): #Displays the details of all food 
 def updateFoodItemMenu(foodDetailsList): #Menu for user to choose which specific food item id they want to update
     while True:
         try:
+            foodCategoryTitles = extractFoodCategories()
             print("\nIn which category would you like to update the food item?")
             displayFoodCategories()
             categoryNumber = int(userInput("Category number",True))
-            if 0 < categoryNumber <= len(extractFoodCategories()):
-                listOutFoodItems(extractFoodCategories()[categoryNumber-1][0])  
+            if 0 < categoryNumber <= len(foodCategoryTitles):
+                listOutFoodItems(foodCategoryTitles[categoryNumber-1][0])  
                 foodItemId = userInput("Enter the Food Item ID that you would like to update",True).upper()
                 if (verifyFoodItemId(foodItemId, foodDetailsList)):
                     print(f"Food item ID selected: {foodItemId}")
@@ -326,8 +329,30 @@ def updateFoodItemMenu(foodDetailsList): #Menu for user to choose which specific
             print("Please submit a number")
             continue
 
-
-def deleteFoodItemMenu():pass
+def deleteFoodItemMenu(foodDetailsList): #Menu for user to choose which specific food item id they want to delete
+    while True:
+        try: 
+            foodCategoryTitles = extractFoodCategories()
+            print("\nIn which category would you like to delete the food item?")
+            displayFoodCategories()
+            categoryNumber = int(userInput("Category number",True))
+            if 0 < categoryNumber <= len(foodCategoryTitles):
+                listOutFoodItems(foodCategoryTitles[categoryNumber-1][0])
+                foodItemId = userInput("Enter the Food Item ID that you would like to delete",True).upper()
+                if(verifyFoodItemId(foodItemId,foodDetailsList)):
+                    print(f"Are you sure you want to delete {foodItemId}?")
+                    userConfirmation = userInput("(Y)es/(N)o",True).upper()
+                    if (userConfirmation in ('Y', 'N')):
+                        deleteFoodItemRecord(userConfirmation, foodItemId, foodDetailsList)
+                        break
+                    else:
+                        print("Invalid input")
+                else:
+                    print("Invalid Food Item ID")
+            else:
+                print("Invalid Food Category Number")
+        except ValueError:
+            print("Please submit a number")
 
 def updateFoodItemRecord(foodDetailsList, foodItemIdList, foodItemIdIndex): #Updates a specific record of food item in the food details text file
     try:
@@ -357,44 +382,25 @@ def updateFoodItemRecord(foodDetailsList, foodItemIdList, foodItemIdIndex): #Upd
         for data in foodDetailsList:
             f.write(data[0])
 
-
-
-def deleteFoodItemRecord(foodDetailsFile): #Deletes a specific food item record in the food details text file
+def deleteFoodItemRecord(userConfirmation, foodItemId, foodDetailsList): #Deletes a specific food item record in the food details text file
     while True:
         try:
-            print("\nIn which category would you like to delete the food item?")
-            displayFoodCategories()
-            categoryNumber = int(userInput("Category number",True))
-            if 0 < categoryNumber <= len(extractFoodCategories()):
-                listOutFoodItems(extractFoodCategories()[categoryNumber-1][0])  
+            if (userConfirmation=="Y"):
+                for data in foodDetailsList:
+                    if foodItemId in data[0]:
+                        foodDetailsList.pop(foodDetailsList.index(data))
+                    if '\n' in foodDetailsList[-1][-1]:
+                        temp = foodDetailsList[-1][-1].strip("\n")
+                        foodDetailsList[-1][-1] = temp
+                with open (FOOD_DETAILS_FILE,mode='w') as f:
+                    for data in foodDetailsList:
+                        f.write(data[0])
+                break
             else:
-                print("Number is out of range")
-                continue
-            foodItemId = userInput("Enter the Food Item ID that you would like to delete",True).upper()
-            if(verifyFoodItemId(foodItemId,foodDetailsFile)):
-                print(f"Are you sure you want to delete {foodItemId}?")
-                userConfirmation = userInput("(Y)es/(N)o",True).upper()
-                if (userConfirmation=="Y"):
-                    for data in foodDetailsFile:
-                        if foodItemId in data[0]:
-                            foodDetailsFile.pop(foodDetailsFile.index(data))
-                        if '\n' in foodDetailsFile[-1][-1]:
-                            temp = foodDetailsFile[-1][-1].strip("\n")
-                            foodDetailsFile[-1][-1] = temp
-                    with open (FOOD_DETAILS_FILE,mode='w') as f:
-                        for data in foodDetailsFile:
-                            f.write(data[0])
-                    break
-                elif (userConfirmation == "N"):
-                    adminMenu()
-                else:
-                    print("Invalid input")
-            else:
-                print("Invalid Food Item ID")
-                continue
-        except ValueError:
-            print("Please submit a number")
-            time.sleep(1)
+                adminMenu()
+        except FileNotFoundError:
+            print("Food details file is missing")
+            
 
 '''Main Menu Page for Display'''
 def readOrderRecordsFile() -> list: #Reads file with order records, extract order records without headers and append to list
@@ -409,28 +415,26 @@ def readOrderRecordsFile() -> list: #Reads file with order records, extract orde
         print("Order records file is missing!")
 
 def extractFoodCategories(): #Gets the title and description of the food categories ONLY from the food details text file and append it to list
-    while True:
-        try:
-            rawList = []
-            foodCategoryDetails = []
-            with open (FOOD_DETAILS_FILE, mode='r') as foodDetailsFile:
-                skipFileLine(4,foodDetailsFile)
-                for line in foodDetailsFile:
-                    rawList.append(line.strip().replace('_','').split(","))
-            for data in removeEmptyList(rawList):
-                if " | " in data[0]:
-                    rawList.pop(rawList.index(data))
-            for list in removeEmptyList(rawList):
-                    for data in list:
-                        for i in range(len(data)):
-                            if data[i] == "-":
-                                foodCategoryDetails.append([''.join(data[0:i-1]),''.join(data[i+2:-1])])
-            return foodCategoryDetails         
-        except TypeError:
-            print("Food details text file is corrupted!")
-        except FileNotFoundError:
-            print("Food details text file is missing!")
-        break
+    try:
+        rawList = []
+        foodCategoryDetails = []
+        with open (FOOD_DETAILS_FILE, mode='r') as foodDetailsFile:
+            skipFileLine(4,foodDetailsFile)
+            for line in foodDetailsFile:
+                rawList.append(line.strip().replace('_','').split(","))
+        for data in removeEmptyList(rawList):
+            if " | " in data[0]:
+                rawList.pop(rawList.index(data))
+        for list in removeEmptyList(rawList):
+            for data in list:
+                for i in range(len(data)):
+                    if data[i] == "-":
+                        foodCategoryDetails.append([''.join(data[0:i-1]),''.join(data[i+2:-1])])
+        return foodCategoryDetails       
+    except TypeError:
+        print("Food details text file is corrupted!")
+    except FileNotFoundError:
+        print("Food details text file is missing!")
 
 def displayRecordsMenu(): #Display records main page
     print("\n1. Food Categories","2. Food Items by Category","3. Customer Orders","4. Customer Payment","0. Back to Admin  Menu", sep='\n')  
@@ -438,25 +442,26 @@ def displayRecordsMenu(): #Display records main page
         try:
             orderRecordsList = readOrderRecordsFile()
             foodCategoryList = extractFoodCategories()
-            input = userInput("Display all records of",True)
-            if input == "1" :
+            userSelection = int(userInput("Display all records of",True))
+            if userSelection == 1 :
                 progressBar("Generating report")
                 displayFoodCategoryRecords(foodCategoryList)
-            elif input == "2" :
+            elif userSelection == 2 :
                 print("\nSelect the food category that you want to be displayed")
                 displayFoodCategories()
                 chosenCategory = int(userInput("Food category",True))
-                listOutFoodItems((extractFoodCategories()[chosenCategory-1][0]))
-            elif input == "3" :
+                listOutFoodItems((foodCategoryList[chosenCategory-1][0]))
+            elif userSelection == 3 :
                 progressBar("Generating report")
                 displayOrderOrPaymentRecords('orders',orderRecordsList)
-            elif input == "4" :
+            elif userSelection== 4 :
                 progressBar("Generating report")
                 displayOrderOrPaymentRecords('payments',orderRecordsList)
-            elif input == "0" :
+            elif userSelection == 0 :
                 adminMenu()
             else :
                 print("Number out of range")
+                continue
             break
         except ValueError:
             print("Please enter a number")
@@ -480,129 +485,131 @@ def displayOrderOrPaymentRecords(displayChoice,orderRecordsList): #Displays eith
             print('{:<24}{:<16}{:<16}{:<16}{:<16}{}'.format(data[0],data[1],data[3],data[4],data[5],data[6]))
 
 '''Search Menu Main Page'''
-def searchRecordsMenu(): #Main page to search records
+def searchPageHeader(section): #Standard header for search page 
+    clearConsole()
+    pageBanners(section, 50)
+    print("""\n{}1. CUSTOMER USERNAME\t2. ORDER ID""".format(" "*4))
+    print("\nOn what basis should the records be searched?".center(100))
+
+def searchRecordsMenu(): #Main page for users to select type of record search
     print("\n1. CUSTOMER ORDER RECORD\t2. CUSTOMER PAYMENT RECORD".center(50))
     print("\nWhich record do you want to check?")
-    while (True):
+    while True:
         try:
             orderRecordsList = readOrderRecordsFile()
             searchCategory = int(userInput("Input 1 or 2",False))
             if searchCategory == 1:
-                clearConsole()
-                pageBanners("SEARCH CUSTOMER ORDER",50)
-                searchCustomerOrder(orderRecordsList)
+                searchPageHeader("SEARCH CUSTOMER ORDER")
+                searchCriteria = int(userInput("Input 1 or 2",False))
+                if searchCriteria == 1:
+                    searchOrderByUsername(orderRecordsList)
+                elif searchCriteria == 2:
+                    searchOrderById(orderRecordsList)
+                else: 
+                    print("Invalid input")
+                    continue
             elif searchCategory == 2:
-                clearConsole()
-                pageBanners("SEARCH CUSTOMER PAYMENT",50)
-                searchCustomerPayment(orderRecordsList)
+                searchPageHeader("SEARCH CUSTOMER PAYMENT")
+                searchCriteria = int(userInput("Input 1 or 2",False))
+                if searchCriteria == 1:
+                    searchPaymentByUsername(orderRecordsList)
+                elif searchCriteria == 2:
+                    searchPaymentById(orderRecordsList)
+                else: 
+                    print("Invalid input")
+                    continue
             else:
                 print("The number you submitted is outside the allowed range!")
+                continue
             break
         except ValueError:
             print("Please enter a number!")
 
 '''Search Specific Customer Order Record'''
-def searchCustomerOrder(orderRecordsList): #Searches the order records file for a specific customer order record
-    print("""\n{}1. CUSTOMER USERNAME\t2. ORDER ID""".format(" "*4))
-    print("\nOn what basis should the records be searched?".center(100))
-    while True:
-        try:
-            searchCriteria = int(userInput("Input 1 or 2",False))
-            if (searchCriteria == 1):
-                recordByUsername = []
-                username = userInput("Please enter Customer Username",True)
-                count = 0
-                for data in orderRecordsList:
-                    if (username.lower() == data[0]):
-                        recordByUsername.append([data[0],data[1],data[2],data[3],data[7]])
-                        count+=1
-                if count >=1:
-                    print("{} order records have been found for {}".format(count,username))
-                    displaySearchResults('orders',username,recordByUsername)
-                else:
-                    print("No order records found for {}".format(username))
-                    continue
-                break   
-            elif (searchCriteria == 2):
-                orderID = userInput("Please enter Order ID",True)
-                recordById = []
-                orderExists = False
-                for data in orderRecordsList:
-                    if (orderID.upper() == data[1]):
-                        recordById.append([data[0],data[1],data[2],data[3],data[7]])
-                        orderExists = True
-                if (orderExists):
-                    print("1 Order record have been found for Order ID {}".format(orderID.upper()))
-                    displaySearchResults('orders',orderID,recordById)
-                    for data in recordById:
-                        print('{:<24}{:<16}{:<16}{:<16}{}'.format(data[0].upper(),data[1],data[3],data[4],data[2]))
-                else:
-                    print("No order records found for {}".format(orderID.upper()))
-                break
-            else:
-                print("The number you submitted is outside the allowed range!")
-                time.sleep(1)
-        except ValueError:
-            print("Please submit a number")
-            time.sleep(1.5)
+def searchOrderByUsername(orderRecordsList:list): #Search customer order by username
+    try:
+        recordByUsername = []
+        username = userInput("Please enter Customer Username",True)
+        count = 0
+        for data in orderRecordsList:
+            if (username.lower() == data[0]):
+                recordByUsername.append([data[0],data[1],data[2],data[3],data[7]])
+                count+=1
+        if count >=1:
+            print("{} order records have been found for {}".format(count,username))
+            progressBar("Generating report")
+            time.sleep(0.5)
+            displaySearchResults('orders',username,recordByUsername)
+        else:
+            print("No order records found for {}".format(username)) 
+    except ValueError:
+        print("Invalid value submitted")
 
-'''Search Specific Customer Payment Record'''
-def searchCustomerPayment(paymentList): #Searches the order records file for a specific customer payment record
-    print("""\n{}1. CUSTOMER USERNAME\t2. ORDER ID""".format(" "*4))
-    print("\nOn what basis should the records be searched?".center(100))
-    while True:
-        try:
-            searchCriteria = int(userInput("Input 1 or 2",False))
-            if (searchCriteria == 1):
-                recordByUsername = []
-                username = userInput("Please enter Customer Username",True)
-                count = 0
-                for data in paymentList:
-                    if (username.lower() == data[0]):
-                        recordByUsername.append([data[0],data[1],data[3],data[4],data[5],data[6]])
-                        count+=1
-                if count >=1:
-                    print("{} order records have been found for {}".format(count,username))
-                    displaySearchResults('payments',username,recordByUsername)
-                else:
-                    print("No order records found for {}".format(username))
-            if (searchCriteria == 2):
-                orderID = userInput("Please enter Order ID",True)
-                recordById = []
-                orderIdExists = False
-                for data in paymentList:
-                    if (orderID.upper() == data[1]):
-                        recordById.append([data[0],data[1],data[3],data[4],data[5],data[6]])
-                        orderIdExists = True
-                if (orderIdExists):
-                    print("1 Order record have been found for Order ID {}".format(orderID.upper()))
-                    displaySearchResults('payments',orderID,recordById)
-                else:
-                    print("No order records found for {}".format(orderID.upper()))
-            else:
-                print("The number you submitted is outside the allowed range!")
-                time.sleep(1)
-            break
-        except ValueError:
-            print("Please submit a number")
-            time.sleep(1)
-
-'''Display Search Results'''
-def displaySearchResults(recordName,searchBasis,resultsList): #Gets search results from the earlier search functions and displays it cleanly
-    while True:
+def searchOrderById(orderRecordsList:list): #Search customer order by Order ID
+    orderID = userInput("Please enter Order ID",True)
+    recordById = []
+    orderExists = False
+    for data in orderRecordsList:
+        if (orderID.upper() == data[1]):
+            recordById.append([data[0],data[1],data[2],data[3],data[7]])
+            orderExists = True
+    if (orderExists):
+        print("1 Order record have been found for Order ID {}".format(orderID.upper()))
         progressBar("Generating report")
         time.sleep(0.5)
-        if recordName == 'orders':
-            print(f"\n\t\t\t\tORDER REPORT FOR {searchBasis.upper()}\n{'-' * len(searchBasis)}{'-'*17}\n")
-            print(f"CUSTOMER USERNAME\tORDER ID\tTOTAL PAYABLE\tORDER STATUS\tFOOD ID(QUANTITY)\n{'-'*17}{' '*7}{'-'*8}{' '*8}{'-'*13}{' '*3}{'-'*12}{' '*4}{'-'*17}")
-            for data in resultsList:
-                print('{:<24}{:<16}{:<16}{:<16}{}'.format(data[0].upper(),data[1],data[3],data[4],data[2]))           
+        displaySearchResults('orders',orderID,recordById)
+    else:
+        print("No order records found for {}".format(orderID.upper()))
+    
+'''Search Specific Customer Payment Record'''
+def searchPaymentByUsername(paymentList:list): #Search customer order by Username
+    try:
+        recordByUsername = []
+        username = userInput("Please enter Customer Username",True)
+        count = 0
+        for data in paymentList:
+            if (username.lower() == data[0]):
+                recordByUsername.append([data[0],data[1],data[3],data[4],data[5],data[6]])
+                count+=1
+        if count >=1:
+            print("{} payment records have been found for {}".format(count,username))
+            progressBar("Generating report")
+            time.sleep(0.5)
+            displaySearchResults('payments',username,recordByUsername)
         else:
-            print(f"\n\t\t\t\tPAYMENT REPORT FOR {searchBasis.upper()}\n\t\t\t\t{'-'*19}{'-' * len(searchBasis)}\n")
-            print(f"CUSTOMER USERNAME\tORDER ID\tTOTAL PAYABLE\tPAYMENT METHOD\tPAYMENT STATUS\tPAID ON\n{'-'*17}{' '*7}{'-'*8}{' '*8}{'-'*13}{' '*3}{'-'*14}{' '*2}{'-'*14}{' '*2}{'-'*7}")
-            for data in resultsList:
-                print('{:<24}{:<16}{:<16}{:<16}{:<16}{}'.format(data[0].upper(),data[1],data[2],data[3],data[4],data[5]))  
-        break
+            print("No payment records found for {}".format(username))
+    except ValueError:
+        print("Invalid value submitted")
+
+def searchPaymentById(paymentList:list): #Search customer order by Order ID
+    orderID = userInput("Please enter Order ID",True)
+    recordById = []
+    orderIdExists = False
+    for data in paymentList:
+        if (orderID.upper() == data[1]):
+            recordById.append([data[0],data[1],data[3],data[4],data[5],data[6]])
+            orderIdExists = True
+    if (orderIdExists):
+        print("1 payment record have been found for Order ID {}".format(orderID.upper()))
+        progressBar("Generating report")
+        time.sleep(0.5)
+        displaySearchResults('payments',orderID,recordById)
+    else:
+        print("No payment records found for {}".format(orderID.upper()))
+
+'''Display Search Results'''
+def displaySearchResults(recordName:str,searchBasis:str,resultsList:list): #Gets search results from the earlier search functions and displays it cleanly
+    if recordName == 'orders':
+        print(f"\n\t\t\t\tORDER REPORT FOR {searchBasis.upper()}\n\t\t\t\t{'-' * len(searchBasis)}{'-'*17}\n")
+        print(f"CUSTOMER USERNAME\tORDER ID\tTOTAL PAYABLE\tORDER STATUS\tFOOD ID(QUANTITY)\n{'-'*17}{' '*7}{'-'*8}{' '*8}{'-'*13}{' '*3}{'-'*12}{' '*4}{'-'*17}")
+        for data in resultsList:
+            print('{:<24}{:<16}{:<16}{:<16}{}'.format(data[0].upper(),data[1],data[3],data[4],data[2]))           
+    else:
+        print(f"\n\t\t\t\tPAYMENT REPORT FOR {searchBasis.upper()}\n\t\t\t\t{'-'*19}{'-' * len(searchBasis)}\n")
+        print(f"CUSTOMER USERNAME\tORDER ID\tTOTAL PAYABLE\tPAYMENT METHOD\tPAYMENT STATUS\tPAID ON\n{'-'*17}{' '*7}{'-'*8}{' '*8}{'-'*13}{' '*3}{'-'*14}{' '*2}{'-'*14}{' '*2}{'-'*7}")
+        for data in resultsList:
+            print('{:<24}{:<16}{:<16}{:<16}{:<16}{}'.format(data[0].upper(),data[1],data[2],data[3],data[4],data[5]))  
+
 
 '''DECLARING FUNCTIONS FOR GUEST DASHBOARD'''
 def guestMenu(): #Guest Dashboard Main Page
