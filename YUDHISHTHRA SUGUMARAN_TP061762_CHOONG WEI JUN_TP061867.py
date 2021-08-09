@@ -727,7 +727,7 @@ def regCustomerMenu(): #Customer menu upon successful login
         print("1. View Item List", "2. View Item Details", "3. Add Food to Cart", "4. Checkout", "\n0. Logout", sep='\n')
         input = userInput("Choice",True)
         if input == "1":
-            viewItemList()
+            viewCategoryDetail()
         elif input =="2":
             viewItemDetail()
         elif input == "3":
@@ -740,6 +740,30 @@ def regCustomerMenu(): #Customer menu upon successful login
             invalidInput()
 
 '''View detail of food category'''
+def viewCategoryDetail() :
+    while True:
+        clearConsole()
+        pageBanners("Food Categories", 50)
+        print("\nWhat category of beverage would you like to know more?\n")
+        displayFoodCategoriesWithDetails()
+        print("\n0. Back to Categories Menu")
+        chosenCategory = int(userInput("Food category",True))
+        if chosenCategory == 0 :
+            break
+        elif chosenCategory <= 4 :
+            clearConsole()
+            listOutFoodItems((extractFoodCategories()[chosenCategory-1][0]))
+            input("\nPress Enter to Return")
+        else :
+            print("\nNumber out of range!")
+            time.sleep(1.5)
+            viewCategoryList()
+
+def displayFoodCategoriesWithDetails() :
+    foodCat = extractFoodCategories()
+    for i in range(len(foodCat)) :
+        print("{}. {} - {}".format(i+1, foodCat[i][0], foodCat[i][1]))
+
 '''View detail of food items'''
 '''Select food item and add to cart'''
 '''Do payment to confirm order'''
@@ -776,7 +800,6 @@ def main(): #The main module that will be executed first
 '''EXECUTE MAIN'''
 main()
 
-
 '''Empty functions'''
 def order() :
     clearConsole()
@@ -797,7 +820,6 @@ def checkPayment() : pass
 def viewItemList() : pass
 def registered() : pass
 def viewItemDetail() : pass
-def viewCategoryDetail() : pass
 def addFoodToCart() : pass
 def checkout() : pass
 def logout() : pass
