@@ -744,7 +744,7 @@ def viewCategoryDetail() :
     while True:
         clearConsole()
         pageBanners("Food Categories", 50)
-        print("\nWhat category of beverage would you like to know more?\n")
+        print("\nWhat category of beverage would you like to know more?")
         displayFoodCategoriesWithDetails()
         print("\n0. Back to Categories Menu")
         chosenCategory = int(userInput("Food category",True))
