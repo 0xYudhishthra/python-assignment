@@ -6,6 +6,7 @@
 '''IMPORTING NECESSARY EXTERNAL MODULES'''
 import os
 import time
+from typing import Type
 
 '''LOCATION OF FILES WITH ADMIN, FOODS AND CUSTOMER'S DETAILS'''
 FOOD_DETAILS_FILE = "./foodDetails.txt"
@@ -66,59 +67,65 @@ def pageBanners(pageTitle:str,centerLength:int): #Displays banner for each diffe
 
 '''DECLARING FUNCTIONS FOR ADMIN DASHBOARD'''
 '''Login to access system'''
-def readAdminDetailsFile() -> list: #Reads file with admin details, extracts username and passwords without headers and appends it to list
+def readAdminDetailsFile() -> list: #Reads file with admin details, extracts username and passwords without headers and appends it to list, PSEUDOCODE TBC
     adminDetailsList = [] 
     try:
         with open (ADMIN_DETAILS_FILE,mode='r') as adminDetailsFile:
             skipFileLine(6,adminDetailsFile)
             for row in adminDetailsFile:
                 adminDetailsList.append(row.strip("\n").replace(" | "," ").split(" "))
-        return adminDetailsList
+        if adminDetailsList == [] : raise UnboundLocalError
     except FileNotFoundError:
-        print("Admin details file is missing!")
+        print("\nERROR: Admin details file is missing!")
+        exit()
+    except UnboundLocalError:
+        print("\nERROR: No data in Admin details file!")
+        exit()
+    return adminDetailsList
 
-def adminLoginPage(): #Login Page for SOFS adminstrators
-    while True:
-        try: 
-            adminDetailsList = readAdminDetailsFile()
-            uName = userInput("Username",True).lower()
-            progressBar("Checking if username exists")
-            time.sleep(0.05)
-            if (authUsername(uName,adminDetailsList)):
-                print(" Username found, please enter password\n")
-                while True:
-                    uPass = userInput("Password",True)
-                    if (authPassword(uName, uPass,adminDetailsList)):
-                        progressBar("Logging you in")
-                        time.sleep(0.05)
-                        adminMenu(uName)
-                        break
-                    else:
-                        print("Incorrect password, please retry\n")
-            else: 
-                print(" Username not found, please retry")
-                continue
-        except TypeError:
-            print("Admin details file is corrupted!")
-        break
+def adminLoginPage(): #Login Page for SOFS adminstrators, TO-DO: show message when user enter without submitting anything
+    adminDetailsList = readAdminDetailsFile()
+    usernameExists = False
+    while(not usernameExists):
+        uName = userInput("Username",True).lower()
+        if uName == "" : continue
+        progressBar("Authenticating username")
+        time.sleep(0.05)
+        usernameExists = authUsername(uName,adminDetailsList)
+        if (usernameExists):
+            print(" Username found, please enter password\n")
+        else:
+            print(" ERROR: Username not found, please retry\n")
+    while (usernameExists):
+        uPass = userInput("Password",True)
+        if uPass == "" : continue
+        progressBar("Authenticating password")
+        time.sleep(0.05)
+        passwordMatch = authPassword(uName, uPass,adminDetailsList)
+        if (passwordMatch):
+            adminMenu(uName)
+            break  
+        else: 
+            print(" ERROR: Incorrect password , please retry")
 
 def adminMenu(uName:str="admin"): #Admin Menu shown upon successful login, PSEUDOCODE TO BE CHANGED
+    CHOICES = [[1, "ADD NEW FOOD ITEM", addFoodItemMenu], [2, "MODIFY FOOD ITEM", modifyFoodItemMenu], 
+               [3, "DISPLAY RECORDS", displayRecordsMenu], [4, "SEARCH RECORDS", searchRecordsMenu]]
+    clearConsole()
+    pageBanners("ADMIN DASHBOARD",50)
+    print(f'\nHey, {uName.capitalize()}! What would you like to do today?\n')
+    print("1. Add food item","2. Modify food item","3. Display records","4. Search record","0. Log out", sep='\n')
     while True:
         try:
-            clearConsole()
-            pageBanners("ADMIN DASHBOARD",50)
-            print(f'\nHey, {uName.capitalize()}! What would you like to do today?\n')
-            print("1. Add food item","2. Modify food item","3. Display records","4. Search record","0. Log out", sep='\n')
             userSelection = int(userInput("I would like to",True))
-            choices = [[1, "ADD NEW FOOD ITEM", addFoodItemMenu], [2, "MODIFY FOOD ITEM", modifyFoodItemMenu], [3, "DISPLAY RECORDS", displayRecordsMenu], [4, "SEARCH RECORDS", searchRecordsMenu]]
             if userSelection == 0:
                 progressBar("Logging out")
                 main()
-            if userSelection > len(choices):
+            elif userSelection > len(CHOICES):
                 print("Number is out of range!")
                 time.sleep(1)
                 continue
-            for choice in choices:
+            for choice in CHOICES:
                 if userSelection == choice[0]:
                     clearConsole()
                     pageBanners(choice[1],50)
@@ -129,7 +136,7 @@ def adminMenu(uName:str="admin"): #Admin Menu shown upon successful login, PSEUD
             time.sleep(1) 
 
 '''Add food item by category'''
-def readFoodDetailsFile() -> list: #Reads file with food details, extract food details without headers and appends it to list 
+def readFoodDetailsFile() -> list: #Reads file with food details, extract food details without headers and appends it to list, TO-DO: modify try-catch to fit missing files
     foodDetailsList=[]
     try:
         with open (FOOD_DETAILS_FILE, mode='r') as foodDetailsFile:
@@ -138,22 +145,24 @@ def readFoodDetailsFile() -> list: #Reads file with food details, extract food d
                 if row[0] == "_":
                     skipFileLine(3,foodDetailsFile)
                 foodDetailsList.append(row.replace("\n","").replace("_","").split(" | "))
-        return removeEmptyList(foodDetailsList)
+        if foodDetailsList == [] : raise UnboundLocalError
     except FileNotFoundError:
-        print("Food details file is missing!") 
+        print("\nERROR: Food details file is missing!")
+        exit()
+    except UnboundLocalError:
+        print("\nERROR: No data in food details file!")
+        exit()
+    return removeEmptyList(foodDetailsList)
 
-def displayFoodCategories(): #Displays list of food categories ONLY as ordered list
+def displayFoodCategories(): #Displays list of food categories ONLY as ordered list, update pseudocode
         try:  
-            foodCategoriesList = extractFoodCategories()   
-            count=1
-            while (count<len(foodCategoriesList)):
-                for list in foodCategoriesList:
-                    print(f'{count}. {list[0].capitalize()}')
-                    count+=1
+            foodCategoriesList = extractFoodCategories()
+            for list in foodCategoriesList:
+                print(f'{foodCategoriesList.index(list)+1}. {list[0].capitalize()}')
         except TypeError:
             print("Food details file is corrupted!")
 
-def addFoodItemMenu(): #Prompts admin to select which category of food item they want to add or to add new food category 
+def addFoodItemMenu(): #Prompts admin to select which category of food item they want to add or to add new food category, PSEUDOCODE TO BE CHANGED
     while True:
         try:
             foodCategoryTitles = extractFoodCategories()
@@ -431,11 +440,11 @@ def extractFoodCategories(): #Gets the title and description of the food categor
         print("Food details text file is missing!")
 
 def displayRecordsMenu(): #Display records main page
+    orderRecordsList = readOrderRecordsFile()
+    foodCategoryList = extractFoodCategories()
     print("\n1. Food Categories","2. Food Items by Category","3. Customer Orders","4. Customer Payment","0. Back to Admin  Menu", sep='\n')  
     while True:
         try:
-            orderRecordsList = readOrderRecordsFile()
-            foodCategoryList = extractFoodCategories()
             userSelection = int(userInput("Display all records of",True))
             if userSelection == 1 :
                 progressBar("Generating report")
