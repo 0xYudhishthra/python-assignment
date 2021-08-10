@@ -29,7 +29,7 @@ def quit() : #Exits program cleanly
 def userInput(promptMessage:str, skipLine:bool) -> input: #Function to format prompt message to accept input from users 
     if (skipLine):
         return input(f"\n{promptMessage} >> ")
-    else:
+    else:   
         return input(f"{promptMessage} >> ")
 
 def authUsername(username:str, detailsList:list) -> bool:  #Verifies if username exists in the respective list 
@@ -102,7 +102,7 @@ def adminLoginPage(): #Login Page for SOFS adminstrators
             print("Admin details file is corrupted!")
         break
 
-def adminMenu(uName:str=""): #Admin Menu shown upon successful login
+def adminMenu(uName:str="admin"): #Admin Menu shown upon successful login, PSEUDOCODE TO BE CHANGED
     while True:
         try:
             clearConsole()
@@ -110,29 +110,19 @@ def adminMenu(uName:str=""): #Admin Menu shown upon successful login
             print(f'\nHey, {uName.capitalize()}! What would you like to do today?\n')
             print("1. Add food item","2. Modify food item","3. Display records","4. Search record","0. Log out", sep='\n')
             userSelection = int(userInput("I would like to",True))
+            choices = [[1, "ADD NEW FOOD ITEM", addFoodItemMenu], [2, "MODIFY FOOD ITEM", modifyFoodItemMenu], [3, "DISPLAY RECORDS", displayRecordsMenu], [4, "SEARCH RECORDS", searchRecordsMenu]]
             if userSelection == 0:
                 progressBar("Logging out")
                 main()
-            elif userSelection == 1:
-                clearConsole()
-                pageBanners("ADD NEW FOOD ITEM",50)
-                addFoodItemMenu()
-            elif userSelection == 2:
-                clearConsole()
-                pageBanners("MODIFY FOOD ITEM",50)
-                modifyFoodItemMenu()
-            elif userSelection == 3:
-                clearConsole()
-                pageBanners("DISPLAY RECORDS",50)
-                displayRecordsMenu()
-            elif userSelection == 4:
-                clearConsole()
-                pageBanners("SEARCH RECORDS",50)
-                searchRecordsMenu()
-            else:
+            if userSelection > len(choices):
                 print("Number is out of range!")
                 time.sleep(1)
                 continue
+            for choice in choices:
+                if userSelection == choice[0]:
+                    clearConsole()
+                    pageBanners(choice[1],50)
+                    choice[2]()
             break
         except ValueError:
             print("Please submit a number")
@@ -167,10 +157,12 @@ def addFoodItemMenu(): #Prompts admin to select which category of food item they
     while True:
         try:
             foodCategoryTitles = extractFoodCategories()
-            print(f"\nIn which category would you like to add the food item?\n\n0. Add new food category")
+            print(f"\nIn which category would you like to add the food item?\n\n")
             displayFoodCategories()
+            print(f"{len(foodCategoryTitles)+1}. Add new food category")
+            print(f"\n0. Back to main menu")
             chosenFoodCategoryNumber = int(userInput("Food Category Number",True))
-            if (chosenFoodCategoryNumber == 0): 
+            if (chosenFoodCategoryNumber == len(foodCategoryTitles)+1): 
                 newFoodCategoryName = userInput("Category Name",False)
                 newFoodCategoryDescription = userInput("Description",False)
                 writeNewFoodCategoryToFile(newFoodCategoryName,newFoodCategoryDescription)
@@ -193,6 +185,8 @@ def addFoodItemMenu(): #Prompts admin to select which category of food item they
                 else:
                     print("Please enter either Y or N")
                     continue
+            elif chosenFoodCategoryNumber == 0:
+                adminMenu()
             else:
                 print("Invalid food category number")
                 time.sleep(1)
@@ -783,7 +777,18 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         quit()
 
+# choices = [[1, "ADD NEW FOOD ITEM", addFoodItemMenu], [2, "MODIFY FOOD ITEM", modifyFoodItemMenu], [3, "DISPLAY RECORDS", displayRecordsMenu], [4, "SEARCH RECORDS", searchRecordsMenu]]
+# userSelection = 2
+# # pageBanner, functionCall = [choice[1], choice[2] for choice in choices if userSelection in choice]
+# # print(userSelection in choices[(range(choices))]
 
+# # for choice in choices:
+# #     if userSelection == choice[0]:
+# #         clearConsole()
+# #         pageBanners(choice[1], 50)
+# #         choice[2]()
+# i=0
+# print(i for i in range (len(choices)))
 
 '''Empty functions'''
 def order() :
