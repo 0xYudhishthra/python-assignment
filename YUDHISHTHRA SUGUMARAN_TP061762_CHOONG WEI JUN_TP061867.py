@@ -292,8 +292,8 @@ def verifyFoodItemId(foodItemId:str, foodDetailsList:list) -> bool: #Verifies th
 def listOutFoodItems(chosenFoodCategoryName:str): #Displays the details of all food items in the food details file based on the category chosen by the user
     while True:
         try:
-            progressBar("Retrieving food item records")
             time.sleep(0.5)
+            progressBar("Retrieving food item records")
             print(f"\n\nREPORT OF FOOD ITEMS IN {chosenFoodCategoryName.upper()}\n{'-'*24}{'-'*len(chosenFoodCategoryName)}")
             print(f"FOOD ITEM ID\tFOOD ITEM PRICE\t FOOD ITEM NAME\n{'-'*12}{' '*4}{'-'*15}{' '*2}{'-'*14}")
             for data in readFoodDetailsFile():
@@ -337,6 +337,7 @@ def deleteFoodItemMenu(foodDetailsList): #Menu for user to choose which specific
             displayFoodCategories()
             categoryNumber = int(userInput("Category number",True))
             if 0 < categoryNumber <= len(foodCategoryTitles):
+                progressBar("Retrieving food item records")
                 listOutFoodItems(foodCategoryTitles[categoryNumber-1][0])
                 foodItemId = userInput("Enter the Food Item ID that you would like to delete",True).upper()
                 if(verifyFoodItemId(foodItemId,foodDetailsList)):
@@ -719,55 +720,173 @@ def customerLoginPage():
 
 def regCustomerMenu(): #Customer menu upon successful login
     while True:
-        clearConsole()
-        pageBanners("Customer Menu", 50)
-        print("\nWelcome!, what would you like to do today?")
-        print("1. View Item List", "2. View Item Details", "3. Add Food to Cart", "4. Checkout", "\n0. Logout", sep='\n')
-        input = userInput("Choice",True)
-        if input == "1":
-            viewCategoryDetail()
-        elif input =="2":
-            viewItemDetail()
-        elif input == "3":
-            addFoodToCart()
-        elif input =="4":
-            checkout()
-        elif input == "0":
-            break
-        else:pass
-            # invalidInput()
-
-'''View detail of food category'''
-def viewCategoryDetail() :
-    while True:
-        clearConsole()
-        pageBanners("Food Categories", 50)
-        print("\nWhat category of beverage would you like to know more?")
-        displayFoodCategoriesWithDetails()
-        print("\n0. Back to Categories Menu")
-        chosenCategory = int(userInput("Food category",True))
-        if chosenCategory == 0 :
-            break
-        elif chosenCategory <= 4 :
+        try:
             clearConsole()
-            listOutFoodItems((extractFoodCategories()[chosenCategory-1][0]))
-            input("\nPress Enter to Return")
-        else :
-            print("\nNumber out of range!")
-            time.sleep(1.5)
-            viewCategoryList()
+            pageBanners("Customer Menu", 50)
+            print("\nWelcome!, what would you like to do today?")
+            print("1. View Item By Categories", "2. View Cart", "3. Checkout", "\n0. Logout", sep='\n')
+            input = int(userInput("Choice",True))
+            if input == 1:
+                viewCategoryDetail()
+            elif input == 2:
+                viewCart()
+            elif input == 3:
+                checkout()
+            elif input == 0:
+                break
+            else:
+                print("\nOps, number out of range!")
+                time.sleep(1)
+        except ValueError:
+            print("\nYou entered an invalid input, please enter a valid selection number.")
+            time.sleep(1)
+
+'''View food category with details'''
+def viewCategoryDetail():
+    foodCat = extractFoodCategories()
+    foodCatLen = len(foodCat)
+    cart = []
+    while True:
+        try:
+            clearConsole()
+            pageBanners("Food Categories", 50)
+            print("\nWhat category of beverage would you like to know more?\n")
+            displayFoodCategoriesWithDetails()
+            print("\n0. Back to Customer Menu")
+            chosenCategory = int(userInput("Food category", True))
+            if chosenCategory == 0:
+                break
+            elif chosenCategory <= foodCatLen:
+                cart = itemEngine(cart, (extractFoodCategories()[chosenCategory-1][0]))
+            else:
+                input("\nOops! Number out of range, please enter to try again.")
+                viewCategoryList()
+        except ValueError:
+            input("\nYou entered an invalid input, please enter a valid selection number.")
+            time.sleep(1)
 
 def displayFoodCategoriesWithDetails() :
     foodCat = extractFoodCategories()
     for i in range(len(foodCat)) :
         print("{}. {} - {}".format(i+1, foodCat[i][0], foodCat[i][1]))
 
-'''View detail of food items'''
-'''Select food item and add to cart'''
+# def foodItemsMenu(cart:list) -> list :
+def regCustItemList(chosenFoodCategoryName:str): #Displays the details of all food items in the food details file based on the category chosen by the user
+    while True:
+        try:
+            print(f"{chosenFoodCategoryName.upper()}".center(50))
+            print(f"{'-'*24}{'-'*len(chosenFoodCategoryName)}")
+            print(f"FOOD ITEM ID\tFOOD ITEM PRICE\t FOOD ITEM NAME\n{'-'*12}{' '*4}{'-'*15}{' '*2}{'-'*14}")
+            for data in readFoodDetailsFile():
+                if (chosenFoodCategoryName.replace("FOOD CATEGORY", "").strip().capitalize()) in data:
+                    print('{:<16}{:<15}\t {}'.format(data[1],data[3],data[2]))
+            break
+        except TypeError:
+            print("Please enter a number")
+
+def itemEngine(cart:list, chosenFoodCategoryName:str) -> list :
+    cartChosen, addCartChosen = False, False    
+    while True:
+        clearConsole()
+        regCustItemList(chosenFoodCategoryName)
+        try:
+            cart = tidyCart(cart)
+            if len(cart) > 0 :
+                printCart(cart)
+        except TypeError:
+            print()
+        if cartChosen:
+            if addCartChosen:
+                itemToAdd = input("\nItem Code to Add (M2) >> ").upper()
+                if validItemCode(itemToAdd):
+                    amountToAdd = str(input("Amount >> "))
+                    cart = addItemToCart(itemToAdd, amountToAdd, cart)
+                    cartChosen, addCartChosen = False, False
+                else:
+                    input("\nOops! Invalid input entred, please press enter to try again.") 
+                    cartChosen, addCartChosen = False, False
+            else:
+                itemToRemove = input("\nItem Code to Remove >> ").upper()
+                if validItemCode(itemToRemove):
+                    amountToRemove = input("Amount to Remove (\"All\" to remove item from cart) >> ")
+                    cart = removeItemFromCart(itemToRemove, amountToRemove, cart)
+                    cartChosen = False
+                else:
+                    input("\nOops! Invalid input entred, please press enter to try again.") 
+                    cartChosen = False
+        else:
+            userInput = input("\n1. Add Item to Cart.\n2. Remove Item from Cart.\n\n0. Back\n\nChoice >> ").strip().upper()
+            if userInput == "0":
+                return cart
+            elif userInput == "1":
+                cartChosen, addCartChosen = True, True
+            elif userInput == "2":
+                cartChosen = True
+            else:
+                input("Oops! Invalid selection entred, please press enter to try again.")
+        
+
+def printCart(cart:list) : 
+    stringToPrint = ""
+    for i in range(0, len(cart), 2):
+        stringToPrint = stringToPrint + cart[i] + "(" + str(cart[i+1]) + ")"
+        if i < (len(cart)-2) :
+            stringToPrint = stringToPrint + ", "
+    print(f"\nCart :  {stringToPrint}")
+
+def addItemToCart(item:str, amount:str, cart:list) -> list :
+    try:
+        intAmount = int(amount)
+        for i in range(0, len(cart), 2):
+            if cart[i] == item:
+                cart[i+1] += intAmount
+                return cart
+        cart.extend([item, intAmount])
+        return cart
+    except:
+        input("\nOops! Alphabet/s found in amount entered, please enter numbers only.\nPress enter to return.")
+        return cart
+
+def removeItemFromCart(item:str, amount:str, cart:list) :
+    if amount.lower() != "all" :
+        try:
+            intAmount = int(amount)
+        except:
+            input("Oops! Invalid string found, do you mean \"All\"?\nPress enter to return.")
+            return cart
+    for i in range(0, len(cart), 2):
+        if cart[i] == item:
+            amountFromCart = cart[i+1]
+            if amount.lower() == "all":
+                cart[i+1] = 0
+            elif intAmount <= amountFromCart:
+                cart[i+1] -= intAmount
+            elif intAmount > amountFromCart:
+                print("Oops! Amount entered is too large, please try again.\nPress enter to return.")
+                return cart
+            return cart
+    input("Oops! Item code entered not found, please try again.\nPress enter to return.")
+    return (cart)
+
+def validItemCode(code:str) -> bool:
+    itemsArray = readFoodDetailsFile()
+    for item in range(len(itemsArray)) :
+        if itemsArray[item][1] == code :
+            return True
+    return False
+
+def tidyCart(cart:list) -> list :
+    tempCart = []
+    for i in range(0, len(cart), 2) :
+        if cart[i+1] != 0 :
+            tempCart.extend([cart[i],cart[i+1]])
+    return tempCart
+
 '''Do payment to confirm order'''
 
 '''DECLARING MAIN GREETING PAGE'''
 def main(): #The main module that will be executed first
+    regCustomerMenu()
     while True:
         clearConsole()
         print(" ____   ___  _____ ____".center(78))
@@ -827,8 +946,5 @@ def cancelOrder() : pass
 def checkPayment() : pass
 def viewItemList() : pass
 def registered() : pass
-def viewItemDetail() : pass
-def addFoodToCart() : pass
 def checkout() : pass
-def logout() : pass
 def customerRegistration() : pass 
