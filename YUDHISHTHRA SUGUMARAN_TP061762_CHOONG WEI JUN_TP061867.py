@@ -623,8 +623,7 @@ def guestMenu(): #Guest Dashboard Main Page
         if input == "1":
             viewCategoryList()
         elif input == "2":
-            customerLoginPage()
-            regCustomerMenu()
+            regCustomerMenu(customerLoginPage())
         elif input == "3":
             pageBanners("NEW ACCOUNT",50)
             customerRegistration()
@@ -659,7 +658,7 @@ def viewCategoryList() :
             viewCategoryList()
 
 '''List out food items without details (Price and Descriptions)'''
-def listOutFoodItemsNoDetails(chosenFoodCategoryName): #Displays the details of all food items in the food details file based on the category chosen by the user
+def listOutFoodItemsNoDetails(chosenFoodCategoryName): #Displays all food items in the food details file based on the category chosen by the user without details
     clearConsole()
     while True:
         try:
@@ -675,11 +674,6 @@ def listOutFoodItemsNoDetails(chosenFoodCategoryName): #Displays the details of 
         except TypeError:
             print("Please enter a number")
 
-'''New customer registration to access other details'''
-
-
-'''DECLARING FUNCTIONS FOR REGISTERED CUSTOMER DASHBOARD'''
-'''Login to access system'''
 def readCustomerDetailsFile() -> list: #Reads file with customer details, extracts username and passwords without headers and appends it to list
     customerDetailsList = [] 
     try:
@@ -706,8 +700,7 @@ def customerLoginPage():
                     uPass = userInput("Password",True)
                     if (authPassword(uName, uPass,customerDetailsList)):
                         progressBar("Logging you in")
-                        time.sleep(0.05)
-                        break
+                        return uName
                     else:
                         print("Incorrect password, please retry\n")
             else: 
@@ -718,20 +711,21 @@ def customerLoginPage():
             print("Customers details file is corrupted!")
             break
 
-def regCustomerMenu(): #Customer menu upon successful login
+def regCustomerMenu(username:str): #Customer menu upon successful login
+    cart = []
     while True:
         try:
             clearConsole()
             pageBanners("Customer Menu", 50)
             print("\nWelcome!, what would you like to do today?")
-            print("1. View Item By Categories", "2. View Cart", "3. Checkout", "\n0. Logout", sep='\n')
+            print("1. View Item By Categories", "2. View Carts", "\n0. Logout", sep='\n')
             input = int(userInput("Choice",True))
             if input == 1:
-                viewCategoryDetail()
-            elif input == 2:
-                viewCart()
-            elif input == 3:
-                checkout()
+                cart = viewCategoryDetail(cart)
+            elif input == 2: 
+                viewCart(cart, username)
+            # elif input == 3:
+            #     viewOrders(username)
             elif input == 0:
                 break
             else:
@@ -742,20 +736,21 @@ def regCustomerMenu(): #Customer menu upon successful login
             time.sleep(1)
 
 '''View food category with details'''
-def viewCategoryDetail():
+def viewCategoryDetail(cart:list):
     foodCat = extractFoodCategories()
     foodCatLen = len(foodCat)
-    cart = []
     while True:
         try:
             clearConsole()
             pageBanners("Food Categories", 50)
             print("\nWhat category of beverage would you like to know more?\n")
             displayFoodCategoriesWithDetails()
+            if len(cart) > 0 :
+                printCart(cart)
             print("\n0. Back to Customer Menu")
             chosenCategory = int(userInput("Food category", True))
             if chosenCategory == 0:
-                break
+                return cart
             elif chosenCategory <= foodCatLen:
                 cart = itemEngine(cart, (extractFoodCategories()[chosenCategory-1][0]))
             else:
@@ -771,7 +766,7 @@ def displayFoodCategoriesWithDetails() :
         print("{}. {} - {}".format(i+1, foodCat[i][0], foodCat[i][1]))
 
 # def foodItemsMenu(cart:list) -> list :
-def regCustItemList(chosenFoodCategoryName:str): #Displays the details of all food items in the food details file based on the category chosen by the user
+def regCustItemList(chosenFoodCategoryName:str) : #Displays the details of all food items in the food details file based on the category chosen by the user
     while True:
         try:
             print(f"{chosenFoodCategoryName.upper()}".center(50))
@@ -882,11 +877,85 @@ def tidyCart(cart:list) -> list :
             tempCart.extend([cart[i],cart[i+1]])
     return tempCart
 
-'''Do payment to confirm order'''
+def cartDetail(cart:list) :
+    itemsArray = readFoodDetailsFile()
+    cartDetails = []
+    cartTotal = 0
+    for cartItem in range(0, len(cart), 2):
+        for item in range(len(itemsArray)):
+            if cart[cartItem] == itemsArray[item][1]:
+                unitTotal = (float(itemsArray[item][3])*float(cart[cartItem+1]))
+                cartTotal += unitTotal
+                # detail = Item Name, Quantity, Unit Price, Total Unit Price
+                detail = [(itemsArray[item][2]), str(cart[cartItem+1]), itemsArray[item][3],  str(unitTotal)]
+                cartDetails.append(detail)
+    return (cartDetails, cartTotal)
+
+def viewCart(cart:list, username:str) :
+    while True:
+        clearConsole()
+        pageBanners("    Cart   ", 50)
+        cartDetailArray, cartTtl  = cartDetail(cart)
+        print("\n{:<3}{:<2}{:<32}{:<2}{:<9}{:<2}{:<11}{:<2}{:<17}{:<2}".format("N", "|", "Item Name", "|", "Quantity", "|", "Unit Price", "|", "Total Unit Price", "|"))
+        print("{:<3}{:<2}{:<32}{:<2}{:<9}{:<2}{:<11}{:<2}{:<17}{:<2}".format("", "|", "", "|", "", "|", "", "|", "", "|"))
+        for i in range(len(cartDetailArray)) :
+            print("{:<3}{:<2}{:<32}{:<2}{:<9}{:<2}{:<11}{:<2}{:<17}{:<2}".format((str(i+1)+"."), "|", cartDetailArray[i][0], "|", cartDetailArray[i][1], "|", cartDetailArray[i][2], "|", cartDetailArray[i][3], "|"))
+        print(f"\nTotal: {cartTtl}\n1. Submit Cart\n0. Back")
+        option = userInput("Choice >>", True)
+        if option == "0" :
+            break
+        elif option == "1" :
+            submitCart(cart, username, cartTtl)
+            return ([])
+        else:
+            print("Oops! Something went wrong, press enter to try again.")
+
+def submitCart(cart:list, username:str, cartTtl:float) :
+    itemString = ""
+    for i in range(0, len(cart), 2):
+        itemString += cart[i] + "(" + str(cart[i + 1]) + ")"
+        if i < (len(cart)-2) :
+            itemString += ", "
+    record = username + " | " + str(orderDetailLen()+1) + " | " + itemString + " | " + str(cartTtl) + " | " + "PAID\n"
+    try:
+        with open(ORDER_RECORDS_FILE, "a") as orderFile:
+            orderFile.write(record)
+    except FileNotFoundError:
+        print("FILE IS MISSING!!!")
+    userInput("", True)
+
+def printOrderList(username:str) :
+    while True:
+        orderDetailArray = orderDetail(username)
+        print("{:<9}{:<2}{:<32}{:<2}{:<8}{:<2}{:<7}{:<2}".format("Order ID", "|", "Items", "|", "Total", "|", "Status", "|"))
+        print("{:<9}{:<2}{:<32}{:<2}{:<8}{:<2}{:<7}{:<2}".format("", "|", "", "|", "", "|", "", "|"))
+        for i in range(len(orderDetailArray)):
+            print("{:<9}{:<2}{:<32}{:<2}{:<8}{:<2}{:<7}{:<2}".format(orderDetailArray[i][1], "|", orderDetailArray[i][2], "|", orderDetailArray[i][3], "|", orderDetailArray[i][4], "|"))
+
+def orderDetail(username:str): 
+    orderArray = []
+    with open (ORDER_RECORDS_FILE, mode='r') as orderDetailFile:
+        skipFileLine(6,orderDetailFile)
+        for row in orderDetailFile:
+            order = row.strip("\n").replace(" | "," ").split(" ") 
+            if order[0] == username:
+                orderArray.append(order)
+    return orderArray
+
+def orderDetailLen() :
+    len = 0
+    with open (ORDER_RECORDS_FILE, mode='r') as orderDetailFile:
+        skipFileLine(6,orderDetailFile)
+        for row in orderDetailFile:
+            len += 1
+    return len
 
 '''DECLARING MAIN GREETING PAGE'''
 def main(): #The main module that will be executed first
-    regCustomerMenu()
+    cart = ["M1", 3, "M2", 4, "M3", 1]
+    submitCart(cart, "yudhx", 30.00)
+    printOrderList("yudhx")
+    regCustomerMenu("yudhx")
     while True:
         clearConsole()
         print(" ____   ___  _____ ____".center(78))
