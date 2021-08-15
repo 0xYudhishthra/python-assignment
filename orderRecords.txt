@@ -14,3 +14,4 @@ yudhx | 7 | M4(1),F3(1) | 13.20 | PAID
 john | 8 | M1(3),M2(4),M3(1) | 30.0 | PAID
 yudhx | 9 | M3(2),F1(1) | 28.0 | PAID
 yudhx | 12 | M1(2) | 26.0 | PAID
+yudhx | 11 | M1(1),W3(3),M3(1) | 78.83 | PAID

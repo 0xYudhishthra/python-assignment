@@ -802,7 +802,6 @@ def displaySearchResults(recordName:str,searchBasis:str,resultsList:list): #Func
 
 '''DECLARING FUNCTIONS FOR GUEST DASHBOARD'''
 
-
 def guestMenu():  # Guest Dashboard Main Page
     while True:
         clearConsole()
@@ -824,10 +823,7 @@ def guestMenu():  # Guest Dashboard Main Page
             # invalidInput()
             guestMenu()
 
-
 '''View all food items as per category'''
-
-
 def viewCategoryList():
     while True:
         clearConsole()
@@ -850,10 +846,6 @@ def viewCategoryList():
             print("\nPlease enter a number!")
             time.sleep(1.5)
             viewCategoryList()
-
-
-'''List out food items without details (Price and Descriptions)'''
-
 
 # Displays all food items in the food details file based on the category chosen by the user without details
 def listOutFoodItemsNoDetails(chosenFoodCategoryName):
@@ -930,17 +922,11 @@ def regCustomerMenu(username: str):  # Customer menu upon successful login
             elif input == 0:
                 break
             else:
-                print("\nOps, number out of range!")
-                time.sleep(1)
+                input("\nOps, number out of range!")
         except ValueError:
-            print(
-                "\nYou entered an invalid input, please enter a valid selection number.")
-            time.sleep(1)
-
+            input("\nYou entered an invalid input, please enter a valid selection number.")
 
 '''View food category with details'''
-extractFoodCategoryTitles
-
 def viewCategoryDetail(cart: list, username:str):
     foodCat = extractFoodCategoryTitles()
     foodCatLen = len(foodCat)
@@ -974,9 +960,6 @@ def displayFoodCategoriesWithDetails():
     foodCat = extractFoodCategoryTitles()
     for i in range(len(foodCat)):
         print("{}. {} - {}".format(i+1, foodCat[i][0], foodCat[i][1]))
-
-# def foodItemsMenu(cart:list) -> list :
-
 
 # Displays the details of all food items in the food details file based on the category chosen by the user
 def regCustItemList(chosenFoodCategoryName: str):
@@ -1119,13 +1102,14 @@ def cartDetail(cart: list):
                 detail = [(itemsArray[item][2]), str(cart[cartItem+1]),
                           itemsArray[item][3],  str(unitTotal)]
                 cartDetails.append(detail)
+    cartTotal = "{:.2f}".format(cartTotal)
     return (cartDetails, cartTotal)
 
 
 def viewCart(cart: list, username: str):
     while True:
         clearConsole()
-        pageBanners("    Cart   ", 50)
+        pageBanners("  Cart  ", 50)
         cartDetailArray, cartTtl = cartDetail(cart)
         print("\n{:<3}{:<2}{:<32}{:<2}{:<9}{:<2}{:<11}{:<2}{:<17}{:<2}".format(
             "N", "|", "Item Name", "|", "Quantity", "|", "Unit Price", "|", "Total Unit Price", "|"))
@@ -1164,12 +1148,14 @@ def submitCart(cart: list, username: str, cartTtl: float):
         input("Order placed successfully, please press enter to return.")
         break
 
+
 def viewOrders(username: str):
     clearConsole()
     pageBanners("  Orders ", 50)
     print("")
     printOrderList(username)
     input("\nPress enter to return.")
+
 
 def printOrderList(username: str):
         orderDetailArray = orderDetail(username)
@@ -1180,6 +1166,7 @@ def printOrderList(username: str):
         for i in range(len(orderDetailArray)):
             print("{:<9}{:<2}{:<32}{:<2}{:<8}{:<2}{:<7}{:<2}".format(
                 orderDetailArray[i][1], "|", orderDetailArray[i][2], "|", orderDetailArray[i][3], "|", orderDetailArray[i][4], "|"))
+
 
 def orderDetail(username: str):
     orderArray = []
@@ -1205,8 +1192,8 @@ def customerRegistration():
     titleList = ["Username", "Password", "First Name", "Last Name", "House Number", "Street", "State", "Postcode", "Phone Number"]
     userData = ["", "", "", "", "", "", "", "", ""]
     while True:
-        clearConsole()
         for a in range(len(titleList)):
+            clearConsole()
             pageBanners("Registration", 50)
             print("")
             for b in range(9):
@@ -1222,7 +1209,6 @@ def customerRegistration():
             break
 
 
-
 def submitRegistration(userData:list):
     for data in userData:
         if data.strip() == "":
@@ -1235,7 +1221,6 @@ def submitRegistration(userData:list):
     except FileNotFoundError:
         print("FILE IS MISSING!!!")
     return True
-    
     
 
 '''DECLARING MAIN GREETING PAGE'''
@@ -1280,30 +1265,3 @@ if __name__ == '__main__':
         main()
     except KeyboardInterrupt:
         quit()
-
-'''Empty functions'''
-def order() :
-    clearConsole()
-    print("\nPlease select any option below.")
-    print("1. Cancel an order","2. Back to Main Menu","0. Back",sep='\n')
-    input = userInput("Choice",True)
-    if input == "1" : 
-        cancelOrder() 
-    elif input == "2" :
-        main()
-    elif input == "0" :
-        adminMenu()
-    else : 
-        # invalidInput()
-        order()
-
-def cancelOrder() : pass
-def checkPayment() : pass
-def viewItemList() : pass
-def registered() : pass
-def viewItemDetail() : pass
-def viewCategoryDetail() : pass
-def addFoodToCart() : pass
-def checkout() : pass
-def logout() : pass
-def customerRegistration() : pass 
