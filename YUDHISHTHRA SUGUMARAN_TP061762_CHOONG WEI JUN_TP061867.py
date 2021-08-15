@@ -14,9 +14,9 @@ ADMIN_DETAILS_FILE = "./adminDetails.txt"
 ORDER_RECORDS_FILE = "./orderRecords.txt"
 
 '''UTILITY FUNCTIONS'''
-def initialProgramCheck(): #Function that ensures all text files needed exists and has data, update pseudocode
+def initialProgramCheck(): #Function that ensures all files needed exists and has data, update pseudocode
     print(" PRE-PROGRAM CHECKS ".center(85,"="))
-    pageBanners("File Existence Check", 0)
+    print(" File Existence Check ".center(85,'='))
     files = [FOOD_DETAILS_FILE, CUSTOMER_DETAILS_FILE, ADMIN_DETAILS_FILE, ORDER_RECORDS_FILE]
     #Iterates thorugh each file in the files list to see if it exists in the given directory
     for file in files:
@@ -28,7 +28,7 @@ def initialProgramCheck(): #Function that ensures all text files needed exists a
             print(f" -> {file} not found")
             print("ERROR: Program failed to execute")
             exit()
-    pageBanners("Data Existence Check", 0)
+    print(" Data Existence Check ".center(85,'='))
     #Reads in each file in the files list, append to contentList and checks if list is empty or not
     for file in files:
         contentList = []
@@ -77,7 +77,7 @@ def authPassword(username:str, password:str, detailsList:list) -> bool:  #Functi
 def skipFileLine(count:int,fileHandle): #Function that skips n number of lines in a file handle (textIOWrapper) that is being read/write 
     for _ in range(count):
         next(fileHandle) 
-
+            
 def removeEmptyList(sourceList:list) -> list: #Function that removes list with empty strings and lists with no elements
     for data in sourceList:
         while ('' in data):
@@ -125,7 +125,9 @@ def adminLoginPage(): #Function that displays login Page for SOFS adminstrators,
     #Continuously asks for password until it matches the username given earlier
     while (usernameExists):
         uPass = userInput("Password",True)
-        if uPass == "" : continue
+        if uPass == "" : 
+            print("ERROR: Password not submitted")
+            continue
         progressBar("Authenticating password")
         time.sleep(0.05)
         passwordMatch = authPassword(uName, uPass,adminDetailsList)
@@ -209,7 +211,8 @@ def addFoodItemMenu(): #Function that prompts admin to select which category of 
             print("ERROR: Foreign character submitted")
             time.sleep(0.1)
         
-def getNewFoodItemDetails(chosenFoodCategoryName:str) : #Function that gets details of new food item from user before being written to file , to update
+
+def getNewFoodItemDetails(chosenFoodCategoryName:str) -> str: #Function that gets details of new food item from user before being written to file , to update
     validFoodItemName = False
     validFoodItemPrice = False
     #Ensures the foodItemName is in a valid format
@@ -251,6 +254,7 @@ def getNewFoodItemDetails(chosenFoodCategoryName:str) : #Function that gets deta
             print("\nERROR: Please enter either Y or N")
             continue
         break
+            
         
 def writeNewFoodCategoryToFile(): #Function that adds new food category in food details file and asks user if they want to add a new food item in the new category, update pseudocode
     #Add new food category to file
@@ -393,7 +397,8 @@ def listOutFoodItems(chosenFoodCategoryName:str): #Function that displays the de
     for data in foodItemDetails:
         if (chosenFoodCategoryName.replace("FOOD CATEGORY", "").strip().capitalize()) in data:
             print('{:<16}{:<15}\t {}'.format(data[1],data[3],data[2]))
-    
+        
+
 def updateFoodItemMenu(foodDetailsList:list): #Function that displays menu for user to choose which specific food item id they want to update
     print("\nIn which category would you like to update the food item?\n")
     displayFoodCategories()
@@ -435,8 +440,9 @@ def deleteFoodItemMenu(foodDetailsList:list): #Function that displays menu for u
         else:
             print("Invalid Food Item ID")
         
+
+
 def updateFoodItemRecord(foodDetailsList:list, foodItemIdList:list, foodItemIdIndex:int): #Function that updates a specific record of food item in the food details text file
-    # sourcery skip: switch
     validUpdateChoice = False
     print("\nWhat would you like to update?","1. Food Item Price","2. Food Item Name","3. Both",sep='\n')
     while not validUpdateChoice:
@@ -597,13 +603,14 @@ def displayOrderOrPaymentRecords(displayChoice:str): #Function that displays eit
             print('{:<24}{:<16}{:<16}{:<16}{:<16}{}'.format(data[0],data[1],data[3],data[4],data[5],data[6]))
 
 '''Search Menu Main Page'''
-def searchPageHeader(section:str): #Function that displays for standard header for search page 
+def searchPageHeader(section:str): #Standard header for search page 
     clearConsole()
     pageBanners(section, 50)
     print("\nOn what basis should the records be searched?".center(100))
     print("\n1. Customer Username","2. Order ID", "\n0. Back to Admin Menu\n", sep='\n')
 
-def searchRecordsMenu(): #Function to display main page for users to select type of record search
+
+def searchRecordsMenu(): #Main page for users to select type of record search
     orderRecordsList = readOrderRecordsFile()
     print("\nWhich record do you want to check?")
     print("\n1. Customer Order Record","2. Customer Payment Record","\n0. Back to Admin Menu\n", sep='\n')
@@ -652,7 +659,7 @@ def searchRecordsMenu(): #Function to display main page for users to select type
             print("\nERROR: Please enter a number")
 
 '''Search Specific Customer Order Record'''
-def searchOrderByUsername(orderRecordsList:list): #Function to search customer order by Username
+def searchOrderByUsername(orderRecordsList:list): #Search customer order by username
     validUsername = False
     recordByUsername = []
     count = 0
@@ -676,7 +683,8 @@ def searchOrderByUsername(orderRecordsList:list): #Function to search customer o
             print("No order records found for {}".format(username))
         break
     
-def searchOrderById(orderRecordsList:list): #Function to search customer order by Order ID
+
+def searchOrderById(orderRecordsList:list): #Search customer order by Order ID
     validOrderId = False
     recordById = []
     orderExists = False
@@ -705,7 +713,7 @@ def searchOrderById(orderRecordsList:list): #Function to search customer order b
         break
     
 '''Search Specific Customer Payment Record'''
-def searchPaymentByUsername(paymentList:list): #Function to search customer payment by Username
+def searchPaymentByUsername(paymentList:list): #Search customer order by Username
     validUsername = False
     recordByUsername = []
     count = 0
@@ -729,7 +737,7 @@ def searchPaymentByUsername(paymentList:list): #Function to search customer paym
             print("No payment records found for {}".format(username))
         break
 
-def searchPaymentById(paymentList:list): #Function to search customer payment by Order ID
+def searchPaymentById(paymentList:list): #Search customer order by Order ID
     validOrderId = False
     recordById = []
     orderIdExists = False
