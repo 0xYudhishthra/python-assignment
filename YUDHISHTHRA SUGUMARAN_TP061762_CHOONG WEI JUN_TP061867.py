@@ -6,7 +6,6 @@
 '''IMPORT NECESSARY EXTERNAL MODULES'''
 import os
 import time
-from typing import Type
 
 '''LOCATION OF FILES WITH ADMIN, FOODS, CUSTOMER AND ORDER RECORD DETAILS'''
 FOOD_DETAILS_FILE = "./foodDetails.txt"
@@ -15,7 +14,7 @@ ADMIN_DETAILS_FILE = "./adminDetails.txt"
 ORDER_RECORDS_FILE = "./orderRecords.txt"
 
 '''UTILITY FUNCTIONS'''
-def initialProgramCheck(): #Function that ensures all files needed exists and has data, update pseudocode
+def initialProgramCheck(): #Function that ensures all text files needed exists and has data, update pseudocode
     print(" PRE-PROGRAM CHECKS ".center(85,"="))
     pageBanners("File Existence Check", 0)
     files = [FOOD_DETAILS_FILE, CUSTOMER_DETAILS_FILE, ADMIN_DETAILS_FILE, ORDER_RECORDS_FILE]
@@ -78,7 +77,6 @@ def authPassword(username:str, password:str, detailsList:list) -> bool:  #Functi
 def skipFileLine(count:int,fileHandle): #Function that skips n number of lines in a file handle (textIOWrapper) that is being read/write 
     for _ in range(count):
         next(fileHandle) 
-            
 
 def removeEmptyList(sourceList:list) -> list: #Function that removes list with empty strings and lists with no elements
     for data in sourceList:
@@ -142,7 +140,6 @@ def adminMenu(uName:str = 'Admin'): #Function that shows admin Menu upon success
                [3, "DISPLAY RECORDS", displayRecordsMenu], [4, "SEARCH RECORDS", searchRecordsMenu]]
     clearConsole()
     pageBanners("ADMIN DASHBOARD",50)
-
     print(f'\nWhat would you like to do today?\n')
     print("1. Add food item","2. Modify food item","3. Display records","4. Search record","\n0. Log out", sep='\n')
     #Redirects user based on chosen option and also to prevent invalid inputs
@@ -182,7 +179,6 @@ def displayFoodCategories(): #Function that displays list of food categories ONL
     for list in foodCategoriesList:
         print(f'{foodCategoriesList.index(list)+1}. {list[0].capitalize()}')
         
-
 def addFoodItemMenu(): #Function that prompts admin to select which category of food item they want to add or to add new food category, PSEUDOCODE TO BE CHANGED, to update
     foodCategoryTitles = extractFoodCategoryTitles()
     print(f"\nIn which category would you like to add the food item?\n")
@@ -213,8 +209,7 @@ def addFoodItemMenu(): #Function that prompts admin to select which category of 
             print("ERROR: Foreign character submitted")
             time.sleep(0.1)
         
-
-def getNewFoodItemDetails(chosenFoodCategoryName:str) -> str: #Function that gets details of new food item from user before being written to file , to update
+def getNewFoodItemDetails(chosenFoodCategoryName:str) : #Function that gets details of new food item from user before being written to file , to update
     validFoodItemName = False
     validFoodItemPrice = False
     #Ensures the foodItemName is in a valid format
@@ -256,7 +251,6 @@ def getNewFoodItemDetails(chosenFoodCategoryName:str) -> str: #Function that get
             print("\nERROR: Please enter either Y or N")
             continue
         break
-            
         
 def writeNewFoodCategoryToFile(): #Function that adds new food category in food details file and asks user if they want to add a new food item in the new category, update pseudocode
     #Add new food category to file
@@ -399,9 +393,8 @@ def listOutFoodItems(chosenFoodCategoryName:str): #Function that displays the de
     for data in foodItemDetails:
         if (chosenFoodCategoryName.replace("FOOD CATEGORY", "").strip().capitalize()) in data:
             print('{:<16}{:<15}\t {}'.format(data[1],data[3],data[2]))
-        
-
-def updateFoodItemMenu(foodDetailsList): #Function that displays menu for user to choose which specific food item id they want to update
+    
+def updateFoodItemMenu(foodDetailsList:list): #Function that displays menu for user to choose which specific food item id they want to update
     print("\nIn which category would you like to update the food item?\n")
     displayFoodCategories()
     print("\n0. Back to Admin Menu")
@@ -421,7 +414,7 @@ def updateFoodItemMenu(foodDetailsList): #Function that displays menu for user t
         else:
             print("ERROR: Invalid Food Item ID")
 
-def deleteFoodItemMenu(foodDetailsList): #Function that displays menu for user to choose which specific food item ID they want to delete
+def deleteFoodItemMenu(foodDetailsList:list): #Function that displays menu for user to choose which specific food item ID they want to delete
     print("\nIn which category would you like to delete the food item?\n")
     displayFoodCategories()
     print(f"\n0. Back to Admin Menu")
@@ -442,9 +435,7 @@ def deleteFoodItemMenu(foodDetailsList): #Function that displays menu for user t
         else:
             print("Invalid Food Item ID")
         
-
-
-def updateFoodItemRecord(foodDetailsList, foodItemIdList, foodItemIdIndex): #Function that updates a specific record of food item in the food details text file
+def updateFoodItemRecord(foodDetailsList:list, foodItemIdList:list, foodItemIdIndex:int): #Function that updates a specific record of food item in the food details text file
     # sourcery skip: switch
     validUpdateChoice = False
     print("\nWhat would you like to update?","1. Food Item Price","2. Food Item Name","3. Both",sep='\n')
@@ -482,7 +473,6 @@ def updateFoodItemRecord(foodDetailsList, foodItemIdList, foodItemIdIndex): #Fun
     print(" Success!")
     time.sleep(0.2)
 
-
 def deleteFoodItemRecord(userConfirmation, foodItemId, foodDetailsList): #Function that deletes a specific food item record in the food details text file
     while True:
         if (userConfirmation=="Y"):
@@ -502,7 +492,6 @@ def deleteFoodItemRecord(userConfirmation, foodItemId, foodDetailsList): #Functi
         else:
             adminMenu()
             
-
 '''Main Menu Page for Display'''
 def readOrderRecordsFile() -> list: #Function that reads file with order records, extract order records without headers and append to list
     orderDetailsList = []
@@ -531,7 +520,6 @@ def extractFoodCategoryTitles(): #Function that gets the title and description o
                 if data[i] == "-":
                     foodCategoryDetails.append([''.join(data[0:i-1]),''.join(data[i+2:-1])])
     return foodCategoryDetails       
-
 
 def displayRecordsMenu(): #Function to display records main page
     validCategoryNumber = False
@@ -588,7 +576,6 @@ def displayRecordsMenu(): #Function to display records main page
             continue
         break
 
-
 def displayFoodCategoryRecords(): #Function that displays the records of food categories and descriptions cleanly
     foodCategoryList = extractFoodCategoryTitles()
     '''Print data in user readable form'''
@@ -610,14 +597,13 @@ def displayOrderOrPaymentRecords(displayChoice): #Function that displays either 
             print('{:<24}{:<16}{:<16}{:<16}{:<16}{}'.format(data[0],data[1],data[3],data[4],data[5],data[6]))
 
 '''Search Menu Main Page'''
-def searchPageHeader(section): #Standard header for search page 
+def searchPageHeader(section): #Function that displays for standard header for search page 
     clearConsole()
     pageBanners(section, 50)
     print("\nOn what basis should the records be searched?".center(100))
     print("\n1. Customer Username","2. Order ID", "\n0. Back to Admin Menu\n", sep='\n')
 
-
-def searchRecordsMenu(): #Main page for users to select type of record search
+def searchRecordsMenu(): #Function to display main page for users to select type of record search
     orderRecordsList = readOrderRecordsFile()
     print("\nWhich record do you want to check?")
     print("\n1. Customer Order Record","2. Customer Payment Record","\n0. Back to Admin Menu\n", sep='\n')
@@ -666,7 +652,7 @@ def searchRecordsMenu(): #Main page for users to select type of record search
             print("\nERROR: Please enter a number")
 
 '''Search Specific Customer Order Record'''
-def searchOrderByUsername(orderRecordsList:list): #Search customer order by username
+def searchOrderByUsername(orderRecordsList:list): #Function to search customer order by Username
     validUsername = False
     recordByUsername = []
     count = 0
@@ -690,8 +676,7 @@ def searchOrderByUsername(orderRecordsList:list): #Search customer order by user
             print("No order records found for {}".format(username))
         break
     
-
-def searchOrderById(orderRecordsList:list): #Search customer order by Order ID
+def searchOrderById(orderRecordsList:list): #Function to search customer order by Order ID
     validOrderId = False
     recordById = []
     orderExists = False
@@ -720,7 +705,7 @@ def searchOrderById(orderRecordsList:list): #Search customer order by Order ID
         break
     
 '''Search Specific Customer Payment Record'''
-def searchPaymentByUsername(paymentList:list): #Search customer order by Username
+def searchPaymentByUsername(paymentList:list): #Function to search customer payment by Username
     validUsername = False
     recordByUsername = []
     count = 0
@@ -744,7 +729,7 @@ def searchPaymentByUsername(paymentList:list): #Search customer order by Usernam
             print("No payment records found for {}".format(username))
         break
 
-def searchPaymentById(paymentList:list): #Search customer order by Order ID
+def searchPaymentById(paymentList:list): #Function to search customer payment by Order ID
     validOrderId = False
     recordById = []
     orderIdExists = False
@@ -773,7 +758,7 @@ def searchPaymentById(paymentList:list): #Search customer order by Order ID
         break
 
 '''Display Search Results'''
-def displaySearchResults(recordName:str,searchBasis:str,resultsList:list): #Gets search results from the earlier search functions and displays it cleanly
+def displaySearchResults(recordName:str,searchBasis:str,resultsList:list): #Function that gets search results from the earlier search functions and displays it cleanly
     if recordName == 'orders':
         print(f"\n\t\t\t\tORDER REPORT FOR {searchBasis.upper()}\n\t\t\t\t{'-' * len(searchBasis)}{'-'*17}\n")
         print(f"CUSTOMER USERNAME\tORDER ID\tTOTAL PAYABLE\tORDER STATUS\tFOOD ID(QUANTITY)\n{'-'*17}{' '*7}{'-'*8}{' '*8}{'-'*13}{' '*3}{'-'*12}{' '*4}{'-'*17}")
@@ -954,15 +939,16 @@ def main(): #The main module that will be executed first
             
 
 '''EXECUTE MAIN'''
-if __name__ == '__main__': 
-    try:
-        initialProgramCheck()
-        progressBar("\nLoading program")
-        time.sleep(0.1)
-        main()
-    except KeyboardInterrupt:
-        quit()
+# if __name__ == '__main__': 
+#     try:
+#         initialProgramCheck()
+#         progressBar("\nLoading program")
+#         time.sleep(0.1)
+#         main()
+#     except KeyboardInterrupt:
+#         quit()
 
+print("H" + "" + "i")
 '''Empty functions'''
 def order() :
     clearConsole()
