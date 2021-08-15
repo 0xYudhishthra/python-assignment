@@ -16,7 +16,7 @@ ORDER_RECORDS_FILE = "./orderRecords.txt"
 '''UTILITY FUNCTIONS'''
 def initialProgramCheck(): #Function that ensures all files needed exists and has data, update pseudocode
     print(" PRE-PROGRAM CHECKS ".center(85,"="))
-    pageBanners("File Existence Check", 0)
+    print(" File Existence Check ".center(85,'='))
     files = [FOOD_DETAILS_FILE, CUSTOMER_DETAILS_FILE, ADMIN_DETAILS_FILE, ORDER_RECORDS_FILE]
     #Iterates thorugh each file in the files list to see if it exists in the given directory
     for file in files:
@@ -28,7 +28,7 @@ def initialProgramCheck(): #Function that ensures all files needed exists and ha
             print(f" -> {file} not found")
             print("ERROR: Program failed to execute")
             exit()
-    pageBanners("Data Existence Check", 0)
+    print(" Data Existence Check ".center(85,'='))
     #Reads in each file in the files list, append to contentList and checks if list is empty or not
     for file in files:
         contentList = []
@@ -126,7 +126,9 @@ def adminLoginPage(): #Function that displays login Page for SOFS adminstrators,
     #Continuously asks for password until it matches the username given earlier
     while (usernameExists):
         uPass = userInput("Password",True)
-        if uPass == "" : continue
+        if uPass == "" : 
+            print("ERROR: Password not submitted")
+            continue
         progressBar("Authenticating password")
         time.sleep(0.05)
         passwordMatch = authPassword(uName, uPass,adminDetailsList)
@@ -400,7 +402,7 @@ def listOutFoodItems(chosenFoodCategoryName:str): #Function that displays the de
             print('{:<16}{:<15}\t {}'.format(data[1],data[3],data[2]))
         
 
-def updateFoodItemMenu(foodDetailsList): #Function that displays menu for user to choose which specific food item id they want to update
+def updateFoodItemMenu(foodDetailsList:list): #Function that displays menu for user to choose which specific food item id they want to update
     print("\nIn which category would you like to update the food item?\n")
     displayFoodCategories()
     print("\n0. Back to Admin Menu")
@@ -420,7 +422,7 @@ def updateFoodItemMenu(foodDetailsList): #Function that displays menu for user t
         else:
             print("ERROR: Invalid Food Item ID")
 
-def deleteFoodItemMenu(foodDetailsList): #Function that displays menu for user to choose which specific food item ID they want to delete
+def deleteFoodItemMenu(foodDetailsList:list): #Function that displays menu for user to choose which specific food item ID they want to delete
     print("\nIn which category would you like to delete the food item?\n")
     displayFoodCategories()
     print(f"\n0. Back to Admin Menu")
@@ -443,8 +445,7 @@ def deleteFoodItemMenu(foodDetailsList): #Function that displays menu for user t
         
 
 
-def updateFoodItemRecord(foodDetailsList, foodItemIdList, foodItemIdIndex): #Function that updates a specific record of food item in the food details text file
-    # sourcery skip: switch
+def updateFoodItemRecord(foodDetailsList:list, foodItemIdList:list, foodItemIdIndex:int): #Function that updates a specific record of food item in the food details text file
     validUpdateChoice = False
     print("\nWhat would you like to update?","1. Food Item Price","2. Food Item Name","3. Both",sep='\n')
     while not validUpdateChoice:
@@ -481,7 +482,7 @@ def updateFoodItemRecord(foodDetailsList, foodItemIdList, foodItemIdIndex): #Fun
     print(" Success!")
     time.sleep(0.2)
 
-def deleteFoodItemRecord(userConfirmation, foodItemId, foodDetailsList): #Function that deletes a specific food item record in the food details text file
+def deleteFoodItemRecord(userConfirmation:str, foodItemId:str, foodDetailsList:list): #Function that deletes a specific food item record in the food details text file
     while True:
         if (userConfirmation=="Y"):
             #Removes the sublist of the food item that contains the food item id from the main list
@@ -595,7 +596,7 @@ def displayFoodCategoryRecords(): #Function that displays the records of food ca
     for data in foodCategoryList:
         print('{:<32}{}'.format(data[0],data[1]))
 
-def displayOrderOrPaymentRecords(displayChoice): #Function that displays either order or payment records based on parameters given 
+def displayOrderOrPaymentRecords(displayChoice:str): #Function that displays either order or payment records based on parameters given 
     orderRecordsList = readOrderRecordsFile()
     print(f"\n\t\t\t\tREPORT OF ALL CUSTOMER {displayChoice.upper()}\n\t\t\t\t{'-'*31}\n")
     if displayChoice == 'orders':
@@ -608,7 +609,7 @@ def displayOrderOrPaymentRecords(displayChoice): #Function that displays either 
             print('{:<24}{:<16}{:<16}{:<16}{:<16}{}'.format(data[0],data[1],data[3],data[4],data[5],data[6]))
 
 '''Search Menu Main Page'''
-def searchPageHeader(section): #Standard header for search page 
+def searchPageHeader(section:str): #Standard header for search page 
     clearConsole()
     pageBanners(section, 50)
     print("\nOn what basis should the records be searched?".center(100))
