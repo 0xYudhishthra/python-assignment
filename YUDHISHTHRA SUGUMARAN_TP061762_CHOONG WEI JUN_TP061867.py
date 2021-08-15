@@ -953,7 +953,6 @@ def main(): #The main module that will be executed first
             
 
 '''EXECUTE MAIN'''
-<<<<<<< HEAD
 if __name__ == '__main__': 
     try:
         initialProgramCheck()
@@ -962,18 +961,6 @@ if __name__ == '__main__':
         main()
     except KeyboardInterrupt:
         quit()
-=======
-# if __name__ == '__main__': 
-#     try:
-#         initialProgramCheck()
-#         progressBar("\nLoading program")
-#         time.sleep(0.1)
-# main()
-    # except KeyboardInterrupt:
-    #     quit()
-main()
-#print(userInput("Please enter Customer Username",True).isdigit())
->>>>>>> d017cdb (Refactoring and commenting)
 
 '''Empty functions'''
 def order() :
