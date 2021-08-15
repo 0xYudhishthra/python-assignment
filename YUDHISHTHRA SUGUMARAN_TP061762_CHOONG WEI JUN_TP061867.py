@@ -473,7 +473,7 @@ def updateFoodItemRecord(foodDetailsList:list, foodItemIdList:list, foodItemIdIn
     print(" Success!")
     time.sleep(0.2)
 
-def deleteFoodItemRecord(userConfirmation, foodItemId, foodDetailsList): #Function that deletes a specific food item record in the food details text file
+def deleteFoodItemRecord(userConfirmation:str, foodItemId:str, foodDetailsList:list): #Function that deletes a specific food item record in the food details text file
     while True:
         if (userConfirmation=="Y"):
             #Removes the sublist of the food item that contains the food item id from the main list
@@ -584,7 +584,7 @@ def displayFoodCategoryRecords(): #Function that displays the records of food ca
     for data in foodCategoryList:
         print('{:<32}{}'.format(data[0],data[1]))
 
-def displayOrderOrPaymentRecords(displayChoice): #Function that displays either order or payment records based on parameters given 
+def displayOrderOrPaymentRecords(displayChoice:str): #Function that displays either order or payment records based on parameters given 
     orderRecordsList = readOrderRecordsFile()
     print(f"\n\t\t\t\tREPORT OF ALL CUSTOMER {displayChoice.upper()}\n\t\t\t\t{'-'*31}\n")
     if displayChoice == 'orders':
@@ -597,7 +597,7 @@ def displayOrderOrPaymentRecords(displayChoice): #Function that displays either 
             print('{:<24}{:<16}{:<16}{:<16}{:<16}{}'.format(data[0],data[1],data[3],data[4],data[5],data[6]))
 
 '''Search Menu Main Page'''
-def searchPageHeader(section): #Function that displays for standard header for search page 
+def searchPageHeader(section:str): #Function that displays for standard header for search page 
     clearConsole()
     pageBanners(section, 50)
     print("\nOn what basis should the records be searched?".center(100))
@@ -939,16 +939,15 @@ def main(): #The main module that will be executed first
             
 
 '''EXECUTE MAIN'''
-# if __name__ == '__main__': 
-#     try:
-#         initialProgramCheck()
-#         progressBar("\nLoading program")
-#         time.sleep(0.1)
-#         main()
-#     except KeyboardInterrupt:
-#         quit()
+if __name__ == '__main__': 
+    try:
+        initialProgramCheck()
+        progressBar("\nLoading program")
+        time.sleep(0.1)
+        main()
+    except KeyboardInterrupt:
+        quit()
 
-print("H" + "" + "i")
 '''Empty functions'''
 def order() :
     clearConsole()
