@@ -6,6 +6,7 @@
 '''IMPORT NECESSARY EXTERNAL MODULES'''
 import os
 import time
+from typing import Type
 
 '''LOCATION OF FILES WITH ADMIN, FOODS, CUSTOMER AND ORDER RECORD DETAILS'''
 FOOD_DETAILS_FILE = "./foodDetails.txt"
@@ -134,13 +135,14 @@ def adminLoginPage(): #Function that displays login Page for SOFS adminstrators,
             adminMenu(uName)
             break  
         else: 
-            print(" ERROR: Incorrect password")
+          print(" ERROR: Incorrect password")
 
 def adminMenu(uName:str = 'Admin'): #Function that shows admin Menu upon successful admin login, PSEUDOCODE TO BE CHANGED
     CHOICES = [[1, "ADD NEW FOOD ITEM", addFoodItemMenu], [2, "MODIFY FOOD ITEM", modifyFoodItemMenu], 
                [3, "DISPLAY RECORDS", displayRecordsMenu], [4, "SEARCH RECORDS", searchRecordsMenu]]
     clearConsole()
     pageBanners("ADMIN DASHBOARD",50)
+
     print(f'\nWhat would you like to do today?\n')
     print("1. Add food item","2. Modify food item","3. Display records","4. Search record","\n0. Log out", sep='\n')
     #Redirects user based on chosen option and also to prevent invalid inputs
