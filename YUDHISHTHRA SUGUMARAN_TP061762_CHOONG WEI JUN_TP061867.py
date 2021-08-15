@@ -32,14 +32,14 @@ def initialProgramCheck(): #Function that ensures all files needed exists and ha
     #Reads in each file in the files list, append to contentList and checks if list is empty or not
     for file in files:
         contentList = []
-        print(f"Checking if there is presence of data in {file}",end="")
+        print(f"Checking for data presence in {file}",end="")
         time.sleep(0.5)
         with open(file,mode='r') as dataFile:
             skipFileLine(6, dataFile)
             for line in dataFile:
                 contentList.append(line)
         if contentList == []:
-            print(f" No data in {file}")
+            print(f" -> No data in {file}")
             print("ERROR: Program failed to execute")
             exit()
         else:
@@ -52,7 +52,7 @@ def clearConsole(): #Function to clear all existing text in console
 def quit() : #Function to exit program cleanly
     print("\n")
     print(f' {"Thank you! Please come again"} '.center(85, '='))   
-    time.sleep(1)
+    time.sleep(0.5)
     exit()
 
 def userInput(promptMessage:str, skipLine:bool) -> input: #Function to format prompt message to accept input from users 
@@ -75,7 +75,8 @@ def authPassword(username:str, password:str, detailsList:list) -> bool:  #Functi
             return True
 
 def skipFileLine(count:int,fileHandle): #Function that skips n number of lines in a file handle (textIOWrapper) that is being read/write 
-    (next(fileHandle) for _ in range(count))
+    for _ in range(count):
+        next(fileHandle) 
             
 
 def removeEmptyList(sourceList:list) -> list: #Function that removes list with empty strings and lists with no elements
@@ -93,9 +94,9 @@ def progressBar(loadingMessage:str): #Function that displays loading animation w
         print("\r" + item, end="")
 
 def pageBanners(pageTitle:str,centerLength:int): #Function that displays banner for each different pages for respective dashboards
-    print(f'{"_"*(len(pageTitle))}\n'.center(centerLength))
-    print(f'{pageTitle}'.center(centerLength))
-    print(f'{"_"*len(pageTitle)}'.center(centerLength))
+    print(f'\t{"_"*(len(pageTitle))}\n'.center(centerLength))
+    print(f'\t{pageTitle} '.center(centerLength))
+    print(f'\t{"_"*len(pageTitle)} '.center(centerLength))
 
 '''DECLARING FUNCTIONS FOR ADMIN DASHBOARD'''
 '''Login to access system'''
@@ -115,11 +116,13 @@ def adminLoginPage(): #Function that displays login Page for SOFS adminstrators,
     #Continuosly ask for username until it user input matches any 1 usernames in the adminDetailsList
     while(not usernameExists):
         uName = userInput("Username",True).lower()
-        if uName == "" : continue
+        if uName == "" : 
+            print("ERROR: Username not submitted")
+            continue
         progressBar("Authenticating username")
         time.sleep(0.05)
         usernameExists = authUsername(uName,adminDetailsList)
-        print(" Username found, please enter password\n") if (usernameExists) else print(" ERROR: Username not found, please retry\n")
+        print(" Username found, please enter password\n") if (usernameExists) else print(" ERROR: Username not found\n")
     #Continuously asks for password until it matches the username given earlier
     while (usernameExists):
         uPass = userInput("Password",True)
@@ -131,24 +134,24 @@ def adminLoginPage(): #Function that displays login Page for SOFS adminstrators,
             adminMenu(uName)
             break  
         else: 
-            print(" ERROR: Incorrect password , please retry")
+            print(" ERROR: Incorrect password")
 
-def adminMenu(uName): #Function that shows admin Menu upon successful admin login, PSEUDOCODE TO BE CHANGED
+def adminMenu(uName:str = 'Admin'): #Function that shows admin Menu upon successful admin login, PSEUDOCODE TO BE CHANGED
     CHOICES = [[1, "ADD NEW FOOD ITEM", addFoodItemMenu], [2, "MODIFY FOOD ITEM", modifyFoodItemMenu], 
                [3, "DISPLAY RECORDS", displayRecordsMenu], [4, "SEARCH RECORDS", searchRecordsMenu]]
     clearConsole()
     pageBanners("ADMIN DASHBOARD",50)
-    print(f'\nHey, {uName.capitalize()}! What would you like to do today?\n')
-    print("1. Add food item","2. Modify food item","3. Display records","4. Search record","0. Log out", sep='\n')
+    print(f'\nWhat would you like to do today?\n')
+    print("1. Add food item","2. Modify food item","3. Display records","4. Search record","\n0. Log out", sep='\n')
     #Redirects user based on chosen option and also to prevent invalid inputs
     while True:
         try:
-            userSelection = int(userInput("I would like to",True))
+            userSelection = int(userInput("I would like to (Number)",True))
             if userSelection == 0:
                 progressBar("Logging out")
                 main()
-            elif userSelection > len(CHOICES):
-                print("Number is out of range!")
+            elif userSelection > len(CHOICES) or userSelection < 0:
+                print("ERROR: Number is out of range")
                 time.sleep(0.1)
                 continue
             for choice in CHOICES:
@@ -158,7 +161,7 @@ def adminMenu(uName): #Function that shows admin Menu upon successful admin logi
                     choice[2]()
             break
         except ValueError:
-            print("Please submit a number")
+            print("ERROR: Foreign character submitted")
             time.sleep(0.1) 
 
 '''Add food item by category'''
@@ -180,32 +183,36 @@ def displayFoodCategories(): #Function that displays list of food categories ONL
 
 def addFoodItemMenu(): #Function that prompts admin to select which category of food item they want to add or to add new food category, PSEUDOCODE TO BE CHANGED, to update
     foodCategoryTitles = extractFoodCategoryTitles()
-    print(f"\nIn which category would you like to add the food item?\n\n")
+    print(f"\nIn which category would you like to add the food item?\n")
     displayFoodCategories()
-    print(f"{len(foodCategoryTitles)+1}. Add new food category")
-    print(f"\n0. Back to main menu")
+    print(f"\n{len(foodCategoryTitles)+1}. Add new food category")
+    print(f"0. Back to Admin Menu")
     #Redirects user based on chosen option
     while True:
         try:
             chosenFoodCategoryNumber = int(userInput("Food Category Number",True))
             if (chosenFoodCategoryNumber == len(foodCategoryTitles)+1): 
                 writeNewFoodCategoryToFile()
+                time.sleep(0.5)
+                adminMenu()
             elif ( 0 < chosenFoodCategoryNumber <= len(foodCategoryTitles)): 
                 chosenFoodCategoryName = foodCategoryTitles[int(chosenFoodCategoryNumber)-1][0].replace("FOOD CATEGORY","").strip().capitalize()
                 getNewFoodItemDetails(chosenFoodCategoryName)  
+                time.sleep(0.5)
+                adminMenu()
             elif chosenFoodCategoryNumber == 0:
                 adminMenu()
             else:
-                print("Food category number out of range")
+                print("ERROR: Food category number out of range")
                 time.sleep(0.1)
                 continue
             break
         except ValueError:
-            print("Please submit a number!")
+            print("ERROR: Foreign character submitted")
             time.sleep(0.1)
         
 
-def getNewFoodItemDetails(chosenFoodCategoryName:str) -> str: #Function that gets details of new food item from user , to update
+def getNewFoodItemDetails(chosenFoodCategoryName:str) -> str: #Function that gets details of new food item from user before being written to file , to update
     validFoodItemName = False
     validFoodItemPrice = False
     #Ensures the foodItemName is in a valid format
@@ -238,63 +245,88 @@ def getNewFoodItemDetails(chosenFoodCategoryName:str) -> str: #Function that get
     while True:
         userConfirmation = userInput("(Y)es/(N)o",False).upper()
         if (userConfirmation == 'Y'):
+            progressBar("Writing to file")
+            time.sleep(0.5)
             writeNewFoodItemToFile(chosenFoodCategoryName,foodItemName,foodItemPrice)
         elif (userConfirmation == 'N'):
             addFoodItemMenu()
         else:
-            print("Please enter either Y or N")
+            print("\nERROR: Please enter either Y or N")
             continue
         break
             
         
 def writeNewFoodCategoryToFile(): #Function that adds new food category in food details file and asks user if they want to add a new food item in the new category, update pseudocode
     #Add new food category to file
-    foodCategoryName = userInput("Category Name",False).upper()
-    foodCategoryDescription = userInput("Description",False).capitalize()
-    with open(FOOD_DETAILS_FILE,'a') as foodDetailsFile:
-            foodDetailsFile.write('\n' + '_'*88 + '\n\n')
-            foodDetailsFile.write(f"{foodCategoryName} FOOD CATEGORY - {foodCategoryDescription}\n")
-            foodDetailsFile.write("_"*88)
+    addFoodCategoryConfirmation = False
+    foodCategoryName = userInput("\nNew Food Category Name",False).upper()
+    foodCategoryDescription = userInput("\nNew Food Category Description",False).capitalize()
+    print(f"\nFOOD CATEGORY NAME\tFOOD CATEGORY DESCRIPTION\n{'-'*18}\t{'-'*25}")
+    print('{:<16}\t{:<17}'.format(foodCategoryName,foodCategoryDescription))
+    print("\nPlease confirm the new food category you would like to add")
+    while not addFoodCategoryConfirmation:
+        userConfirmation = userInput("(Y)es/(N)o",False).upper()
+        if (userConfirmation == 'Y'):
+            progressBar("Adding new food category")
+            time.sleep(0.5)
+            with open(FOOD_DETAILS_FILE,'a') as foodDetailsFile:
+                foodDetailsFile.write('\n' + '_'*88 + '\n\n')
+                foodDetailsFile.write(f"{foodCategoryName} FOOD CATEGORY - {foodCategoryDescription}\n")
+                foodDetailsFile.write("_"*88)
+                addFoodCategoryConfirmation = True
+            print(" Success!")
+        elif (userConfirmation == 'N'):
+            addFoodItemMenu()
+        else:
+            print("\nERROR: Please enter either Y or N")
+            continue
+        break
+    while addFoodCategoryConfirmation:    
     #Option to add food item in new category
-    print(f"Would you like to add a new food item in this category?")
-    userConfirmation = userInput("(Y)es/(N)o",False).upper()
-    if userConfirmation == 'Y':
-        foodItemName,foodItemPrice = getNewFoodItemDetails(foodCategoryName)
-        writeNewFoodItemToFile(foodCategoryName, foodItemName, foodItemPrice)
-    else:
-        addFoodItemMenu()
+        print(f"\nWould you like to add a new food item in this category?")
+        userConfirmation = userInput("(Y)es/(N)o",False).upper()
+        if userConfirmation == 'Y':
+            getNewFoodItemDetails(foodCategoryName.capitalize())
+        elif userConfirmation == 'N':
+            addFoodItemMenu()
+        else:
+            print("ERROR: Please enter either Y or N")
+            continue
+        break
 
 def writeNewFoodItemToFile(foodCategoryName:str,foodItemName:str,foodItemPrice:float): #Function that directly writes new food item data to food details file
-    orderRecordsList = []
-    #Appends every line from the file to orderRecordsList
+    foodItemsList = []
+    #Appends every line from the file to foodItemsList
     with open (FOOD_DETAILS_FILE, mode='r') as f:
         for row in f:   
-            orderRecordsList.append([row])
+            foodItemsList.append([row])
     #Gets indexes of food item that have the same category name that is being searched and append it to foodItemIndexes using list comprehension
     foodItemIndexes = [
-        orderRecordsList.index(data)
-        for data in orderRecordsList
-        if foodCategoryName.capitalize() == data[0]
+        foodItemsList.index(data)
+        for data in foodItemsList
+        if foodCategoryName.capitalize() == data[0][0:len(foodCategoryName)]
     ]
     #Assigns a default ID by combining first letter of the food category name and the number 1 for food category that does not have any food items
     if foodItemIndexes == []:
         newFoodID = foodCategoryName[0] + '1'
-        lastFoodItemIndex = (len(orderRecordsList)-1)
-    #Assigns a new food ID by adding 1 to the last food item ID in the food category
+        for data in foodItemsList:
+            if foodCategoryName.upper() == data[0][0:len(foodCategoryName)]:
+                lastFoodItemIndex = foodItemsList.index(data) + 1
+    # #Assigns a new food ID by adding 1 to the last food item ID in the food category
     else: 
         lastFoodItemIndex = foodItemIndexes[-1]
-        lastFoodItemRecord = orderRecordsList[lastFoodItemIndex][0].split(" | ")
+        lastFoodItemRecord = foodItemsList[lastFoodItemIndex][0].split(" | ")
         newFoodID = lastFoodItemRecord[0][0] + (str(int(lastFoodItemRecord[1][1])+1))
     #If the food item index is equivalent to the last food item in the file, a new line is appended before the new data to prevent additional newlines in the file
-    if (lastFoodItemIndex == (len(orderRecordsList)-1)):
-        orderRecordsList.insert(lastFoodItemIndex+1, [f'\n{foodCategoryName} | {newFoodID} | {foodItemName} | {foodItemPrice}'])
+    if (lastFoodItemIndex == (len(foodItemsList)-1)):
+        foodItemsList.insert(lastFoodItemIndex+1, [f'\n{foodCategoryName} | {newFoodID} | {foodItemName} | {foodItemPrice}'])
     else:
-        orderRecordsList.insert(lastFoodItemIndex+1, [f'{foodCategoryName} | {newFoodID} | {foodItemName} | {foodItemPrice}\n'])
-    #Writes the updated orderRecordsList into the food details file
+        foodItemsList.insert(lastFoodItemIndex+1, [f'{foodCategoryName} | {newFoodID} | {foodItemName} | {foodItemPrice}\n'])
+    #Writes the updated foodItemsList into the food details file
     with open (FOOD_DETAILS_FILE, mode='w') as foodDetailsFile:
-        for data in orderRecordsList:       
+        for data in foodItemsList:       
             foodDetailsFile.write(data[0])
-
+    print(" Success!")
 
 '''Modify food item'''
 def modifyFoodItemMenu(): #Function that displays main page for admins to modify records of food items
@@ -302,26 +334,32 @@ def modifyFoodItemMenu(): #Function that displays main page for admins to modify
     with open(FOOD_DETAILS_FILE,mode='r') as foodDetailsFile:
         for row in foodDetailsFile:
             foodDetailsList.append([row])
-    print("\n{}1. UPDATE RECORD\t2. DELETE RECORD".format(" "*5))
-    print("\nWhat would you like to do?")
+    print("\nWhat update do you intend to perform?")
+    print("\n1. Update Record","2. Delete Record","\n0. Back to Admin Menu", sep='\n')
     #Redirects user based on chosen options
-    while (True):
+    while True:
         try:
-            modifyChoice = int(userInput("Input 1 or 2",False))
-            if modifyChoice == 1:
+            modifyChoice = int(userInput("\nI would like to (Number) ",False))
+            if modifyChoice == 0:
+                adminMenu()
+            elif modifyChoice == 1:
                 clearConsole()
                 pageBanners("UPDATE FOOD ITEM",50)
                 updateFoodItemMenu(foodDetailsList)
+                time.sleep(0.5)
+                adminMenu()
             elif modifyChoice == 2:
                 clearConsole()
                 pageBanners("DELETE FOOD ITEM",50)
                 deleteFoodItemMenu(foodDetailsList)
+                time.sleep(0.5)
+                adminMenu()
             else:
-                print("Number is out of range")
+                print("\nERROR: Number is out of range")
                 continue
             break
         except ValueError:
-            print("Please submit a number")
+            print("\nERROR: Foreign character submitted")
 
 def verifyFoodItemId(foodItemId:str, foodDetailsList:list) -> bool: #Function that verifies the format and existence of the food item ID that has been received by the user, update pseudocode
     if foodItemId == '' : 
@@ -338,14 +376,16 @@ def verifyFoodCategoryNumber() -> bool: #Function that verifies that the food ca
     foodCategoryTitles = extractFoodCategoryTitles()
     while (not validCategoryNumber):
         try:
-            categoryNumber = int(userInput("Category number",True))
+            categoryNumber = int(userInput("Food category number",True))
             if 0 < categoryNumber <= len(foodCategoryTitles):
                 validCategoryNumber = True
                 listOutFoodItems(foodCategoryTitles[categoryNumber-1][0])
+            elif categoryNumber == 0:
+                adminMenu()
             else:
-                print("Food category number out of range!")
+                print("ERROR: Food category number out of range")
         except ValueError:
-            print("Foreign character submitted, please enter a number")
+            print("ERROR: Foreign character submitted")
     return validCategoryNumber
 
 def listOutFoodItems(chosenFoodCategoryName:str): #Function that displays the details of all food items in the food details file based on the category chosen by the user, pseudocode TBC
@@ -360,8 +400,9 @@ def listOutFoodItems(chosenFoodCategoryName:str): #Function that displays the de
         
 
 def updateFoodItemMenu(foodDetailsList): #Function that displays menu for user to choose which specific food item id they want to update
-    print("\nIn which category would you like to update the food item?")
+    print("\nIn which category would you like to update the food item?\n")
     displayFoodCategories()
+    print("\n0. Back to Admin Menu")
     validCategoryNumber = verifyFoodCategoryNumber()
     #Asks user to specify which food item id from selected category to be updated
     while (validCategoryNumber):
@@ -376,11 +417,12 @@ def updateFoodItemMenu(foodDetailsList): #Function that displays menu for user t
             updateFoodItemRecord(foodDetailsList, foodItemIdList, foodItemIdIndex)
             break
         else:
-            print("Invalid Food Item ID")
+            print("ERROR: Invalid Food Item ID")
 
-def deleteFoodItemMenu(foodDetailsList): #Function that displays menu for user to choose which specific food item id they want to delete
-    print("\nIn which category would you like to delete the food item?")
+def deleteFoodItemMenu(foodDetailsList): #Function that displays menu for user to choose which specific food item ID they want to delete
+    print("\nIn which category would you like to delete the food item?\n")
     displayFoodCategories()
+    print(f"\n0. Back to Admin Menu")
     validCategoryNumber = verifyFoodCategoryNumber()
     validUserConfirmation = False
     while (validCategoryNumber):
@@ -391,47 +433,59 @@ def deleteFoodItemMenu(foodDetailsList): #Function that displays menu for user t
                 userConfirmation = userInput("(Y)es/(N)o",True).upper()
                 if (userConfirmation in ('Y', 'N')):
                     validUserConfirmation = True
+                    validCategoryNumber = False
                     deleteFoodItemRecord(userConfirmation, foodItemId, foodDetailsList)
                 else:
                     print("Invalid input")
-                break
         else:
             print("Invalid Food Item ID")
-
-
+        
 
 
 def updateFoodItemRecord(foodDetailsList, foodItemIdList, foodItemIdIndex): #Function that updates a specific record of food item in the food details text file
-    UPDATE_FORMAT = [[f'{userInput("New food item name",False)}'], 
-                     ['{}\n' if '\n' in foodItemIdList[3] else '{}']]
-    try:
-        print("\nWhat would you like to update?","1. Food Item Price","2. Food Item Name","3. Both",sep='\n')
-        while True:
+    # sourcery skip: switch
+    validUpdateChoice = False
+    print("\nWhat would you like to update?","1. Food Item Price","2. Food Item Name","3. Both",sep='\n')
+    while not validUpdateChoice:
+        try:
             updateCriteria = int(userInput("Update choice",True))
-            if updateCriteria == 1:
-                newPrice = format(float(userInput("New food item price",False),'.2f'))
-                foodItemIdList[3] = UPDATE_FORMAT[1][0].format(newPrice)            
-            elif updateCriteria == 2:
-                foodItemIdList[2] = UPDATE_FORMAT[0][0]
-            elif updateCriteria == 3:
-                newPrice = userInput("New food item price",False)
-                UPDATE_FORMAT[0][0]
-                foodItemIdList[3] = foodItemIdList[3] = UPDATE_FORMAT[1][0].format(newPrice)            
+            if updateCriteria <= 0 or updateCriteria > 3:
+                print("ERROR: Out of range")
             else:
-                print("Number out of range")
-                continue
-            break     
-    except ValueError:
-        print("Please submit a number")
+                validUpdateChoice = True
+        except ValueError:
+            print("ERROR: Foreign character submitted")
+    while validUpdateChoice:
+        try:
+            if updateCriteria == 1:
+                newPrice = userInput("New food item price",False)
+                newPrice = format(float(newPrice),'.2f')
+                foodItemIdList[3] = f'{newPrice}\n' if '\n' in foodItemIdList[3] else '{newPrice}'
+            if updateCriteria == 2:
+                foodItemIdList[2] = f'{userInput("New food item name",False)}'
+            if updateCriteria == 3:
+                newPrice = userInput("New food item price",False)
+                newPrice = format(float(newPrice),'.2f')
+                foodItemIdList[2] = f'{userInput("New food item name",False)}'
+                foodItemIdList[3] = f'{newPrice}\n' if '\n' in foodItemIdList[3] else '{newPrice}'
+        except ValueError:
+            print("\nERROR: Foreign character submitted")
+            continue
+        break
+    progressBar("Making changes")
     foodDetailsList[foodItemIdIndex] = [" | ".join(foodItemIdList)]
     with open (FOOD_DETAILS_FILE,mode='w') as f:
         for data in foodDetailsList:
             f.write(data[0])
+    print(" Success!")
+    time.sleep(0.2)
+
 
 def deleteFoodItemRecord(userConfirmation, foodItemId, foodDetailsList): #Function that deletes a specific food item record in the food details text file
     while True:
         if (userConfirmation=="Y"):
             #Removes the sublist of the food item that contains the food item id from the main list
+            progressBar(f"Deleting {foodItemId}")
             for data in foodDetailsList:
                 if foodItemId in data[0]:
                     foodDetailsList.pop(foodDetailsList.index(data))
@@ -441,13 +495,14 @@ def deleteFoodItemRecord(userConfirmation, foodItemId, foodDetailsList): #Functi
             with open (FOOD_DETAILS_FILE,mode='w') as f:
                 for data in foodDetailsList:
                     f.write(data[0])
+            print(" Success!")
             break
         else:
             adminMenu()
             
 
 '''Main Menu Page for Display'''
-def readOrderRecordsFile() -> list: #Fcuntion that reads file with order records, extract order records without headers and append to list
+def readOrderRecordsFile() -> list: #Function that reads file with order records, extract order records without headers and append to list
     orderDetailsList = []
     with open(ORDER_RECORDS_FILE, mode='r') as orderRecordsFile:
         skipFileLine(6,orderRecordsFile)
@@ -475,37 +530,64 @@ def extractFoodCategoryTitles(): #Function that gets the title and description o
                     foodCategoryDetails.append([''.join(data[0:i-1]),''.join(data[i+2:-1])])
     return foodCategoryDetails       
 
+
 def displayRecordsMenu(): #Function to display records main page
+    validCategoryNumber = False
     foodCategoryList = extractFoodCategoryTitles()
-    print("\n1. Food Categories","2. Food Items by Category","3. Customer Orders","4. Customer Payment","0. Back to Admin  Menu", sep='\n')
+    print("\n1. Food Categories","2. Food Items by Category","3. Customer Orders","4. Customer Payment","\n0. Back to Admin Menu", sep='\n')
     OPTIONS = [[1, displayFoodCategoryRecords], [3, displayOrderOrPaymentRecords],
               [4, displayOrderOrPaymentRecords]]
-    while True:
+    while not validCategoryNumber:
         try:
-            userSelection = int(userInput("Display all records of",True))
+            userSelection = int(userInput("Display (Number)",True))
+            validCategoryNumber = True
+        except ValueError:
+            print("ERROR: Please enter a number")
+            time.sleep(0.1)
+    
+    while validCategoryNumber:
+        try:
             if userSelection == 1:
                 progressBar("Generating report")
                 OPTIONS[0][1]()
+                print("\nRedirecting to admin menu in 15 seconds...")
+                time.sleep(15)
+                adminMenu()
             elif userSelection == 2 :
-                print("\nSelect the food category that you want to be displayed")
+                print("\nSelect the food category that you want to be displayed\n")
                 displayFoodCategories()
-                chosenCategory = int(userInput("Food category",True))
+                chosenCategory = int(userInput("Category number",True))
                 listOutFoodItems((foodCategoryList[chosenCategory-1][0]))
+                print("\nRedirecting to admin menu in 15 seconds...")
+                time.sleep(15)
+                adminMenu()
             elif userSelection == 3:
                 progressBar("Generating report")
                 OPTIONS[1][1]('orders')
+                print("\nRedirecting to admin menu in 15 seconds...")
+                time.sleep(15)
+                adminMenu()
             elif userSelection == 4:
+                progressBar("Generating report")
                 OPTIONS[2][1]('payments')
+                print("\nRedirecting to admin menu in 15 seconds...")
+                time.sleep(15)
+                adminMenu()
             elif userSelection == 0 :
                 adminMenu()
             else:
-                print("Number out of range")
-                continue
-            break
+                raise TypeError
         except ValueError:
-            print("Please enter a number")
+            print("ERROR: Please enter a number")
+            time.sleep(0.1)
+        except TypeError:
+            print("ERROR: Number out of range")
+            time.sleep(0.1)
+            continue
+        break
 
-def displayFoodCategoryRecords(): #Displays the records of food categories and descriptions cleanly
+
+def displayFoodCategoryRecords(): #Function that displays the records of food categories and descriptions cleanly
     foodCategoryList = extractFoodCategoryTitles()
     '''Print data in user readable form'''
     print(f'\n\t\tDETAILS OF FOOD CATEGORIES\n\t\t{"-"*26}')
@@ -513,7 +595,7 @@ def displayFoodCategoryRecords(): #Displays the records of food categories and d
     for data in foodCategoryList:
         print('{:<32}{}'.format(data[0],data[1]))
 
-def displayOrderOrPaymentRecords(displayChoice): #Displays either order or payment records based on parameters given 
+def displayOrderOrPaymentRecords(displayChoice): #Function that displays either order or payment records based on parameters given 
     orderRecordsList = readOrderRecordsFile()
     print(f"\n\t\t\t\tREPORT OF ALL CUSTOMER {displayChoice.upper()}\n\t\t\t\t{'-'*31}\n")
     if displayChoice == 'orders':
@@ -529,32 +611,35 @@ def displayOrderOrPaymentRecords(displayChoice): #Displays either order or payme
 def searchPageHeader(section): #Standard header for search page 
     clearConsole()
     pageBanners(section, 50)
-    print("""\n{}1. CUSTOMER USERNAME\t2. ORDER ID""".format(" "*4))
     print("\nOn what basis should the records be searched?".center(100))
+    print("\n1. Customer Username","2. Order ID", "\n0. Back to Admin Menu\n", sep='\n')
+
 
 def searchRecordsMenu(): #Main page for users to select type of record search
     orderRecordsList = readOrderRecordsFile()
-    print("\n1. CUSTOMER ORDER RECORD\t2. CUSTOMER PAYMENT RECORD".center(50))
     print("\nWhich record do you want to check?")
+    print("\n1. Customer Order Record","2. Customer Payment Record","\n0. Back to Admin Menu\n", sep='\n')
     validSearchCategory = False
     validSearchCriteria = False
     while (not validSearchCategory):
         try:
-            searchCategory = int(userInput("Input 1 or 2",False))
+            searchCategory = int(userInput("Search(Number)",False))
             if searchCategory == 1:
                 searchPageHeader("SEARCH CUSTOMER ORDER")
                 validSearchCategory = True
             elif searchCategory == 2:
                 searchPageHeader("SEARCH CUSTOMER PAYMENT")
                 validSearchCategory = True
+            elif searchCategory == 0:
+                adminMenu()
             else:
-                print("Number submitted is outside allowed range")
+                print("\nERROR: Number submitted is outside allowed range")
                 validSearchCategory = False
         except ValueError:
-            print("Please enter a number")
+            print("\nERROR: Please enter a number")
     while not validSearchCriteria:
         try:
-            searchCriteria = int(userInput("Input 1 or 2",False))
+            searchCriteria = int(userInput("Search(Number)",False))
             if searchCategory == 1:
                 if searchCriteria == 1:
                     searchOrderByUsername(orderRecordsList)
@@ -562,8 +647,10 @@ def searchRecordsMenu(): #Main page for users to select type of record search
                 elif searchCriteria == 2:
                     searchOrderById(orderRecordsList)
                     validSearchCriteria = True
+                elif searchCriteria == 0:
+                    adminMenu()
                 else: 
-                    print("Number submitted is outside allowed range")
+                    print("ERROR: Number submitted is outside allowed range")
             if searchCategory == 2:
                 if searchCriteria == 1:
                     searchPaymentByUsername(orderRecordsList)
@@ -572,9 +659,9 @@ def searchRecordsMenu(): #Main page for users to select type of record search
                     searchPaymentById(orderRecordsList)
                     validSearchCriteria = True
                 else: 
-                    print("Number submitted is outside allowed range")
+                    print("\nERROR: Number submitted is outside allowed range")
         except ValueError:
-            print("Please enter a number")
+            print("\nERROR: Please enter a number")
 
 '''Search Specific Customer Order Record'''
 def searchOrderByUsername(orderRecordsList:list): #Search customer order by username
@@ -584,7 +671,7 @@ def searchOrderByUsername(orderRecordsList:list): #Search customer order by user
     while not validUsername:
             username = userInput("Please enter Customer Username",True)
             if username.isdigit() or username == "":
-                print("Invalid username")
+                print("ERROR: Invalid username")
             else:
                 validUsername = True
     while validUsername:
@@ -600,15 +687,20 @@ def searchOrderByUsername(orderRecordsList:list): #Search customer order by user
         else:
             print("No order records found for {}".format(username))
         break
+    
 
 def searchOrderById(orderRecordsList:list): #Search customer order by Order ID
     validOrderId = False
     recordById = []
     orderExists = False
     while not validOrderId:
-        orderID = str(userInput("Please enter Order ID",True))
-        if orderID.isalpha() or orderID.isdigit() or orderID == "":
-            print("Invalid order ID")
+        orderID = str(userInput("Please enter Order ID",True)).upper()
+        if orderID == "":
+            print("ERROR: Please submit an order ID")
+        elif orderID[0] != 'O':
+            print("ERROR: Order ID should start with an "'O'"")
+        elif not(orderID[0].isalpha() and orderID[1:len(orderID)].isdigit()):
+            print("ERROR: Invalid Order ID format")
         else:
             validOrderId = True
     while validOrderId:
@@ -633,7 +725,7 @@ def searchPaymentByUsername(paymentList:list): #Search customer order by Usernam
     while not validUsername:
             username = userInput("Please enter Customer Username",True)
             if username.isdigit() or username == "":
-                print("Invalid username")
+                print("ERROR: Invalid username")
             else:
                 validUsername = True
     while validUsername:
@@ -657,11 +749,11 @@ def searchPaymentById(paymentList:list): #Search customer order by Order ID
     while not validOrderId:
         orderID = str(userInput("Please enter Order ID",True)).upper()
         if orderID == "":
-            print("Please submit an order ID")
+            print("ERROR: Please submit an order ID")
         elif orderID[0] != 'O':
-            print("Order ID should start with an "'O'"")
+            print("ERROR: Order ID should start with an "'O'"")
         elif not(orderID[0].isalpha() and orderID[1:len(orderID)].isdigit()):
-            print("Invalid Order ID format")
+            print("ERROR: Invalid Order ID format")
         else:
             validOrderId = True
     while validOrderId:
@@ -690,8 +782,9 @@ def displaySearchResults(recordName:str,searchBasis:str,resultsList:list): #Gets
         print(f"CUSTOMER USERNAME\tORDER ID\tTOTAL PAYABLE\tPAYMENT METHOD\tPAYMENT STATUS\tPAID ON\n{'-'*17}{' '*7}{'-'*8}{' '*8}{'-'*13}{' '*3}{'-'*14}{' '*2}{'-'*14}{' '*2}{'-'*7}")
         for data in resultsList:
             print('{:<24}{:<16}{:<16}{:<16}{:<16}{}'.format(data[0].upper(),data[1],data[2],data[3],data[4],data[5]))  
-
-
+    print("\nRedirecting to admin menu in 15 seconds...")
+    time.sleep(15)
+    adminMenu()
 
 '''DECLARING FUNCTIONS FOR GUEST DASHBOARD'''
 def guestMenu(): #Guest Dashboard Main Page
@@ -827,19 +920,19 @@ def regCustomerMenu(): #Customer menu upon successful login
 
 '''DECLARING MAIN GREETING PAGE'''
 def main(): #The main module that will be executed first
+    clearConsole()
+    print(" ____   ___  _____ ____".center(78))
+    print("/ ___| / _ \|  ___/ ___|".center(78))
+    print("\___ \| | | | |_  \___ \\".center(78))
+    print(" ___) | |_| |  _|  ___) |".center(80))
+    print("|____/ \___/|_|   |____/".center(78))
+    print("")
+    print(f' {"Welcome to the Online Food Ordering Management System"} '.center(85, '='))
+    time.sleep(1)
+    print("\nWho are you logging in as?\n", "1. Admin", "2. Customer", "3. Quit Program", sep=' \n')
     while True:
-        clearConsole()
-        print(" ____   ___  _____ ____".center(78))
-        print("/ ___| / _ \|  ___/ ___|".center(78))
-        print("\___ \| | | | |_  \___ \\".center(78))
-        print(" ___) | |_| |  _|  ___) |".center(80))
-        print("|____/ \___/|_|   |____/".center(78))
-        print("")
-        print(f' {"Welcome to the Online Food Ordering Management System"} '.center(85, '='))
-        time.sleep(1)
-        print("\nWho are you logging in as?", "1. Admin", "2. Customer", "3. Quit Program", sep=' \n')
         try:
-            input = int(userInput("Login as (1/2/3)",True))
+            input = int(userInput("Login as (Number)",True))
             if input == 1 :
                 clearConsole()
                 pageBanners("ADMIN LOGIN PAGE",50)
@@ -849,26 +942,24 @@ def main(): #The main module that will be executed first
             elif input== 3 :
                 quit()
             else:
-                print("Out of range, please enter a number between 1 and 3")
-                time.sleep(1)
+                print("ERROR: Number out of choice range")
+                time.sleep(0.2)
                 continue
             break
         except ValueError:
-            print("You entered an alphabet, please enter a number between 1 and 3")
-            time.sleep(1)
+            print("ERROR: Foreign character submitted")
+            time.sleep(0.2)
             
 
 '''EXECUTE MAIN'''
-# if __name__ == '__main__': 
-#     try:
-#         initialProgramCheck()
-#         progressBar("\nLoading program")
-#         time.sleep(0.1)
-# main()
-    # except KeyboardInterrupt:
-    #     quit()
-main()
-#print(userInput("Please enter Customer Username",True).isdigit())
+if __name__ == '__main__': 
+    try:
+        initialProgramCheck()
+        progressBar("\nLoading program")
+        time.sleep(0.1)
+        main()
+    except KeyboardInterrupt:
+        quit()
 
 '''Empty functions'''
 def order() :
