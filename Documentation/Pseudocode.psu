@@ -56,10 +56,9 @@ FUNCTION removeEmptyList(sourceList)
         DOWHILE ('' IN data)
             REMOVE ('') FROM data
         ENDDO
-    ENDFOR
-    FOR EACH data IN sourceList
         IF data != [] THEN
             APPEND data TO updatedList
+        ENDIF
     ENDFOR
     RETURN updatedList
 ENDFUNCTION
@@ -75,10 +74,10 @@ FUNCTION progressBar(loadingMessage)
 ENDFUNCTION
 
 FUNCTION pageBanners(pageTitle, centerLength)
-    DISPLAY "_" * (pageTitle LENGTH) WITH CALL center(centerLength)
+    DISPLAY "_" * (pageTitle LENGTH)
     DISPLAY newline
-    DISPLAY pageTitle WITH CALL center(centerLength)
-    DISPLAY "_" * (pageTitle LENGTH) WITH CALL center(centerLength)
+    DISPLAY pageTitle
+    DISPLAY "_" * (pageTitle LENGTH)
 ENDFUNCTION
 
 
@@ -95,11 +94,20 @@ FUNCTION readAdminDetailsFile()
                 SPLIT row BY " "
                 APPEND row to adminDetailsList
             ENDFOR
-        CLOSE FILE ADMIN_DETAILS_FILE
-        RETURN adminDetailsList
+        CLOSE FILE ADMIN_DETAILS_FILE   
+        IF (adminDetailsList == []) THEN
+            RAISE ERROR
+        ENDIF
     EXCEPT ERROR THEN
-        DISPLAY "Admin details file is missing!" 
+        DISPLAY newline
+        DISPLAY "Admin details file is missing!"
+        CALL exit()
+    EXCEPT ERROR THEN
+        DISPLAY newline
+        DISPLAY "No data in admin details file!"
+        CALL exit()
     ENDTRY
+    RETURN adminDetailsList
 ENDFUNCTION
 
 
@@ -119,11 +127,19 @@ FUNCTION readFoodDetailsFile()
                     APPEND row to foodDetailsList
                 ENDFOR
             CLOSE FILE FOOD_DETAILS_FILE
-            foodDetailsList = CALL removeEmptyList(foodDetailsList)
-            RETURN foodDetailsList
+            IF (foodDetailsList == []) THEN
+                RAISE ERROR
+            ENDIF
         EXCEPT ERROR THEN
             DISPLAY "Food details file is missing!"
+            CALL exit()
+        EXCEPT ERROR THEN
+            DISPLAY newline
+            DISPLAY "No data in food details file!"
+            CALL exit()
         ENDTRY
+    foodDetailsList = CALL removeEmptyList(foodDetailsList)
+    RETURN foodDetailsList
 ENDFUNCTION
 
 
@@ -157,7 +173,7 @@ FUNCTION readCustomerDetailsFile()
                 APPEND row TO customerDetailsList
             ENDFOR
         CLOSE FILE CUSTOMER_DETAILS_FILE
-        RETURN customerDetailsList
+        RETURN customerDetailsList  
     EXCEPT ERROR THEN
         DISPLAY "Customers database is missing!" 
     ENDTRY
@@ -170,87 +186,76 @@ ENDFUNCTION
 '''Login to access system'''
 
 FUNCTION adminLoginPage()
-    DOWHILE (True)
-        TRY 
-            adminDetailsList = CALL readAdminDetailsFile()
-            uName = CALL userInput("Username",True) WITH CALL lower()
-            CALL progressBar("Checking if username exists")
-            CALL time.sleep(0.05)
-            IF (CALL authUsername(uName,adminDetailsList)) THEN
-                DISPLAY " Username found, please enter password "
-                DISPLAY newline
-                DOWHILE (True)
-                    uPass = CALL userInput("Password",True)
-                    IF (CALL authPassword(uName, uPass,adminDetailsList)) THEN
-                        CALL progressBar("Logging you in")
-                        CALL time.sleep(0.05)
-                        CALL adminMenu(uName)
-                        BREAK
-                    ELSE
-                        DISPLAY "Incorrect password, please retry"
-                        DISPLAY newline
-                    ENDIF
-                ENDDO
-            ELSE 
-                DISPLAY " Username not found, please retry" 
-                CONTINUE
-            ENDIF
-        EXCEPT ERROR THEN
-            DISPLAY "Admin details file is corrupted!"
-        ENDTRY
-        BREAK
+    adminDetailsList = CALL readAdminDetailsFile()
+    usernameExists = False
+    DOWHILE (NOT usernameExists) 
+        uName = CALL userInput("Username",True) AS lower()
+        IF (uName == "") THEN 
+            CONTINUE LOOP
+        ENDIF
+        CALL progressBar("Authenticating username")
+        CALL time.sleep(0.05)
+        usernameExists = CALL authUsername(uName,adminDetailsList)
+        IF (usernameExists) THEN
+            DISPLAY " Username found, please enter password "
+            DISPLAY newline
+        ELSE
+            DISPLAY " ERROR: Username not found, please retry"
+            DISPLAY newline
+        ENDIF
+    ENDDO
+    DOWHILE (usernameExists)
+        uPass = CALL userInput("Password",True)
+        IF (uPass == "") THEN
+            CONTINUE LOOP
+        ENDIF
+        CALL progressBar("Authenticating password")
+        CALL time.sleep(0.05)
+        passwordMatch = CALL authPassword(uName, uPass,adminDetailsList)
+        IF (passwordMatch) THEN
+            CALL adminMenu(uName)
+            BREAK LOOP  
+        ELSE 
+            DISPLAY " ERROR: Incorrect password , please retry")
+        ENDIF
     ENDDO
 ENDFUNCTION
 
 
 
-FUNCTION adminMenu(uName="")
+FUNCTION adminMenu(uName="admin")
+    CHOICES = [[1, "ADD NEW FOOD ITEM", addFoodItemMenu], [2, "MODIFY FOOD ITEM", modifyFoodItemMenu], 
+                [3, "DISPLAY RECORDS", displayRecordsMenu], [4, "SEARCH RECORDS", searchRecordsMenu]]
+    CALL clearConsole()
+    CALL pageBanners("ADMIN DASHBOARD",50)
+    DISPLAY newline
+    DISPLAY "Hey, " + uName AS capitalize() + "! What would you like to do today?"
+    DISPLAY newline
+    DISPLAY "1. Add food item"
+    DISPLAY "2. Modify food item"
+    DISPLAY "3. Display records"
+    DISPLAY "4. Search record"
+    DISPLAY "0. Log out"
     DOWHILE (True)
         TRY
-            CALL clearConsole()
-            CALL pageBanners("ADMIN DASHBOARD",50)
-            DISPLAY newline
-            DISPLAY "Hey, " + uName WITH CALL capitalize() + "! What would you like to do today?"
-            DISPLAY newline
-            DISPLAY "1. Add food item"
-            DISPLAY "2. Modify food item"
-            DISPLAY "3. Display records"
-            DISPLAY "4. Search record"
-            DISPLAY "0. Log out"
             userSelection = (CALL userInput("I would like to",True)) AS INTEGER
             IF (userSelection == 0) THEN
                 CALL progressBar("Logging out")
                 CALL main()
-            ELSE 
-                IF (userSelection == 1) THEN
-                    CALL clearConsole()
-                    CALL pageBanners("ADD NEW FOOD ITEM",50)
-                    CALL addFoodItemMenu()
-                ELSE 
-                    IF (userSelection == 2) THEN
-                        CALL clearConsole()
-                        CALL pageBanners("MODIFY FOOD ITEM",50)
-                        CALL modifyFoodItemMenu()
-                    ELSE 
-                        IF (userSelection == 3) THEN
-                            CALL clearConsole()
-                            CALL pageBanners("DISPLAY RECORDS",50)
-                            CALL displayRecordsMenu()
-                        ELSE 
-                            IF (userSelection == 4) THEN
-                                CALL clearConsole()
-                                CALL pageBanners("SEARCH RECORDS",50)
-                                CALL searchRecordsMenu()
-                            ELSE
-                                DISPLAY "Number is out of range!"
-                                CALL time.sleep(1)
-                                CONTINUE
-                            ENDIF
-                        ENDIF
-                    ENDIF
-                ENDIF
             ENDIF
-            BREAK
+            IF (userSelection > choices LENGTH) THEN
+                print("Number is out of range!")
+                CALL time.sleep(1)
+                CONTINUE LOOP
+            ENDIF
+            FOR EACH choice IN CHOICES
+                IF (userSelection == choice[0]) THEN
+                    CALL clearConsole()
+                    CALL pageBanners(choice[1],50)
+                    CALL choice[2]()
+                ENDIF
+            ENDFOR
+            BREAK LOOP 
         EXCEPT ERROR THEN
             DISPLAY "Please submit a number"
             CALL time.sleep(1) 
@@ -334,8 +339,8 @@ ENDFUNCTION
 
 
 FUNCTION writeNewFoodCategoryToFile(categoryName,categoryDescription)
-    uppercaseName = categoryName WITH CALL upper()
-    capitalizedDescription = categoryDescription WITH CALL capitalize()
+    uppercaseName = categoryName AS upper()
+    capitalizedDescription = categoryDescription AS capitalize()
     OPEN FILE FOOD_DETAILS_FILE IN APPEND MODE as foodDetailsFile
         WRITE newline INTO foodDetailsFile
         WRITE '_' * 88 INTO foodDetailsFile
@@ -390,12 +395,9 @@ ENDFUNCTION
 FUNCTION displayFoodCategories()
     TRY  
         foodCategoriesList = CALL extractFoodCategories()
-        count=1
-        DOWHILE (count < foodCategoriesList LENGTH)):
-            FOR EACH list IN foodCategoriesList
-                DISPLAY count AS STRING + ". " + list[0] WITH CALL capitalize()
-                DISPLAY(f'{count}. {list[0].capitalize()}')
-                count+=1
+        FOR EACH list IN foodCategoriesList
+            DISPLAY count AS STRING + ". " + list[0] AS capitalize() 
+        ENDFOR
     EXCEPT ERROR THEN 
         DISPLAY "Food details file is corrupted!"
     ENDTRY
@@ -534,12 +536,12 @@ ENDFUNCTION
 
 
 
-FUNCTION verifyFoodItemId(foodItemId,foodDetailsFile)
+FUNCTION verifyFoodItemId(foodItemId,foodDetailsList)
     IF (foodItemId == '') THEN
         RETURN False
     ELSE 
-        IF ((foodItemId[0] WITH CALL isalpha()) AND (foodItemId[1 : (foodItemId LENGTH)] WITH CALL isdigit())) THEN
-            FOR EACH data IN foodDetailsFile
+        IF ((foodItemId[0] AS isalpha()) AND (foodItemId[1 : (foodItemId LENGTH)] AS isdigit())) THEN
+            FOR EACH data IN foodDetailsList
                 IF foodItemId IN data[0] THEN
                     RETURN True
                 ENDIF
@@ -552,25 +554,21 @@ ENDFUNCTION
 
 FUNCTION listOutFoodItems(chosenFoodCategoryName)
     DOWHILE (True)
-        TRY
-            CALL rogressBar("Retrieving food item records")
-            CALL time.sleep(0.5)
-            DISPLAY newline * 2
-            DISPLAY "REPORT OF FOOD ITEMS IN " + (chosenFoodCategoryName WITH CALL upper())
-            DISPLAY newline
-            DISPLAY '-' * 24 + '-' * (chosenFoodCategoryName LENGTH)
-            DISPLAY "FOOD ITEM ID   FOOD ITEM PRICE FOOD ITEM NAME"
-            DISPLAY newline
-            DISPLAY '-'*12 + ' '*4 + '-'*15 + ' '*2 + '-'*14
-            FOR EACH data IN readFoodDetailsFile()
-                IF (chosenFoodCategoryName WITH CALL replace("FOOD CATEGORY", ""), strip(), capitalize()) IN data THEN
-                    DISPLAY data[1] data[3] data[2]
-                ENDIF
-            BREAK
-            ENDFOR
-        EXCEPT ERROR THEN
-            DISPLAY "Please enter a number"
-        ENDTRY
+        CALL rogressBar("Retrieving food item records")
+        CALL time.sleep(0.5)
+        DISPLAY newline * 2
+        DISPLAY "REPORT OF FOOD ITEMS IN " + (chosenFoodCategoryName WITH CALL upper())
+        DISPLAY newline
+        DISPLAY '-' * 24 + '-' * (chosenFoodCategoryName LENGTH)
+        DISPLAY "FOOD ITEM ID   FOOD ITEM PRICE FOOD ITEM NAME"
+        DISPLAY newline
+        DISPLAY '-'*12 + ' '*4 + '-'*15 + ' '*2 + '-'*14
+        FOR EACH data IN readFoodDetailsFile()
+            IF (chosenFoodCategoryName WITH CALL replace("FOOD CATEGORY", ""), strip(), capitalize()) IN data THEN
+                DISPLAY data[1] data[3] data[2]
+            ENDIF
+        BREAK LOOP
+        ENDFOR
     ENDDO
 ENDFUNCTION
 
@@ -591,6 +589,7 @@ FUNCTION deleteFoodItemRecord(userConfirmation, foodItemId, foodDetailsList)
                 OPEN FILE FOOD_DETAILS_FILE IN WRITE MODE AS f
                     FOR EACH data IN foodDetailsList
                         WRITE data[0] INTO f
+                    ENDFOR
                 CLOSE FILE FOOD_DETAILS_FILE
                 BREAK
             ELSE 
@@ -980,7 +979,7 @@ FUNCTION updateFoodItemMenu(foodDetailsList)
                 foodItemId = CALL userInput("Enter the Food Item ID that you would like to update",True) WITH CALL upper()
                 IF (CALL verifyFoodItemId(foodItemId, foodDetailsList)) THEN
                     DISPLAY "Food Item ID Selected: " + foodItemId
-                    FOR EACH data in foodDetailsList
+                    FOR EACH data IN foodDetailsList
                         IF foodItemId IN data[0] THEN
                             foodItemIdList = data[0] WITH CALL split(" | ")
                             foodItemIdIndex = foodDetailsList WITH CALL index(data)

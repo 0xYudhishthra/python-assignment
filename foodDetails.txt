@@ -8,11 +8,11 @@ ________________________________________________________________________________
 
 MALAYSIAN FOOD CATEGORY - A Variety of Malaysian Foods served here.
 ________________________________________________________________________________________
-Malaysian | M1 | Nasi Lemak Rendang Ayam | 13.00
+Malaysian | M1 | Nasi Lemak Rendang Ayam | 12.00
 Malaysian | M2 | Nasi Kerabu Daging Bakar | 15.60
 Malaysian | M3 | Nasi Goreng Kampung | 6.50
-Malaysian | M4 | Penang Asam Laksa | 9.00
-Malaysian | M5 | Mee Goreng Ayam | 10.00
+Malaysian | M4 | Penang Asam Laksa | 10.00
+Malaysian | M5 | Mee Goreng Ayam | 11.00
 ________________________________________________________________________________________
 
 WESTERN FOOD CATEGORY - We bring the Western to you.
