@@ -800,9 +800,11 @@ def displaySearchResults(recordName:str,searchBasis:str,resultsList:list): #Func
     time.sleep(15)
     adminMenu()
 
-'''DECLARING FUNCTIONS FOR GUEST DASHBOARD'''
+#==================================USER SECTION===============================================
 
-def userHomepage():  # Guest Dashboard Main Page
+# User homepage
+# User menu for viewing guest menu, login, register.
+def userHomepage(): 
     while True:
         clearConsole()
         pageBanners("GUEST DASHBOARD", 50)
@@ -822,7 +824,8 @@ def userHomepage():  # Guest Dashboard Main Page
         else:
             input("Invalid")
 
-'''View all food items as per category'''
+# Guest Menu
+# Allow user to view categories without details and choose item cat to display.
 def guestMenu():
     while True:
         clearConsole()
@@ -844,7 +847,7 @@ def guestMenu():
             print("\nPlease enter a number!")
             time.sleep(1.5)
 
-# Displays all food items in the food details file based on the category chosen by the user without details
+# Print items without detail.
 def guestPrintItem(chosenFoodCategoryName):
     clearConsole()
     while True:
@@ -863,19 +866,7 @@ def guestPrintItem(chosenFoodCategoryName):
             print("Please enter a number")
 
 
-def customerReadDetailFile() -> list:  # Reads file with customer details, extracts username and passwords without headers and appends it to list
-    customerDetailsList = []
-    try:
-        with open(CUSTOMER_DETAILS_FILE, mode='r') as customerDetailsFile:
-            skipFileLine(6, customerDetailsFile)
-            for row in customerDetailsFile:
-                customerDetailsList.append(
-                    row.strip("\n").replace(" | ", " ").split(" "))
-            return customerDetailsList
-    except FileNotFoundError:
-        print("Customers database is missing!")
-
-
+# Customer login page.
 def customerLoginMenu():
     while True:
         clearConsole()
@@ -902,8 +893,22 @@ def customerLoginMenu():
             print("Customers details file is corrupted!")
             break
 
+# Read customer detail file.
+def customerReadDetailFile() -> list:
+    customerDetailsList = []
+    try:
+        with open(CUSTOMER_DETAILS_FILE, mode='r') as customerDetailsFile:
+            skipFileLine(6, customerDetailsFile)
+            for row in customerDetailsFile:
+                customerDetailsList.append(
+                    row.strip("\n").replace(" | ", " ").split(" "))
+            return customerDetailsList
+    except FileNotFoundError:
+        print("Customers database is missing!")
 
-def customerMenu(username: str):  # Customer menu upon successful login
+# Category Menu
+# Customer menu allow user to choose categories with details to view, view histrorical orders and logout.
+def customerMenu(username: str):
     cart = []
     while True:
         try:
@@ -923,7 +928,7 @@ def customerMenu(username: str):  # Customer menu upon successful login
         except ValueError:
             input("\nYou entered an invalid input, please enter a valid selection number.")
 
-'''View food category with details'''
+# Customer category menu that allow user to choose which category of items to print.
 def customerMenuCategory(cart: list, username:str):
     foodCat = extractFoodCategoryTitles()
     foodCatLen = len(foodCat)
@@ -949,29 +954,85 @@ def customerMenuCategory(cart: list, username:str):
         except ValueError:
             input("\nYou entered an invalid input, please enter a valid selection number.")
 
-
+# Print Categories with detail.
 def customerPrintCategoryDetail():
     foodCat = extractFoodCategoryTitles()
     for i in range(len(foodCat)):
         print("{}. {} - {}".format(i+1, foodCat[i][0], foodCat[i][1]))
 
-# Displays the details of all food items in the food details file based on the category chosen by the user
-def customerItemPrint(chosenFoodCategoryName: str):
+# Cart system
+# Customer cart menu for checkup current cart and proceed to checkout or back.
+def customerCartMenu(cart: list, username: str):
     while True:
-        try:
-            print(f"{chosenFoodCategoryName.upper()}".center(50))
-            print(f"{'-'*24}{'-'*len(chosenFoodCategoryName)}")
-            print(
-                f"FOOD ITEM ID\tFOOD ITEM PRICE\t FOOD ITEM NAME\n{'-'*12}{' '*4}{'-'*15}{' '*2}{'-'*14}")
-            for data in readFoodDetailsFile():
-                if (chosenFoodCategoryName.replace("FOOD CATEGORY", "").strip().capitalize()) in data:
-                    print('{:<16}{:<15}\t {}'.format(
-                        data[1], data[3], data[2]))
+        clearConsole()
+        pageBanners("  Cart  ", 50)
+        cartDetailArray, cartTtl = customerCartDetail(cart)
+        print("\n{:<3}{:<2}{:<32}{:<2}{:<9}{:<2}{:<11}{:<2}{:<17}{:<2}".format(
+            "N", "|", "Item Name", "|", "Quantity", "|", "Unit Price", "|", "Total Unit Price", "|"))
+        print("{:<3}{:<2}{:<32}{:<2}{:<9}{:<2}{:<11}{:<2}{:<17}{:<2}".format(
+            "", "|", "", "|", "", "|", "", "|", "", "|"))
+        for i in range(len(cartDetailArray)):
+            print("{:<3}{:<2}{:<32}{:<2}{:<9}{:<2}{:<11}{:<2}{:<17}{:<2}".format((str(i+1)+"."), "|",
+                  cartDetailArray[i][0], "|", cartDetailArray[i][1], "|", cartDetailArray[i][2], "|", cartDetailArray[i][3], "|"))
+        print(f"\nTotal: {cartTtl}\n\n1. Submit Order Cart\n0. Back")
+        option = userInput("Choice", True)
+        if option == "0":
             break
-        except TypeError:
-            print("Please enter a number")
+        elif option == "1":
+            customerCartSubmit(cart, username, cartTtl)
+            return ([])
+        else:
+            print("Oops! Something went wrong, press enter to try again.")
 
+# Return item names, quantity, unit price and total of cart in a list.
+def customerCartDetail(cart: list):
+    itemsArray = readFoodDetailsFile()
+    cartDetail = []
+    cartTotal = 0
+    for cartItem in range(0, len(cart), 2):
+        for item in range(len(itemsArray)):
+            if cart[cartItem] == itemsArray[item][1]:
+                unitTotal = (
+                    float(itemsArray[item][3])*float(cart[cartItem+1]))
+                cartTotal += unitTotal
+                # detail = Item Name, Quantity, Unit Price, Total Unit Price
+                detail = [(itemsArray[item][2]), str(cart[cartItem+1]),
+                          itemsArray[item][3],  str(unitTotal)]
+                cartDetail.append(detail)
+    cartTotal = "{:.2f}".format(cartTotal)
+    return (cartDetail, cartTotal)
 
+# Append order details to oder file.
+def customerCartSubmit(cart: list, username: str, cartTtl: float):
+    while True:
+        if len(cart) == 0:
+            input("Oops! Your order cart is empty, please press enter to return.")
+            break
+        itemString = ""
+        for i in range(0, len(cart), 2):
+            itemString += cart[i] + "(" + str(cart[i + 1]) + ")"
+            if i < (len(cart)-2):
+                itemString += ","
+        record = username + " | " + str(customerOrderDetailFileLen()+1) + " | " + itemString + " | " + str(cartTtl) + " | " + "PAID\n"
+        try:
+            with open(ORDER_RECORDS_FILE, "a") as orderFile:
+                orderFile.write(record)
+        except FileNotFoundError:
+            print("FILE IS MISSING!!!")
+        input("Order placed successfully, please press enter to return.")
+        break
+
+# Return numbers of order in order file.
+def customerOrderDetailFileLen():
+    len = 0
+    with open(ORDER_RECORDS_FILE, mode='r') as orderDetailFile:
+        skipFileLine(6, orderDetailFile)
+        for row in orderDetailFile:
+            len += 1
+    return len
+
+# Ordering System
+# Customer menu for choosing what item to add to cart.
 def customerItemMenu(cart: list, chosenFoodCategoryName: str) -> list:
     cartChosen, addCartChosen = False, False
     while True:
@@ -1017,7 +1078,31 @@ def customerItemMenu(cart: list, chosenFoodCategoryName: str) -> list:
             else:
                 input("Oops! Invalid selection entred, please press enter to try again.")
 
+# Print items with details.
+def customerItemPrint(chosenFoodCategoryName: str):
+    while True:
+        try:
+            print(f"{chosenFoodCategoryName.upper()}".center(50))
+            print(f"{'-'*24}{'-'*len(chosenFoodCategoryName)}")
+            print(
+                f"FOOD ITEM ID\tFOOD ITEM PRICE\t FOOD ITEM NAME\n{'-'*12}{' '*4}{'-'*15}{' '*2}{'-'*14}")
+            for data in readFoodDetailsFile():
+                if (chosenFoodCategoryName.replace("FOOD CATEGORY", "").strip().capitalize()) in data:
+                    print('{:<16}{:<15}\t {}'.format(
+                        data[1], data[3], data[2]))
+            break
+        except TypeError:
+            print("Please enter a number")
 
+# Remove item code from list which quantity equivalent to 0 to less.
+def customerCartTidy(cart: list) -> list:
+    tempCart = []
+    for i in range(0, len(cart), 2):
+        if cart[i+1] != 0:
+            tempCart.extend([cart[i], cart[i+1]])
+    return tempCart
+
+# Print item code and quantity in cart. (Cart: M1(x), W2(x))
 def customerCartPrint(cart: list):
     stringToPrint = ""
     for i in range(0, len(cart), 2):
@@ -1026,7 +1111,15 @@ def customerCartPrint(cart: list):
             stringToPrint = stringToPrint + ", "
     print(f"\nCart :  {stringToPrint}")
 
+# Validate if item code exist in menu.
+def customerCartValidItem(code: str) -> bool:
+    itemsArray = readFoodDetailsFile()
+    for item in range(len(itemsArray)):
+        if itemsArray[item][1] == code:
+            return True
+    return False
 
+# Add item with quantity to list.
 def customerCartAddItem(item: str, amount: str, cart: list) -> list:
     try:
         intAmount = int(amount)
@@ -1040,7 +1133,7 @@ def customerCartAddItem(item: str, amount: str, cart: list) -> list:
         input("\nOops! Alphabet/s found in amount entered, please enter numbers only.\nPress enter to return.")
         return cart
 
-
+# Deduct item quantity from cart.
 def customerCartRemoveItem(item: str, amount: str, cart: list):
     if amount.lower() != "all":
         try:
@@ -1064,84 +1157,8 @@ def customerCartRemoveItem(item: str, amount: str, cart: list):
     input("Oops! Item code entered not found, please try again.\nPress enter to return.")
     return (cart)
 
-
-def customerCartValidItem(code: str) -> bool:
-    itemsArray = readFoodDetailsFile()
-    for item in range(len(itemsArray)):
-        if itemsArray[item][1] == code:
-            return True
-    return False
-
-
-def customerCartTidy(cart: list) -> list:
-    tempCart = []
-    for i in range(0, len(cart), 2):
-        if cart[i+1] != 0:
-            tempCart.extend([cart[i], cart[i+1]])
-    return tempCart
-
-
-def customerCartDetail(cart: list):
-    itemsArray = readFoodDetailsFile()
-    cartDetails = []
-    cartTotal = 0
-    for cartItem in range(0, len(cart), 2):
-        for item in range(len(itemsArray)):
-            if cart[cartItem] == itemsArray[item][1]:
-                unitTotal = (
-                    float(itemsArray[item][3])*float(cart[cartItem+1]))
-                cartTotal += unitTotal
-                # detail = Item Name, Quantity, Unit Price, Total Unit Price
-                detail = [(itemsArray[item][2]), str(cart[cartItem+1]),
-                          itemsArray[item][3],  str(unitTotal)]
-                cartDetails.append(detail)
-    cartTotal = "{:.2f}".format(cartTotal)
-    return (cartDetails, cartTotal)
-
-
-def customerCartMenu(cart: list, username: str):
-    while True:
-        clearConsole()
-        pageBanners("  Cart  ", 50)
-        cartDetailArray, cartTtl = customerCartDetail(cart)
-        print("\n{:<3}{:<2}{:<32}{:<2}{:<9}{:<2}{:<11}{:<2}{:<17}{:<2}".format(
-            "N", "|", "Item Name", "|", "Quantity", "|", "Unit Price", "|", "Total Unit Price", "|"))
-        print("{:<3}{:<2}{:<32}{:<2}{:<9}{:<2}{:<11}{:<2}{:<17}{:<2}".format(
-            "", "|", "", "|", "", "|", "", "|", "", "|"))
-        for i in range(len(cartDetailArray)):
-            print("{:<3}{:<2}{:<32}{:<2}{:<9}{:<2}{:<11}{:<2}{:<17}{:<2}".format((str(i+1)+"."), "|",
-                  cartDetailArray[i][0], "|", cartDetailArray[i][1], "|", cartDetailArray[i][2], "|", cartDetailArray[i][3], "|"))
-        print(f"\nTotal: {cartTtl}\n\n1. Submit Order Cart\n0. Back")
-        option = userInput("Choice", True)
-        if option == "0":
-            break
-        elif option == "1":
-            customerCartSubmit(cart, username, cartTtl)
-            return ([])
-        else:
-            print("Oops! Something went wrong, press enter to try again.")
-
-
-def customerCartSubmit(cart: list, username: str, cartTtl: float):
-    while True:
-        if len(cart) == 0:
-            input("Oops! Your order cart is empty, please press enter to return.")
-            break
-        itemString = ""
-        for i in range(0, len(cart), 2):
-            itemString += cart[i] + "(" + str(cart[i + 1]) + ")"
-            if i < (len(cart)-2):
-                itemString += ","
-        record = username + " | " + str(customerOrderDetailFileLen()+1) + " | " + itemString + " | " + str(cartTtl) + " | " + "PAID\n"
-        try:
-            with open(ORDER_RECORDS_FILE, "a") as orderFile:
-                orderFile.write(record)
-        except FileNotFoundError:
-            print("FILE IS MISSING!!!")
-        input("Order placed successfully, please press enter to return.")
-        break
-
-
+# Order History
+# Customer order menu for printing current user's historical orders.
 def customerOrderMenu(username: str):
     clearConsole()
     pageBanners("  Orders ", 50)
@@ -1149,7 +1166,7 @@ def customerOrderMenu(username: str):
     customerOrderPrint(username)
     input("\nPress enter to return.")
 
-
+# Print historical orders of current user.
 def customerOrderPrint(username: str):
         orderDetailArray = customerOrderDetailRead(username)
         print("{:<9}{:<2}{:<32}{:<2}{:<8}{:<2}{:<7}{:<2}".format(
@@ -1160,7 +1177,7 @@ def customerOrderPrint(username: str):
             print("{:<9}{:<2}{:<32}{:<2}{:<8}{:<2}{:<7}{:<2}".format(
                 orderDetailArray[i][1], "|", orderDetailArray[i][2], "|", orderDetailArray[i][3], "|", orderDetailArray[i][4], "|"))
 
-
+# Read order details from orders detail file.
 def customerOrderDetailRead(username: str):
     orderArray = []
     with open(ORDER_RECORDS_FILE, mode='r') as orderDetailFile:
@@ -1171,16 +1188,8 @@ def customerOrderDetailRead(username: str):
                 orderArray.append(order)
     return orderArray
 
-
-def customerOrderDetailFileLen():
-    len = 0
-    with open(ORDER_RECORDS_FILE, mode='r') as orderDetailFile:
-        skipFileLine(6, orderDetailFile)
-        for row in orderDetailFile:
-            len += 1
-    return len
-
-# STORE FORMAT: USERNAME | PASSWORD | FIRST NAME | LAST NAME | HOUSE NUMBER | STREET | STATE | POSTCODE | PHONE NUMBER
+# Customer Registration 
+# Customer registration menu for user account registration.
 def customerRegistrationMenu():
     titleList = ["Username", "Password", "First Name", "Last Name", "House Number", "Street", "State", "Postcode", "Phone Number"]
     userData = ["", "", "", "", "", "", "", "", ""]
@@ -1201,7 +1210,7 @@ def customerRegistrationMenu():
             input("\nUser account regsitered successfully, please enter to return.")
             break
 
-
+# Add registration data to users detail file.
 def customerRegistrationSubmit(userData:list):
     for data in userData:
         if data.strip() == "":
