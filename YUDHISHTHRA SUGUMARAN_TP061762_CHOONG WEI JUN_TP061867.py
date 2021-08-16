@@ -802,7 +802,7 @@ def displaySearchResults(recordName:str,searchBasis:str,resultsList:list): #Func
 
 '''DECLARING FUNCTIONS FOR GUEST DASHBOARD'''
 
-def guestMenu():  # Guest Dashboard Main Page
+def userHomepage():  # Guest Dashboard Main Page
     while True:
         clearConsole()
         pageBanners("GUEST DASHBOARD", 50)
@@ -811,20 +811,19 @@ def guestMenu():  # Guest Dashboard Main Page
               "3. New Customer Registration", "\n0. Back to Main Menu", sep='\n')
         input = userInput("Choice", True)
         if input == "1":
-            viewCategoryList()
+            guestMenu()
         elif input == "2":
-            regCustomerMenu(customerLoginPage())
+            customerMenu(customerLoginMenu())
         elif input == "3":
             pageBanners("NEW ACCOUNT", 50)
-            customerRegistration()
+            customerRegistrationMenu()
         elif input == "0":
             break
         else:
-            # invalidInput()
-            guestMenu()
+            input("Invalid")
 
 '''View all food items as per category'''
-def viewCategoryList():
+def guestMenu():
     while True:
         clearConsole()
         pageBanners("MENU CATEGORIES", 50)
@@ -837,18 +836,16 @@ def viewCategoryList():
             if chosenCategory == 0:
                 break
             elif chosenCategory <= 4 :
-                listOutFoodItemsNoDetails((extractFoodCategoryTitles()[chosenCategory-1][0]))
+                guestPrintItem((extractFoodCategoryTitles()[chosenCategory-1][0]))
             else :
                 print("\nNumber out of range!")
                 time.sleep(1.5)
-                viewCategoryList()
         except ValueError:
             print("\nPlease enter a number!")
             time.sleep(1.5)
-            viewCategoryList()
 
 # Displays all food items in the food details file based on the category chosen by the user without details
-def listOutFoodItemsNoDetails(chosenFoodCategoryName):
+def guestPrintItem(chosenFoodCategoryName):
     clearConsole()
     while True:
         try:
@@ -866,7 +863,7 @@ def listOutFoodItemsNoDetails(chosenFoodCategoryName):
             print("Please enter a number")
 
 
-def readCustomerDetailsFile() -> list:  # Reads file with customer details, extracts username and passwords without headers and appends it to list
+def customerReadDetailFile() -> list:  # Reads file with customer details, extracts username and passwords without headers and appends it to list
     customerDetailsList = []
     try:
         with open(CUSTOMER_DETAILS_FILE, mode='r') as customerDetailsFile:
@@ -879,12 +876,12 @@ def readCustomerDetailsFile() -> list:  # Reads file with customer details, extr
         print("Customers database is missing!")
 
 
-def customerLoginPage():
+def customerLoginMenu():
     while True:
         clearConsole()
         pageBanners("Login as Customer", 50)
         try:
-            customerDetailsList = readCustomerDetailsFile()
+            customerDetailsList = customerReadDetailFile()
             uName = userInput("Username", True)
             progressBar("Checking if username exists")
             time.sleep(0.05)
@@ -906,7 +903,7 @@ def customerLoginPage():
             break
 
 
-def regCustomerMenu(username: str):  # Customer menu upon successful login
+def customerMenu(username: str):  # Customer menu upon successful login
     cart = []
     while True:
         try:
@@ -916,9 +913,9 @@ def regCustomerMenu(username: str):  # Customer menu upon successful login
             print("1. View Item By Categories", "2. View Orders", "\n0. Logout", sep='\n')
             input = int(userInput("Choice", True))
             if input == 1:
-                cart = viewCategoryDetail(cart, username)
+                cart = customerMenuCategory(cart, username)
             elif input == 2:
-                viewOrders(username)
+                customerOrderMenu(username)
             elif input == 0:
                 break
             else:
@@ -927,7 +924,7 @@ def regCustomerMenu(username: str):  # Customer menu upon successful login
             input("\nYou entered an invalid input, please enter a valid selection number.")
 
 '''View food category with details'''
-def viewCategoryDetail(cart: list, username:str):
+def customerMenuCategory(cart: list, username:str):
     foodCat = extractFoodCategoryTitles()
     foodCatLen = len(foodCat)
     while True:
@@ -935,34 +932,31 @@ def viewCategoryDetail(cart: list, username:str):
             clearConsole()
             pageBanners("Food Menu", 50)
             print("\nWhat category of beverage would you like to know more?\n")
-            displayFoodCategoriesWithDetails()
+            customerPrintCategoryDetail()
             if len(cart) > 0:
-                printCart(cart)
+                customerCartPrint(cart)
             print("\nC. View Cart\n0. Back to Customer Menu")
             chosenCategory = userInput("Food category", True)
             if chosenCategory == "0":
                 return cart
             elif chosenCategory.upper() == "C":
-                viewCart(cart, username)
+                customerCartMenu(cart, username)
                 cart = []
             elif int(chosenCategory) <= foodCatLen:
-                cart = itemEngine(cart, (extractFoodCategoryTitles()[int(chosenCategory)-1][0]))
+                cart = customerItemMenu(cart, (extractFoodCategoryTitles()[int(chosenCategory)-1][0]))
             else:
                 input("\nOops! Number out of range, please enter to try again.")
-                viewCategoryList()
         except ValueError:
-            input(
-                "\nYou entered an invalid input, please enter a valid selection number.")
-            time.sleep(1)
+            input("\nYou entered an invalid input, please enter a valid selection number.")
 
 
-def displayFoodCategoriesWithDetails():
+def customerPrintCategoryDetail():
     foodCat = extractFoodCategoryTitles()
     for i in range(len(foodCat)):
         print("{}. {} - {}".format(i+1, foodCat[i][0], foodCat[i][1]))
 
 # Displays the details of all food items in the food details file based on the category chosen by the user
-def regCustItemList(chosenFoodCategoryName: str):
+def customerItemPrint(chosenFoodCategoryName: str):
     while True:
         try:
             print(f"{chosenFoodCategoryName.upper()}".center(50))
@@ -978,23 +972,23 @@ def regCustItemList(chosenFoodCategoryName: str):
             print("Please enter a number")
 
 
-def itemEngine(cart: list, chosenFoodCategoryName: str) -> list:
+def customerItemMenu(cart: list, chosenFoodCategoryName: str) -> list:
     cartChosen, addCartChosen = False, False
     while True:
         clearConsole()
-        regCustItemList(chosenFoodCategoryName)
+        customerItemPrint(chosenFoodCategoryName)
         try:
-            cart = tidyCart(cart)
+            cart = customerCartTidy(cart)
             if len(cart) > 0:
-                printCart(cart)
+                customerCartPrint(cart)
         except TypeError:
             print()
         if cartChosen:
             if addCartChosen:
                 itemToAdd = input("\nItem Code to Add (M2) >> ").upper()
-                if validItemCode(itemToAdd):
+                if customerCartValidItem(itemToAdd):
                     amountToAdd = str(input("Amount >> "))
-                    cart = addItemToCart(itemToAdd, amountToAdd, cart)
+                    cart = customerCartAddItem(itemToAdd, amountToAdd, cart)
                     cartChosen, addCartChosen = False, False
                 else:
                     input(
@@ -1002,11 +996,10 @@ def itemEngine(cart: list, chosenFoodCategoryName: str) -> list:
                     cartChosen, addCartChosen = False, False
             else:
                 itemToRemove = input("\nItem Code to Remove >> ").upper().strip()
-                if validItemCode(itemToRemove):
+                if customerCartValidItem(itemToRemove):
                     amountToRemove = input(
                         "Amount to Remove (\"All\" to remove item from cart) >> ")
-                    cart = removeItemFromCart(
-                        itemToRemove, amountToRemove, cart)
+                    cart = customerCartRemoveItem(itemToRemove, amountToRemove, cart)
                     cartChosen = False
                 else:
                     input(
@@ -1025,7 +1018,7 @@ def itemEngine(cart: list, chosenFoodCategoryName: str) -> list:
                 input("Oops! Invalid selection entred, please press enter to try again.")
 
 
-def printCart(cart: list):
+def customerCartPrint(cart: list):
     stringToPrint = ""
     for i in range(0, len(cart), 2):
         stringToPrint = stringToPrint + cart[i] + "(" + str(cart[i+1]) + ")"
@@ -1034,7 +1027,7 @@ def printCart(cart: list):
     print(f"\nCart :  {stringToPrint}")
 
 
-def addItemToCart(item: str, amount: str, cart: list) -> list:
+def customerCartAddItem(item: str, amount: str, cart: list) -> list:
     try:
         intAmount = int(amount)
         for i in range(0, len(cart), 2):
@@ -1048,7 +1041,7 @@ def addItemToCart(item: str, amount: str, cart: list) -> list:
         return cart
 
 
-def removeItemFromCart(item: str, amount: str, cart: list):
+def customerCartRemoveItem(item: str, amount: str, cart: list):
     if amount.lower() != "all":
         try:
             intAmount = int(amount)
@@ -1072,7 +1065,7 @@ def removeItemFromCart(item: str, amount: str, cart: list):
     return (cart)
 
 
-def validItemCode(code: str) -> bool:
+def customerCartValidItem(code: str) -> bool:
     itemsArray = readFoodDetailsFile()
     for item in range(len(itemsArray)):
         if itemsArray[item][1] == code:
@@ -1080,7 +1073,7 @@ def validItemCode(code: str) -> bool:
     return False
 
 
-def tidyCart(cart: list) -> list:
+def customerCartTidy(cart: list) -> list:
     tempCart = []
     for i in range(0, len(cart), 2):
         if cart[i+1] != 0:
@@ -1088,7 +1081,7 @@ def tidyCart(cart: list) -> list:
     return tempCart
 
 
-def cartDetail(cart: list):
+def customerCartDetail(cart: list):
     itemsArray = readFoodDetailsFile()
     cartDetails = []
     cartTotal = 0
@@ -1106,11 +1099,11 @@ def cartDetail(cart: list):
     return (cartDetails, cartTotal)
 
 
-def viewCart(cart: list, username: str):
+def customerCartMenu(cart: list, username: str):
     while True:
         clearConsole()
         pageBanners("  Cart  ", 50)
-        cartDetailArray, cartTtl = cartDetail(cart)
+        cartDetailArray, cartTtl = customerCartDetail(cart)
         print("\n{:<3}{:<2}{:<32}{:<2}{:<9}{:<2}{:<11}{:<2}{:<17}{:<2}".format(
             "N", "|", "Item Name", "|", "Quantity", "|", "Unit Price", "|", "Total Unit Price", "|"))
         print("{:<3}{:<2}{:<32}{:<2}{:<9}{:<2}{:<11}{:<2}{:<17}{:<2}".format(
@@ -1123,13 +1116,13 @@ def viewCart(cart: list, username: str):
         if option == "0":
             break
         elif option == "1":
-            submitCart(cart, username, cartTtl)
+            customerCartSubmit(cart, username, cartTtl)
             return ([])
         else:
             print("Oops! Something went wrong, press enter to try again.")
 
 
-def submitCart(cart: list, username: str, cartTtl: float):
+def customerCartSubmit(cart: list, username: str, cartTtl: float):
     while True:
         if len(cart) == 0:
             input("Oops! Your order cart is empty, please press enter to return.")
@@ -1139,7 +1132,7 @@ def submitCart(cart: list, username: str, cartTtl: float):
             itemString += cart[i] + "(" + str(cart[i + 1]) + ")"
             if i < (len(cart)-2):
                 itemString += ","
-        record = username + " | " + str(orderDetailLen()+1) + " | " + itemString + " | " + str(cartTtl) + " | " + "PAID\n"
+        record = username + " | " + str(customerOrderDetailFileLen()+1) + " | " + itemString + " | " + str(cartTtl) + " | " + "PAID\n"
         try:
             with open(ORDER_RECORDS_FILE, "a") as orderFile:
                 orderFile.write(record)
@@ -1149,16 +1142,16 @@ def submitCart(cart: list, username: str, cartTtl: float):
         break
 
 
-def viewOrders(username: str):
+def customerOrderMenu(username: str):
     clearConsole()
     pageBanners("  Orders ", 50)
     print("")
-    printOrderList(username)
+    customerOrderPrint(username)
     input("\nPress enter to return.")
 
 
-def printOrderList(username: str):
-        orderDetailArray = orderDetail(username)
+def customerOrderPrint(username: str):
+        orderDetailArray = customerOrderDetailRead(username)
         print("{:<9}{:<2}{:<32}{:<2}{:<8}{:<2}{:<7}{:<2}".format(
             "Order ID", "|", "Items", "|", "Total", "|", "Status", "|"))
         print("{:<9}{:<2}{:<32}{:<2}{:<8}{:<2}{:<7}{:<2}".format(
@@ -1168,7 +1161,7 @@ def printOrderList(username: str):
                 orderDetailArray[i][1], "|", orderDetailArray[i][2], "|", orderDetailArray[i][3], "|", orderDetailArray[i][4], "|"))
 
 
-def orderDetail(username: str):
+def customerOrderDetailRead(username: str):
     orderArray = []
     with open(ORDER_RECORDS_FILE, mode='r') as orderDetailFile:
         skipFileLine(6, orderDetailFile)
@@ -1179,7 +1172,7 @@ def orderDetail(username: str):
     return orderArray
 
 
-def orderDetailLen():
+def customerOrderDetailFileLen():
     len = 0
     with open(ORDER_RECORDS_FILE, mode='r') as orderDetailFile:
         skipFileLine(6, orderDetailFile)
@@ -1188,7 +1181,7 @@ def orderDetailLen():
     return len
 
 # STORE FORMAT: USERNAME | PASSWORD | FIRST NAME | LAST NAME | HOUSE NUMBER | STREET | STATE | POSTCODE | PHONE NUMBER
-def customerRegistration():
+def customerRegistrationMenu():
     titleList = ["Username", "Password", "First Name", "Last Name", "House Number", "Street", "State", "Postcode", "Phone Number"]
     userData = ["", "", "", "", "", "", "", "", ""]
     while True:
@@ -1203,13 +1196,13 @@ def customerRegistration():
             if data == "0":
                 return
             userData[a] = data
-        success = submitRegistration(userData)
+        success = customerRegistrationSubmit(userData)
         if success:
             input("\nUser account regsitered successfully, please enter to return.")
             break
 
 
-def submitRegistration(userData:list):
+def customerRegistrationSubmit(userData:list):
     for data in userData:
         if data.strip() == "":
             input("An empty data found, please press enter to try again.")
@@ -1225,17 +1218,16 @@ def submitRegistration(userData:list):
 
 '''DECLARING MAIN GREETING PAGE'''
 def main(): #The main module that will be executed first
-    clearConsole()
-    print(" ____   ___  _____ ____".center(78))
-    print("/ ___| / _ \|  ___/ ___|".center(78))
-    print("\___ \| | | | |_  \___ \\".center(78))
-    print(" ___) | |_| |  _|  ___) |".center(80))
-    print("|____/ \___/|_|   |____/".center(78))
-    print("")
-    print(f' {"Welcome to the Online Food Ordering Management System"} '.center(85, '='))
-    time.sleep(1)
-    print("\nWho are you logging in as?\n", "1. Admin", "2. Customer", "3. Quit Program", sep=' \n')
     while True:
+        clearConsole()
+        print(" ____   ___  _____ ____".center(78))
+        print("/ ___| / _ \|  ___/ ___|".center(78))
+        print("\___ \| | | | |_  \___ \\".center(78))
+        print(" ___) | |_| |  _|  ___) |".center(80))
+        print("|____/ \___/|_|   |____/".center(78))
+        print("")
+        print(f' {"Welcome to the Online Food Ordering Management System"} '.center(85, '='))
+        print("\nWho are you logging in as?\n", "1. Admin", "2. Customer", "3. Quit Program", sep=' \n')
         try:
             input = int(userInput("Login as (Number)",True))
             if input == 1 :
@@ -1243,17 +1235,14 @@ def main(): #The main module that will be executed first
                 pageBanners("ADMIN LOGIN PAGE", 50)
                 adminLoginPage()
             elif input == 2:
-                guestMenu()
+                userHomepage()
             elif input == 3:
                 quit()
             else:
-                print("ERROR: Number out of choice range")
-                time.sleep(0.2)
+                input("ERROR: Number out of choice range")
                 continue
-            break
         except ValueError:
-            print("ERROR: Foreign character submitted")
-            time.sleep(0.2)
+            input("ERROR: Foreign character submitted")
             
 
 '''EXECUTE MAIN'''
