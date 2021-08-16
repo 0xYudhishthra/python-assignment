@@ -879,7 +879,7 @@ def customerLoginMenu():
             break
 
 # Read customer detail file.
-def customerReadDetailFile() -> list:
+def customerReadDetailFile():
     customerDetailsList = []
     with open("./customerDetails.txt", mode='r') as customerDetailsFile:
         skipFileLine(6, customerDetailsFile)
@@ -1010,7 +1010,7 @@ def customerOrderDetailFileLen():
 
 # Ordering System
 # Customer menu for choosing what item to add to cart.
-def customerItemMenu(cart: list, chosenFoodCategoryName: str) -> list:
+def customerItemMenu(cart: list, chosenFoodCategoryName: str):
     cartChosen, addCartChosen = False, False
     while True:
         clearConsole()
@@ -1069,7 +1069,7 @@ def customerItemPrint(chosenFoodCategoryName: str):
             input("ERROR: Please enter a number.")
 
 # Remove item code from list which quantity equivalent to 0 to less.
-def customerCartTidy(cart: list) -> list:
+def customerCartTidy(cart: list):
     tempCart = []
     for i in range(0, len(cart), 2):
         if cart[i+1] != 0:
@@ -1094,7 +1094,7 @@ def customerCartValidItem(code: str) -> bool:
     return False
 
 # Add item with quantity to list.
-def customerCartAddItem(item: str, amount: str, cart: list) -> list:
+def customerCartAddItem(item: str, amount: str, cart: list):
     try:
         intAmount = int(amount)
         for i in range(0, len(cart), 2):
