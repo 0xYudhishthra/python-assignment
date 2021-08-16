@@ -7,17 +7,11 @@
 import os
 import time
 
-'''LOCATION OF FILES WITH ADMIN, FOODS, CUSTOMER AND ORDER RECORD DETAILS'''
-FOOD_DETAILS_FILE = "./foodDetails.txt"
-CUSTOMER_DETAILS_FILE = "./customerDetails.txt"
-ADMIN_DETAILS_FILE = "./adminDetails.txt"
-ORDER_RECORDS_FILE = "./orderRecords.txt"
-
 '''UTILITY FUNCTIONS'''
 def initialProgramCheck(): #Function that ensures all files needed exists and has data, update pseudocode
     print(" PRE-PROGRAM CHECKS ".center(85,"="))
     print(" File Existence Check ".center(85,'='))
-    files = [FOOD_DETAILS_FILE, CUSTOMER_DETAILS_FILE, ADMIN_DETAILS_FILE, ORDER_RECORDS_FILE]
+    files = ["./foodDetails.txt", "./customerDetails.txt", "./adminDetails.txt", "./orderRecords.txt"]
     #Iterates thorugh each file in the files list to see if it exists in the given directory
     for file in files:
         print(f"Checking if {file} exists", end="") 
@@ -103,7 +97,7 @@ def pageBanners(pageTitle:str,centerLength:int): #Function that displays banner 
 '''Login to access system'''
 def readAdminDetailsFile() -> list: #Function that reads file with admin details, extracts username and passwords without headers and appends it to list, PSEUDOCODE TBC
     adminDetailsList = [] 
-    with open (ADMIN_DETAILS_FILE,mode='r') as adminDetailsFile:
+    with open ("./adminDetails.txt",mode='r') as adminDetailsFile:
         skipFileLine(6,adminDetailsFile)
         for row in adminDetailsFile:
             #Remoes unnecessary foreign elements to only append usernames and password to list
@@ -170,7 +164,7 @@ def adminMenu(uName:str = 'Admin'): #Function that shows admin Menu upon success
 '''Add food item by category'''
 def readFoodDetailsFile() -> list: #Function that reads file with food details, extract food details without headers and appends it to list, TO-DO: modify try-catch to fit missing files
     foodItemsList=[]
-    with open (FOOD_DETAILS_FILE, mode='r') as foodDetailsFile:
+    with open ("./foodDetails.txt", mode='r') as foodDetailsFile:
         skipFileLine(6,foodDetailsFile) 
         for row in foodDetailsFile:
             if row[0] == "_": #Skips food category name and description
@@ -271,7 +265,7 @@ def writeNewFoodCategoryToFile(): #Function that adds new food category in food 
         if (userConfirmation == 'Y'):
             progressBar("Adding new food category")
             time.sleep(0.5)
-            with open(FOOD_DETAILS_FILE,'a') as foodDetailsFile:
+            with open("./foodDetails.txt",'a') as foodDetailsFile:
                 foodDetailsFile.write('\n' + '_'*88 + '\n\n')
                 foodDetailsFile.write(f"{foodCategoryName} FOOD CATEGORY - {foodCategoryDescription}\n")
                 foodDetailsFile.write("_"*88)
@@ -299,7 +293,7 @@ def writeNewFoodCategoryToFile(): #Function that adds new food category in food 
 def writeNewFoodItemToFile(foodCategoryName:str,foodItemName:str,foodItemPrice:float): #Function that directly writes new food item data to food details file
     foodItemsList = []
     #Appends every line from the file to foodItemsList
-    with open (FOOD_DETAILS_FILE, mode='r') as f:
+    with open ("./foodDetails.txt", mode='r') as f:
         for row in f:   
             foodItemsList.append([row])
     #Gets indexes of food item that have the same category name that is being searched and append it to foodItemIndexes using list comprehension
@@ -325,7 +319,7 @@ def writeNewFoodItemToFile(foodCategoryName:str,foodItemName:str,foodItemPrice:f
     else:
         foodItemsList.insert(lastFoodItemIndex+1, [f'{foodCategoryName} | {newFoodID} | {foodItemName} | {foodItemPrice}\n'])
     #Writes the updated foodItemsList into the food details file
-    with open (FOOD_DETAILS_FILE, mode='w') as foodDetailsFile:
+    with open ("./foodDetails.txt", mode='w') as foodDetailsFile:
         for data in foodItemsList:       
             foodDetailsFile.write(data[0])
     print(" Success!")
@@ -334,7 +328,7 @@ def writeNewFoodItemToFile(foodCategoryName:str,foodItemName:str,foodItemPrice:f
 '''Modify food item'''
 def modifyFoodItemMenu(): #Function that displays main page for admins to modify records of food items
     foodDetailsList = []
-    with open(FOOD_DETAILS_FILE, mode='r') as foodDetailsFile:
+    with open("./foodDetails.txt", mode='r') as foodDetailsFile:
         for row in foodDetailsFile:
             foodDetailsList.append([row])
     print("\nWhat update do you intend to perform?")
@@ -476,7 +470,7 @@ def updateFoodItemRecord(foodDetailsList:list, foodItemIdList:list, foodItemIdIn
         break
     progressBar("Making changes")
     foodDetailsList[foodItemIdIndex] = [" | ".join(foodItemIdList)]
-    with open(FOOD_DETAILS_FILE, mode='w') as f:
+    with open("./foodDetails.txt", mode='w') as f:
         for data in foodDetailsList:
             f.write(data[0])
     print(" Success!")
@@ -493,7 +487,7 @@ def deleteFoodItemRecord(userConfirmation:str, foodItemId:str, foodDetailsList:l
                 #If last food item in the file has a newline, it is removed
                 if '\n' in foodDetailsList[-1][-1]:
                     foodDetailsList[-1][-1] = foodDetailsList[-1][-1].strip("\n")
-            with open (FOOD_DETAILS_FILE,mode='w') as f:
+            with open ("./foodDetails.txt",mode='w') as f:
                 for data in foodDetailsList:
                     f.write(data[0])
             print(" Success!")
@@ -504,7 +498,7 @@ def deleteFoodItemRecord(userConfirmation:str, foodItemId:str, foodDetailsList:l
 '''Main Menu Page for Display'''
 def readOrderRecordsFile() -> list: #Function that reads file with order records, extract order records without headers and append to list
     orderDetailsList = []
-    with open(ORDER_RECORDS_FILE, mode='r') as orderRecordsFile:
+    with open("./orderRecords.txt", mode='r') as orderRecordsFile:
         skipFileLine(6,orderRecordsFile)
         for row in orderRecordsFile:
             orderDetailsList.append(row.strip('\n').split(" | "))
@@ -514,7 +508,7 @@ def extractFoodCategoryTitles(): #Function that gets the title and description o
     rawList = []
     foodCategoryDetails = []
     #rawList stores food category titles, descriptions and food items too
-    with open (FOOD_DETAILS_FILE, mode='r') as foodDetailsFile:
+    with open ("./foodDetails.txt", mode='r') as foodDetailsFile:
         skipFileLine(4,foodDetailsFile)
         for line in foodDetailsFile:
             rawList.append(line.strip().replace('_','').split(","))
@@ -887,7 +881,7 @@ def customerLoginMenu():
 # Read customer detail file.
 def customerReadDetailFile() -> list:
     customerDetailsList = []
-    with open(CUSTOMER_DETAILS_FILE, mode='r') as customerDetailsFile:
+    with open("./customerDetails.txt", mode='r') as customerDetailsFile:
         skipFileLine(6, customerDetailsFile)
         for row in customerDetailsFile:
             customerDetailsList.append(
@@ -1001,14 +995,14 @@ def customerCartSubmit(cart: list, username: str, cartTtl: float):
             if i < (len(cart)-2):
                 itemString += ","
         record = username + " | " + str(customerOrderDetailFileLen()+1) + " | " + itemString + " | " + str(cartTtl) + " | " + "PAID\n"
-        with open(ORDER_RECORDS_FILE, "a") as orderFile:
+        with open("./orderRecords.txt", "a") as orderFile:
             orderFile.write(record)
         input("Order placed successfully, please press enter to return.")
 
 # Return numbers of order in order file.
 def customerOrderDetailFileLen():
     len = 0
-    with open(ORDER_RECORDS_FILE, mode='r') as orderDetailFile:
+    with open("./orderRecords.txt", mode='r') as orderDetailFile:
         skipFileLine(6, orderDetailFile)
         for row in orderDetailFile:
             len += 1
@@ -1158,7 +1152,7 @@ def customerOrderPrint(username: str):
 # Read order details from orders detail file.
 def customerOrderDetailRead(username: str):
     orderArray = []
-    with open(ORDER_RECORDS_FILE, mode='r') as orderDetailFile:
+    with open("./orderRecords.txt", mode='r') as orderDetailFile:
         skipFileLine(6, orderDetailFile)
         for row in orderDetailFile:
             order = row.strip("\n").replace(" | ", " ").split(" ")
@@ -1195,7 +1189,7 @@ def customerRegistrationSubmit(userData:list):
             input("ERROR: An empty data found, please try again.")
             return False
         record = userData[0] + " | " + userData[1] + " | " + userData[2] + " | " + userData[3] + " | " + userData[4] + " | " + userData[5] + " | " + userData[6] + " | " + userData[7] + " | " + userData[8] + "\n"
-    with open(CUSTOMER_DETAILS_FILE, "a") as custFile:
+    with open("./customerDetails.txt", "a") as custFile:
         custFile.write(record)
     return True
     

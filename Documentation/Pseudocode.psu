@@ -83,7 +83,7 @@ ENDFUNCTION
 FUNCTION readAdminDetailsFile()  
     adminDetailsList = [] 
     TRY
-        OPEN FILE ADMIN_DETAILS_FILE IN READ MODE AS adminDetailsFile
+        OPEN FILE "./adminDetails.txt" IN READ MODE AS adminDetailsFile
             CALL skipFileLine(6,adminDetailsFile)
             FOR EACH row IN adminDetailsFile
                 STRIP row BY "\n"
@@ -91,7 +91,7 @@ FUNCTION readAdminDetailsFile()
                 SPLIT row BY " "
                 APPEND row to adminDetailsList
             ENDFOR
-        CLOSE FILE ADMIN_DETAILS_FILE   
+        CLOSE FILE "./adminDetails.txt"   
         IF (adminDetailsList == []) THEN
             RAISE ERROR
         ENDIF
@@ -110,7 +110,7 @@ ENDFUNCTION
 FUNCTION readFoodDetailsFile()
     foodDetailsList=[]
         TRY
-            OPEN FILE FOOD_DETAILS_FILE IN READ MODE AS foodDetailsFile
+            OPEN FILE "./foodDetails.txt" IN READ MODE AS foodDetailsFile
                 CALL skipFileLine(6,foodDetailsFile) 
                 FOR EACH row IN foodDetailsFile
                     IF (row[0] == "_") THEN
@@ -121,7 +121,7 @@ FUNCTION readFoodDetailsFile()
                     SPLIT row BY " | "
                     APPEND row to foodDetailsList
                 ENDFOR
-            CLOSE FILE FOOD_DETAILS_FILE
+            CLOSE FILE "./foodDetails.txt"
             IF (foodDetailsList == []) THEN
                 RAISE ERROR
             ENDIF
@@ -140,14 +140,14 @@ ENDFUNCTION
 FUNCTION readOrderRecordsFile()
     orderDetailsList = []
     TRY
-        OPEN FILE ORDER_RECORDS_FILE IN READ MODE AS orderRecordsFile
+        OPEN FILE "./orderRecords.txt" IN READ MODE AS orderRecordsFile
             CALL skipFileLine(6,orderRecordsFile)
             FOR EACH row IN orderRecordsFile
                 STRIP row BY '\n'
                 SPLIT row BY " | "
                 APPEND row TO orderDetailsList
             ENDFOR
-        CLOSE FILE ORDER_RECORDS_FILE
+        CLOSE FILE "./orderRecords.txt"
         RETURN orderDetailsList
     EXCEPT ERROR THEN
         DISPLAY "Order records file is missing!"
@@ -157,7 +157,7 @@ ENDFUNCTION
 FUNCTION readCustomerDetailsFile()
     customerDetailsList = [] 
     TRY
-        OPEN CUSTOMER_DETAILS_FILE IN READ MODE AS customerDetailsFile
+        OPEN "./customerDetails.txt" IN READ MODE AS customerDetailsFile
             CALL skipFileLine(6,customerDetailsFile)
             FOR EACH row IN customerDetailsFile
                 STRIP row BY "\n"
@@ -165,7 +165,7 @@ FUNCTION readCustomerDetailsFile()
                 SPLIT row BY " "
                 APPEND row TO customerDetailsList
             ENDFOR
-        CLOSE FILE CUSTOMER_DETAILS_FILE
+        CLOSE FILE "./customerDetails.txt"
         RETURN customerDetailsList  
     EXCEPT ERROR THEN
         DISPLAY "Customers database is missing!" 
@@ -319,25 +319,25 @@ ENDFUNCTION
 FUNCTION writeNewFoodCategoryToFile(categoryName,categoryDescription)
     uppercaseName = categoryName AS upper()
     capitalizedDescription = categoryDescription AS capitalize()
-    OPEN FILE FOOD_DETAILS_FILE IN APPEND MODE as foodDetailsFile
+    OPEN FILE "./foodDetails.txt" IN APPEND MODE as foodDetailsFile
         WRITE newline INTO foodDetailsFile
         WRITE '_' * 88 INTO foodDetailsFile
         WRITE newline * 2 INTO foodDetailsFile
         WRITE uppercaseName + "FOOD CATEGORY - " + capitalizedDescription INTO foodDetailsFile
         WRITE newline INTO foodDetailsFile
         WRITE '_' * 88 INTO foodDetailsFile
-    CLOSE FILE FOOD_DETAILS_FILE
+    CLOSE FILE "./foodDetails.txt"
 ENDFUNCTION
 
 FUNCTION writeNewFoodItemToFile(foodCategoryName,foodItemName,foodItemPrice)
     TRY
         orderRecordsList = []
         foodItemIndexes = []
-        OPEN FILE FOOD_DETAILS_FILE IN READ MODE AS f 
+        OPEN FILE "./foodDetails.txt" IN READ MODE AS f 
             FOR EACH row IN f:   
                 APPEND [row] to orderRecordsList
             ENDFOR
-        CLOSE FILE FOOD_DETAILS_FILE
+        CLOSE FILE "./foodDetails.txt"
         FOR data IN orderRecordsList
             IF (foodCategoryName IN data[0]) THEN
                 APPEND orderRecordsList WITH CALL index(data) TO foodItemIndexes
@@ -356,11 +356,11 @@ FUNCTION writeNewFoodItemToFile(foodCategoryName,foodItemName,foodItemPrice)
         ELSE
             INSERT [foodCategoryName + '|' + newFoodID + '|' + foodItemName + '|' + foodItemPrice AS STRING] INTO orderRecordsList AT lastFoodItemIndex+1
         ENDIF
-        OPEN FILE FOOD_DETAILS_FILE IN WRITE MODE AS foodDetailsFile
+        OPEN FILE "./foodDetails.txt" IN WRITE MODE AS foodDetailsFile
             FOR EACH data IN orderRecordsList:       
                 WRITE data[0] INTO foodDetailsFile
             ENDFOR
-        CLOSE FILE FOOD_DETAILS_FILE
+        CLOSE FILE "./foodDetails.txt"
     EXCEPT ERROR THEN
         DISPLAY "Food details text file is corrupted!"
     EXCEPT ERROR THEN
@@ -383,7 +383,7 @@ FUNCTION extractFoodCategories()
     TRY
         rawList = []
         foodCategoryDetails = []
-        OPEN FILE FOOD_DETAILS_FILE IN READ MODE as foodDetailsFile
+        OPEN FILE "./foodDetails.txt" IN READ MODE as foodDetailsFile
             CALL skipFileLine(4,foodDetailsFile)
             FOR EACH line IN foodDetailsFile
                 STRIP line
@@ -391,7 +391,7 @@ FUNCTION extractFoodCategories()
                 SPLIT line BY ","
                 APPEND line to rawList
             ENDFOR
-        CLOSE FILE FOOD_DETAILS_FILE
+        CLOSE FILE "./foodDetails.txt"
         FOR EACH data IN CALL removeEmptyList(rawList)
             IF (" | " IN data[0]) THEN 
                 index = rawList WITH CALL index(data)
@@ -420,11 +420,11 @@ ENDFUNCTION
 
 FUNCTION modifyFoodItemMenu()
     foodDetailsList = []
-    OPEN FILE FOOD_DETAILS_FILE IN READ MODE AS foodDetailsFile
+    OPEN FILE "./foodDetails.txt" IN READ MODE AS foodDetailsFile
         FOR EACH row IN foodDetailsFile
             APPEND [row] TO foodDetailsList
         ENDFOR
-    CLOSE FILE FOOD_DETAILS_FILE
+    CLOSE FILE "./foodDetails.txt"
     DISPLAY newline
     DISPLAY (" " * 5) + "1. UPDATE RECORD   " + "2. DELETE RECORD"
     DISPLAY newline
@@ -496,11 +496,11 @@ FUNCTION updateFoodItemRecord(foodDetailsList, foodItemIdList, foodItemIdIndex)
         DISPLAY "Please submit a number"
     ENDTRY
     foodDetailsList[foodItemIdIndex] = [" | " WITH CALL join(foodItemIdList)]
-    OPEN FILE FOOD_DETAILS_FILE IN WRITE MODE AS f
+    OPEN FILE "./foodDetails.txt" IN WRITE MODE AS f
         FOR EACH data IN foodDetailsList
             WRITE data[0] INTO f
         ENDFOR
-    CLOSE FILE FOOD_DETAILS_FILE
+    CLOSE FILE "./foodDetails.txt"
 ENDFUNCTION
 
 FUNCTION verifyFoodItemId(foodItemId,foodDetailsList)
@@ -553,11 +553,11 @@ FUNCTION deleteFoodItemRecord(userConfirmation, foodItemId, foodDetailsList)
                         foodDetailsList[-1][-1] = temp
                     ENDIF
                 ENDFOR
-                OPEN FILE FOOD_DETAILS_FILE IN WRITE MODE AS f
+                OPEN FILE "./foodDetails.txt" IN WRITE MODE AS f
                     FOR EACH data IN foodDetailsList
                         WRITE data[0] INTO f
                     ENDFOR
-                CLOSE FILE FOOD_DETAILS_FILE
+                CLOSE FILE "./foodDetails.txt"
                 BREAK
             ELSE 
                 CALL adminMenu()
@@ -875,7 +875,7 @@ FUNCTION customerLoginMenu()
 
 FUNCTION customerReadDetailFile()
     customerDetailsList = []
-    OPEN CUSTOMER_DETAILS_FILE READ AS customerDetailsFile:
+    OPEN "./customerDetails.txt" READ AS customerDetailsFile:
         CALL skipFileLine(6, customerDetailsFile)
         FOR EACH row IN customerDetailsFile
             REMOVE "\n" REPLACE " | " to " " SPLIT WITH " " IN rows THEN ADD TO customerDetailsList[]
@@ -975,13 +975,13 @@ FUNCTION customerCartSubmit(cart: list, username: str, cartTtl: float)
             IF i < (len(cart)-2)
                 itemString += ","
         record = username + " | " + CALL str(customerOrderDetailFileLen()+1) + " | " + itemString + " | " + CALL str(cartTtl) + " | " + "PAID\n"
-        with open(ORDER_RECORDS_FILE, "a") as orderFile
+        with open("./orderRecords.txt", "a") as orderFile
             CALL orderFile.write(record)
         READ("Order placed successfully, please press enter to RETURN.")
 
 FUNCTION customerOrderDetailFileLen()
     len = 0
-    READ ORDER_RECORDS_FILE AS orderDetailFile
+    READ "./orderRecords.txt" AS orderDetailFile
         CALL skipFileLine(6, orderDetailFile)
         FOR row IN orderDetailFile
             len += 1
@@ -1114,7 +1114,7 @@ FUNCTION customerOrderPrint(username: str)
 
 FUNCTION customerOrderDetailRead(username: str)
     orderArray = []
-    READ ORDER_RECORDS_FILE AS orderDetailFile
+    READ "./orderRecords.txt" AS orderDetailFile
         CALL skipFileLine(6, orderDetailFile)
         FOR row IN orderDetailFile
             order = REMOVE "\n" REPLACE " | " TO " " SPLIT WITH " " IN ROW 
@@ -1148,7 +1148,7 @@ FUNCTION customerRegistrationSubmit(userData:list)
             READ("ERROR: An empty data found, please try again.")
             RETURN False
         record = userData[0] + " | " + userData[1] + " | " + userData[2] + " | " + userData[3] + " | " + userData[4] + " | " + userData[5] + " | " + userData[6] + " | " + userData[7] + " | " + userData[8] + "\n"
-    OPEN CUSTOMER_DETAILS_FILE AS custFile
+    OPEN "./customerDetails.txt" AS custFile
 		CALL custFile.write(record)
     RETURN True
 	
