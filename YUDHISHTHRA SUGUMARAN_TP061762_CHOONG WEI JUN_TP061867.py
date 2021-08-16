@@ -1129,8 +1129,7 @@ def customerCartRemoveItem(item: str, amount: str, cart: list):
             elif intAmount <= amountFromCart:
                 cart[i+1] -= intAmount
             elif intAmount > amountFromCart:
-                print(
-                    "Oops! Amount entered is too large, please try again.\nPress enter to return.")
+                input("ERROR: Amount entered is too large.")
                 return cart
             return cart
     input("ERROR: Item code entered not found, please try again.")
