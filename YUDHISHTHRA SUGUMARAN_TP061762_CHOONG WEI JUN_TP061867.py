@@ -880,7 +880,6 @@ def customerLoginMenu():
                         print("Incorrect password, please retry\n")
             else:
                 print("Username not found, please retry")
-                continue
         except TypeError:
             input("ERROR: Customers details file is corrupted!")
             break
