@@ -1,5 +1,5 @@
-#Yudhishthra A/L S Sugumaran - TP061762
-#Choong Wei Jun - TP061867
+# Yudhishthra A/L S Sugumaran - TP061762
+# Choong Wei Jun - TP061867
 
 #!/usr/bin/env python3
 
@@ -7,17 +7,11 @@
 import os
 import time
 
-'''LOCATION OF FILES WITH ADMIN, FOODS, CUSTOMER AND ORDER RECORD DETAILS'''
-FOOD_DETAILS_FILE = "./foodDetails.txt"
-CUSTOMER_DETAILS_FILE = "./customerDetails.txt"
-ADMIN_DETAILS_FILE = "./adminDetails.txt"
-ORDER_RECORDS_FILE = "./orderRecords.txt"
-
 '''UTILITY FUNCTIONS'''
 def initialProgramCheck(): #Function that ensures all files needed exists and has data, update pseudocode
     print(" PRE-PROGRAM CHECKS ".center(85,"="))
     print(" File Existence Check ".center(85,'='))
-    files = [FOOD_DETAILS_FILE, CUSTOMER_DETAILS_FILE, ADMIN_DETAILS_FILE, ORDER_RECORDS_FILE]
+    files = ["./foodDetails.txt", "./customerDetails.txt", "./adminDetails.txt", "./orderRecords.txt"]
     #Iterates thorugh each file in the files list to see if it exists in the given directory
     for file in files:
         print(f"Checking if {file} exists", end="") 
@@ -86,7 +80,8 @@ def removeEmptyList(sourceList:list) -> list: #Function that removes list with e
 
 def progressBar(loadingMessage:str): #Function that displays loading animation with message
     print(f'{loadingMessage}...')
-    animation = ["[■□□□□□□□□□]","[■■□□□□□□□□]", "[■■■□□□□□□□]", "[■■■■□□□□□□]", "[■■■■■□□□□□]", "[■■■■■■□□□□]", "[■■■■■■■□□□]", "[■■■■■■■■□□]", "[■■■■■■■■■□]", "[■■■■■■■■■■]"]
+    animation = ["[■□□□□□□□□□]", "[■■□□□□□□□□]", "[■■■□□□□□□□]", "[■■■■□□□□□□]", "[■■■■■□□□□□]",
+                 "[■■■■■■□□□□]", "[■■■■■■■□□□]", "[■■■■■■■■□□]", "[■■■■■■■■■□]", "[■■■■■■■■■■]"]
     for item in animation:
         time.sleep(0.05)
         #carriage return to return cursor to start after displaying 1 item in animation thus displaying a "loading" kind of output
@@ -97,11 +92,12 @@ def pageBanners(pageTitle:str,centerLength:int): #Function that displays banner 
     print(f'\t{pageTitle} '.center(centerLength))
     print(f'\t{"_"*len(pageTitle)} '.center(centerLength))
 
+
 '''DECLARING FUNCTIONS FOR ADMIN DASHBOARD'''
 '''Login to access system'''
 def readAdminDetailsFile() -> list: #Function that reads file with admin details, extracts username and passwords without headers and appends it to list, PSEUDOCODE TBC
     adminDetailsList = [] 
-    with open (ADMIN_DETAILS_FILE,mode='r') as adminDetailsFile:
+    with open ("./adminDetails.txt",mode='r') as adminDetailsFile:
         skipFileLine(6,adminDetailsFile)
         for row in adminDetailsFile:
             #Removes unnecessary foreign elements to only append usernames and password to list
@@ -167,7 +163,7 @@ def adminMenu(uName:str = 'Admin'): #Function that shows admin Menu upon success
 '''Add food item by category'''
 def readFoodDetailsFile() -> list: #Function that reads file with food details, extract food details without headers and appends it to list, TO-DO: modify try-catch to fit missing files
     foodItemsList=[]
-    with open (FOOD_DETAILS_FILE, mode='r') as foodDetailsFile:
+    with open ("./foodDetails.txt", mode='r') as foodDetailsFile:
         skipFileLine(6,foodDetailsFile) 
         for row in foodDetailsFile:
             if row[0] == "_": #Skips food category name and description
@@ -266,7 +262,7 @@ def writeNewFoodCategoryToFile(): #Function that adds new food category in food 
         if (userConfirmation == 'Y'):
             progressBar("Adding new food category")
             time.sleep(0.5)
-            with open(FOOD_DETAILS_FILE,'a') as foodDetailsFile:
+            with open("./foodDetails.txt",'a') as foodDetailsFile:
                 foodDetailsFile.write('\n' + '_'*88 + '\n\n')
                 foodDetailsFile.write(f"{foodCategoryName} FOOD CATEGORY - {foodCategoryDescription}\n")
                 foodDetailsFile.write("_"*88)
@@ -294,7 +290,7 @@ def writeNewFoodCategoryToFile(): #Function that adds new food category in food 
 def writeNewFoodItemToFile(foodCategoryName:str,foodItemName:str,foodItemPrice:float): #Function that directly writes new food item data to food details file
     foodItemsList = []
     #Appends every line from the file to foodItemsList
-    with open (FOOD_DETAILS_FILE, mode='r') as f:
+    with open ("./foodDetails.txt", mode='r') as f:
         for row in f:   
             foodItemsList.append([row])
     #Gets indexes of food item that have the same category name that is being searched and append it to foodItemIndexes using list comprehension
@@ -320,15 +316,16 @@ def writeNewFoodItemToFile(foodCategoryName:str,foodItemName:str,foodItemPrice:f
     else:
         foodItemsList.insert(lastFoodItemIndex+1, [f'{foodCategoryName} | {newFoodID} | {foodItemName} | {foodItemPrice}\n'])
     #Writes the updated foodItemsList into the food details file
-    with open (FOOD_DETAILS_FILE, mode='w') as foodDetailsFile:
+    with open ("./foodDetails.txt", mode='w') as foodDetailsFile:
         for data in foodItemsList:       
             foodDetailsFile.write(data[0])
     print(" Success!")
 
+
 '''Modify food item'''
 def modifyFoodItemMenu(): #Function that displays main page for admins to modify records of food items
     foodDetailsList = []
-    with open(FOOD_DETAILS_FILE,mode='r') as foodDetailsFile:
+    with open("./foodDetails.txt", mode='r') as foodDetailsFile:
         for row in foodDetailsFile:
             foodDetailsList.append([row])
     print("\nWhat update do you intend to perform?")
@@ -341,13 +338,13 @@ def modifyFoodItemMenu(): #Function that displays main page for admins to modify
                 adminMenu()
             elif modifyChoice == 1:
                 clearConsole()
-                pageBanners("UPDATE FOOD ITEM",50)
+                pageBanners("UPDATE FOOD ITEM", 50)
                 updateFoodItemMenu(foodDetailsList)
                 time.sleep(0.5)
                 adminMenu()
             elif modifyChoice == 2:
                 clearConsole()
-                pageBanners("DELETE FOOD ITEM",50)
+                pageBanners("DELETE FOOD ITEM", 50)
                 deleteFoodItemMenu(foodDetailsList)
                 time.sleep(0.5)
                 adminMenu()
@@ -361,7 +358,7 @@ def modifyFoodItemMenu(): #Function that displays main page for admins to modify
 def verifyFoodItemId(foodItemId:str, foodDetailsList:list) -> bool: #Function that verifies the format and existence of the food item ID that has been received by the user, update pseudocode
     if foodItemId == '' : 
         return False
-    elif (foodItemId[0].isalpha() and foodItemId[1 : len(foodItemId)].isdigit()):
+    elif (foodItemId[0].isalpha() and foodItemId[1: len(foodItemId)].isdigit()):
         for data in foodDetailsList:
             if foodItemId in data[0]:
                 return True
@@ -467,7 +464,7 @@ def updateFoodItemRecord(foodDetailsList:list, foodItemIdList:list, foodItemIdIn
         break
     progressBar("Making changes")
     foodDetailsList[foodItemIdIndex] = [" | ".join(foodItemIdList)]
-    with open (FOOD_DETAILS_FILE,mode='w') as f:
+    with open("./foodDetails.txt", mode='w') as f:
         for data in foodDetailsList:
             f.write(data[0])
     print(" Success!")
@@ -484,7 +481,7 @@ def deleteFoodItemRecord(userConfirmation:str, foodItemId:str, foodDetailsList:l
                 #If last food item in the file has a newline, it is removed
                 if '\n' in foodDetailsList[-1][-1]:
                     foodDetailsList[-1][-1] = foodDetailsList[-1][-1].strip("\n")
-            with open (FOOD_DETAILS_FILE,mode='w') as f:
+            with open ("./foodDetails.txt",mode='w') as f:
                 for data in foodDetailsList:
                     f.write(data[0])
             print(" Success!")
@@ -495,7 +492,7 @@ def deleteFoodItemRecord(userConfirmation:str, foodItemId:str, foodDetailsList:l
 '''Main Menu Page for Display'''
 def readOrderRecordsFile() -> list: #Function that reads file with order records, extract order records without headers and append to list
     orderDetailsList = []
-    with open(ORDER_RECORDS_FILE, mode='r') as orderRecordsFile:
+    with open("./orderRecords.txt", mode='r') as orderRecordsFile:
         skipFileLine(6,orderRecordsFile)
         for row in orderRecordsFile:
             orderDetailsList.append(row.strip('\n').split(" | "))
@@ -505,7 +502,7 @@ def extractFoodCategoryTitles(): #Function that gets the title and description o
     rawList = []
     foodCategoryDetails = []
     #rawList stores food category titles, descriptions and food items too
-    with open (FOOD_DETAILS_FILE, mode='r') as foodDetailsFile:
+    with open ("./foodDetails.txt", mode='r') as foodDetailsFile:
         skipFileLine(4,foodDetailsFile)
         for line in foodDetailsFile:
             rawList.append(line.strip().replace('_','').split(","))
@@ -575,21 +572,28 @@ def displayFoodCategoryRecords(): #Function that displays the records of food ca
     foodCategoryList = extractFoodCategoryTitles()
     '''Print data in user readable form'''
     print(f'\n\t\tDETAILS OF FOOD CATEGORIES\n\t\t{"-"*26}')
-    print(f"CATEGORY NAME(S)\t\tCATEGORY DESCRIPTION(S)\n{'-'*15}\t\t\t{'-'*22}")
+    print(
+        f"CATEGORY NAME(S)\t\tCATEGORY DESCRIPTION(S)\n{'-'*15}\t\t\t{'-'*22}")
     for data in foodCategoryList:
-        print('{:<32}{}'.format(data[0],data[1]))
+        print('{:<32}{}'.format(data[0], data[1]))
+
 
 def displayOrderOrPaymentRecords(displayChoice:str): #Function that displays either order or payment records based on parameters given 
     orderRecordsList = readOrderRecordsFile()
     print(f"\n\t\t\t\tREPORT OF ALL CUSTOMER {displayChoice.upper()}\n\t\t\t\t{'-'*31}\n")
     if displayChoice == 'orders':
-        print(f"CUSTOMER USERNAME\tORDER ID\tTOTAL PAYABLE\tORDER STATUS\tFOOD ID (QUANTITY)\n{'-'*17}{' '*7}{'-'*8}{' '*8}{'-'*13}{' '*3}{'-'*12}{' '*4}{'-'*18}")
+        print(
+            f"CUSTOMER USERNAME\tORDER ID\tTOTAL PAYABLE\tORDER STATUS\tFOOD ID (QUANTITY)\n{'-'*17}{' '*7}{'-'*8}{' '*8}{'-'*13}{' '*3}{'-'*12}{' '*4}{'-'*18}")
         for data in orderRecordsList:
-            print('{:<24}{:<16}{:<16}{:<16}{}'.format(data[0],data[1],data[3],data[7],data[2]))
+            print('{:<24}{:<16}{:<16}{:<16}{}'.format(
+                data[0], data[1], data[3], data[7], data[2]))
     else:
-        print(f"CUSTOMER USERNAME\tORDER ID\tTOTAL PAYABLE\tPAYMENT METHOD\tPAYMENT STATUS\tPAID ON\n{'-'*17}{' '*7}{'-'*8}{' '*8}{'-'*13}{' '*3}{'-'*14}{' '*2}{'-'*14}{' '*2}{'-'*7}")
+        print(
+            f"CUSTOMER USERNAME\tORDER ID\tTOTAL PAYABLE\tPAYMENT METHOD\tPAYMENT STATUS\tPAID ON\n{'-'*17}{' '*7}{'-'*8}{' '*8}{'-'*13}{' '*3}{'-'*14}{' '*2}{'-'*14}{' '*2}{'-'*7}")
         for data in orderRecordsList:
-            print('{:<24}{:<16}{:<16}{:<16}{:<16}{}'.format(data[0],data[1],data[3],data[4],data[5],data[6]))
+            print('{:<24}{:<16}{:<16}{:<16}{:<16}{}'.format(
+                data[0], data[1], data[3], data[4], data[5], data[6]))
+
 
 '''Search Menu Main Page'''
 def searchPageHeader(section:str): #Standard header for search page 
@@ -648,6 +652,7 @@ def searchRecordsMenu(): #Main page for users to select type of record search
         except ValueError:
             print("\nERROR: Please enter a number")
 
+
 '''Search Specific Customer Order Record'''
 def searchOrderByUsername(orderRecordsList:list): #Search customer order by username
     validUsername = False
@@ -662,13 +667,14 @@ def searchOrderByUsername(orderRecordsList:list): #Search customer order by user
     while validUsername:
         for data in orderRecordsList:
             if (username.lower() == data[0]):
-                recordByUsername.append([data[0],data[1],data[2],data[3],data[7]])
-                count+=1
-        if count >=1:
-            print("{} order records have been found for {}".format(count,username))
+                recordByUsername.append(
+                    [data[0], data[1], data[2], data[3], data[7]])
+                count += 1
+        if count >= 1:
+            print("{} order records have been found for {}".format(count, username))
             progressBar("Generating report")
             time.sleep(0.5)
-            displaySearchResults('orders',username,recordByUsername)
+            displaySearchResults('orders', username, recordByUsername)
         else:
             print("No order records found for {}".format(username))
         break
@@ -715,13 +721,14 @@ def searchPaymentByUsername(paymentList:list): #Search customer order by Usernam
     while validUsername:
         for data in paymentList:
             if (username.lower() == data[0]):
-                recordByUsername.append([data[0],data[1],data[3],data[4],data[5],data[6]])
-                count+=1
-        if count >=1:
-            print("{} payment records have been found for {}".format(count,username))
+                recordByUsername.append(
+                    [data[0], data[1], data[3], data[4], data[5], data[6]])
+                count += 1
+        if count >= 1:
+            print("{} payment records have been found for {}".format(count, username))
             progressBar("Generating report")
             time.sleep(0.5)
-            displaySearchResults('payments',username,recordByUsername)
+            displaySearchResults('payments', username, recordByUsername)
         else:
             print("No payment records found for {}".format(username))
         break
@@ -754,75 +761,77 @@ def searchPaymentById(paymentList:list): #Search customer order by Order ID
             print("No payment records found for {}".format(orderID.upper()))
         break
 
+
 '''Display Search Results'''
 def displaySearchResults(recordName:str,searchBasis:str,resultsList:list): #Function that gets search results from the earlier search functions and displays it cleanly
     if recordName == 'orders':
-        print(f"\n\t\t\t\tORDER REPORT FOR {searchBasis.upper()}\n\t\t\t\t{'-' * len(searchBasis)}{'-'*17}\n")
-        print(f"CUSTOMER USERNAME\tORDER ID\tTOTAL PAYABLE\tORDER STATUS\tFOOD ID(QUANTITY)\n{'-'*17}{' '*7}{'-'*8}{' '*8}{'-'*13}{' '*3}{'-'*12}{' '*4}{'-'*17}")
+        print(
+            f"\n\t\t\t\tORDER REPORT FOR {searchBasis.upper()}\n\t\t\t\t{'-' * len(searchBasis)}{'-'*17}\n")
+        print(
+            f"CUSTOMER USERNAME\tORDER ID\tTOTAL PAYABLE\tORDER STATUS\tFOOD ID(QUANTITY)\n{'-'*17}{' '*7}{'-'*8}{' '*8}{'-'*13}{' '*3}{'-'*12}{' '*4}{'-'*17}")
         for data in resultsList:
-            print('{:<24}{:<16}{:<16}{:<16}{}'.format(data[0].upper(),data[1],data[3],data[4],data[2]))           
+            print('{:<24}{:<16}{:<16}{:<16}{}'.format(
+                data[0].upper(), data[1], data[3], data[4], data[2]))
     else:
-        print(f"\n\t\t\t\tPAYMENT REPORT FOR {searchBasis.upper()}\n\t\t\t\t{'-'*19}{'-' * len(searchBasis)}\n")
-        print(f"CUSTOMER USERNAME\tORDER ID\tTOTAL PAYABLE\tPAYMENT METHOD\tPAYMENT STATUS\tPAID ON\n{'-'*17}{' '*7}{'-'*8}{' '*8}{'-'*13}{' '*3}{'-'*14}{' '*2}{'-'*14}{' '*2}{'-'*7}")
+        print(
+            f"\n\t\t\t\tPAYMENT REPORT FOR {searchBasis.upper()}\n\t\t\t\t{'-'*19}{'-' * len(searchBasis)}\n")
+        print(
+            f"CUSTOMER USERNAME\tORDER ID\tTOTAL PAYABLE\tPAYMENT METHOD\tPAYMENT STATUS\tPAID ON\n{'-'*17}{' '*7}{'-'*8}{' '*8}{'-'*13}{' '*3}{'-'*14}{' '*2}{'-'*14}{' '*2}{'-'*7}")
         for data in resultsList:
             print('{:<24}{:<16}{:<16}{:<16}{:<16}{}'.format(data[0].upper(),data[1],data[2],data[3],data[4],data[5]))  
     print("\nRedirecting to admin menu in 15 seconds...")
     time.sleep(15)
     adminMenu()
 
-'''DECLARING FUNCTIONS FOR GUEST DASHBOARD'''
-def guestMenu(): #Guest Dashboard Main Page
+#==================================USER SECTION===============================================
+
+# User homepage
+# User menu for viewing guest menu, login, register.
+def userHomepage(): 
     while True:
         clearConsole()
         pageBanners("GUEST DASHBOARD", 50)
         print("\nPlease select any option below.")
-        print("1. View Menu","2. Customer Login", "3. New Customer Registration", "\n0. Back to Main Menu", sep='\n')
-        input = userInput("Choice",True)
+        print("1. View Menu", "2. Customer Login",
+              "3. New Customer Registration", "\n0. Back to Main Menu", sep='\n')
+        input = userInput("Choice", True).strip()
         if input == "1":
-            viewCategoryList()
+            guestMenu()
         elif input == "2":
-            customerLoginPage()
-            regCustomerMenu()
+            customerMenu(customerLoginMenu())
         elif input == "3":
-            pageBanners("NEW ACCOUNT",50)
-            customerRegistration()
+            pageBanners("NEW ACCOUNT", 50)
+            customerRegistrationMenu()
         elif input == "0":
             break
         else:
-            # invalidInput()
-            guestMenu()
-        
-'''View all food items as per category'''
-def viewCategoryList() :
+            input("ERROR: Invalid selected number.")
+
+# Guest Menu
+# Allow user to view categories without details and choose item cat to display.
+def guestMenu():
     while True:
         clearConsole()
-        pageBanners("MENU CATEGORIES",50)
+        pageBanners("MENU CATEGORIES", 50)
         print("\n")
         displayFoodCategories()
         print("\n0. Back To Guest Menu")
         try:
             print("\nSelect the food category that you want to be displayed")
-            chosenCategory = int(userInput("Food category",True))
-            if chosenCategory == 0 :
+            chosenCategory = int(userInput("Food category", True).strip())
+            if chosenCategory == 0:
                 break
             elif chosenCategory <= 4 :
-                listOutFoodItemsNoDetails((extractFoodCategoryTitles()[chosenCategory-1][0]))
+                guestPrintItem((extractFoodCategoryTitles()[chosenCategory-1][0]))
             else :
-                print("\nNumber out of range!")
-                time.sleep(1.5)
-                viewCategoryList()
+                input("ERROR: Invalid chosen category.")
         except ValueError:
-            print("\nPlease enter a number!")
-            time.sleep(1.5)
-            viewCategoryList()
+            input("ERROR: Please enter numbers only.")
 
-'''List out food items without details (Price and Descriptions)'''
-def listOutFoodItemsNoDetails(chosenFoodCategoryName): #Displays the details of all food items in the food details file based on the category chosen by the user
-    clearConsole()
+# Print items without detail.
+def guestPrintItem(chosenFoodCategoryName):
     while True:
         try:
-            progressBar("Retrieving food item menu")
-            time.sleep(0.5)
             clearConsole()
             print(f"FOOD ITEMS IN {chosenFoodCategoryName.upper()}\n{'-'*24}{'-'*len(chosenFoodCategoryName)}")
             for data in readFoodDetailsFile():
@@ -831,112 +840,379 @@ def listOutFoodItemsNoDetails(chosenFoodCategoryName): #Displays the details of 
             input("\nPress Enter to Return")
             break
         except TypeError:
-            print("Please enter a number")
-
-'''New customer registration to access other details'''
+            input("ERROR: Please enter numbers only.")
 
 
-'''DECLARING FUNCTIONS FOR REGISTERED CUSTOMER DASHBOARD'''
-'''Login to access system'''
-def readCustomerDetailsFile() -> list: #Reads file with customer details, extracts username and passwords without headers and appends it to list
-    customerDetailsList = [] 
-    try:
-        with open (CUSTOMER_DETAILS_FILE,mode='r') as customerDetailsFile:
-            skipFileLine(6,customerDetailsFile)
-            for row in customerDetailsFile:
-                customerDetailsList.append(row.strip("\n").replace(" | "," ").split(" "))
-            return customerDetailsList
-    except FileNotFoundError:
-        print("Customers database is missing!")
-
-def customerLoginPage():
+# Customer login page.
+def customerLoginMenu():
     while True:
         clearConsole()
         pageBanners("Login as Customer", 50)
-        try: 
-            customerDetailsList = readCustomerDetailsFile()
-            uName = userInput("Username",True)
+        try:
+            customerDetailsList = customerReadDetailFile()
+            uName = userInput("Username", True).strip()
             progressBar("Checking if username exists")
-            time.sleep(0.05)
-            if (authUsername(uName,customerDetailsList)):
-                print(" Username found, please enter password\n")
+            if (authUsername(uName, customerDetailsList)):
+                print("Username found, please enter password\n")
                 while True:
-                    uPass = userInput("Password",True)
-                    if (authPassword(uName, uPass,customerDetailsList)):
+                    uPass = userInput("Password", True).strip()
+                    if (authPassword(uName, uPass, customerDetailsList)):
                         progressBar("Logging you in")
-                        time.sleep(0.05)
-                        break
+                        return uName
                     else:
                         print("Incorrect password, please retry\n")
-            else: 
-                print(" Username not found, please retry")
-                continue
-            break
+            else:
+                print("Username not found, please retry")
         except TypeError:
-            print("Customers details file is corrupted!")
+            input("ERROR: Customers details file is corrupted!")
             break
 
-def regCustomerMenu(): #Customer menu upon successful login
+# Read customer detail file.
+def customerReadDetailFile():
+    customerDetailsList = []
+    with open("./customerDetails.txt", mode='r') as customerDetailsFile:
+        skipFileLine(6, customerDetailsFile)
+        for row in customerDetailsFile:
+            customerDetailsList.append(
+                row.strip("\n").replace(" | ", " ").split(" "))
+    return customerDetailsList
+
+# Category Menu
+# Customer menu allow user to choose categories with details to view, view histrorical orders and logout.
+def customerMenu(username: str):
+    cart = []
+    while True:
+        try:
+            clearConsole()
+            pageBanners("Customer Menu", 50)
+            print("\nWelcome!, what would you like to do today?")
+            print("1. View Item By Categories", "2. View Orders", "\n0. Logout", sep='\n')
+            input = int(userInput("Choice", True).strip())
+            if input == 1:
+                cart = customerMenuCategory(cart, username)
+            elif input == 2:
+                customerOrderMenu(username)
+            elif input == 0:
+                break
+            else:
+                input("\nERROR: Number out of rang.")
+        except ValueError:
+            input("\nERROR: Please enter a valid selection number.")
+
+# Customer category menu that allow user to choose which category of items to print.
+def customerMenuCategory(cart: list, username:str):
+    foodCat = extractFoodCategoryTitles()
+    foodCatLen = len(foodCat)
+    while True:
+        try:
+            clearConsole()
+            pageBanners("Food Menu", 50)
+            print("\nWhat category of beverage would you like to know more?\n")
+            customerPrintCategoryDetail()
+            if len(cart) > 0:
+                customerCartPrint(cart)
+            print("\nC. View Cart\n0. Back to Customer Menu")
+            chosenCategory = userInput("Food category", True).strip()
+            if chosenCategory == "0":
+                return cart
+            elif chosenCategory.upper() == "C":
+                customerCartMenu(cart, username)
+                cart = []
+            elif int(chosenCategory) <= foodCatLen:
+                cart = customerItemMenu(cart, (extractFoodCategoryTitles()[int(chosenCategory)-1][0]))
+            else:
+                input("\nERROR: Number out of range.")
+        except ValueError:
+            input("\nERROR: Please enter a valid selection number.")
+
+# Print Categories with detail.
+def customerPrintCategoryDetail():
+    foodCat = extractFoodCategoryTitles()
+    for i in range(len(foodCat)):
+        print("{}. {} - {}".format(i+1, foodCat[i][0], foodCat[i][1]))
+
+# Cart system
+# Customer cart menu for checkup current cart and proceed to checkout or back.
+def customerCartMenu(cart: list, username: str):
     while True:
         clearConsole()
-        pageBanners("Customer Menu", 50)
-        print("\nWelcome!, what would you like to do today?")
-        print("1. View Item List", "2. View Item Details", "3. Add Food to Cart", "4. Checkout", "\n0. Main Menu", sep='\n')
-        input = userInput("Choice",True)
-        if input == "1":
-            clearConsole()
-            viewItemList()
-        elif input =="2":
-            viewItemDetail()
-        elif input == "3":
-            addFoodToCart()
-        elif input =="4":
-            checkout()
-        elif input == "0":
+        pageBanners("  Cart  ", 50)
+        cartDetailArray, cartTtl = customerCartDetail(cart)
+        print("\n{:<3}{:<2}{:<32}{:<2}{:<9}{:<2}{:<11}{:<2}{:<17}{:<2}".format(
+            "N", "|", "Item Name", "|", "Quantity", "|", "Unit Price", "|", "Total Unit Price", "|"))
+        print("{:<3}{:<2}{:<32}{:<2}{:<9}{:<2}{:<11}{:<2}{:<17}{:<2}".format(
+            "", "|", "", "|", "", "|", "", "|", "", "|"))
+        for i in range(len(cartDetailArray)):
+            print("{:<3}{:<2}{:<32}{:<2}{:<9}{:<2}{:<11}{:<2}{:<17}{:<2}".format((str(i+1)+"."), "|",
+                  cartDetailArray[i][0], "|", cartDetailArray[i][1], "|", cartDetailArray[i][2], "|", cartDetailArray[i][3], "|"))
+        print(f"\nTotal: {cartTtl}\n\n1. Submit Order Cart\n0. Back")
+        option = userInput("Choice", True).strip()
+        if option == "0":
             break
-        else:pass
-            # invalidInput()
+        elif option == "1":
+            customerCartSubmit(cart, username, cartTtl)
+            return ([])
+        else:
+            print("ERROR: Something went wrong, invalid input.")
 
-'''View detail of food category'''
-'''View detail of food items'''
-'''Select food item and add to cart'''
-'''Do payment to confirm order'''
+# Return item names, quantity, unit price and total of cart in a list.
+def customerCartDetail(cart: list):
+    itemsArray = readFoodDetailsFile()
+    cartDetail = []
+    cartTotal = 0
+    for cartItem in range(0, len(cart), 2):
+        for item in range(len(itemsArray)):
+            if cart[cartItem] == itemsArray[item][1]:
+                unitTotal = (
+                    float(itemsArray[item][3])*float(cart[cartItem+1]))
+                cartTotal += unitTotal
+                # detail = Item Name, Quantity, Unit Price, Total Unit Price
+                detail = [(itemsArray[item][2]), str(cart[cartItem+1]),
+                          itemsArray[item][3],  str(unitTotal)]
+                cartDetail.append(detail)
+    cartTotal = "{:.2f}".format(cartTotal)
+    return (cartDetail, cartTotal)
+
+# Append order details to oder file.
+def customerCartSubmit(cart: list, username: str, cartTtl: float):
+        if len(cart) == 0:
+            input("ERROR: Your order cart is empty.")
+            return
+        itemString = ""
+        for i in range(0, len(cart), 2):
+            itemString += cart[i] + "(" + str(cart[i + 1]) + ")"
+            if i < (len(cart)-2):
+                itemString += ","
+        record = username + " | " + str(customerOrderDetailFileLen()+1) + " | " + itemString + " | " + str(cartTtl) + " | " + "PAID\n"
+        with open("./orderRecords.txt", "a") as orderFile:
+            orderFile.write(record)
+        input("Order placed successfully, please press enter to return.")
+
+# Return numbers of order in order file.
+def customerOrderDetailFileLen():
+    len = 0
+    with open("./orderRecords.txt", mode='r') as orderDetailFile:
+        skipFileLine(6, orderDetailFile)
+        for row in orderDetailFile:
+            len += 1
+    return len
+
+# Ordering System
+# Customer menu for choosing what item to add to cart.
+def customerItemMenu(cart: list, chosenFoodCategoryName: str):
+    cartChosen, addCartChosen = False, False
+    while True:
+        clearConsole()
+        customerItemPrint(chosenFoodCategoryName)
+        try:
+            cart = customerCartTidy(cart)
+            if len(cart) > 0:
+                customerCartPrint(cart)
+        except TypeError:
+            print()
+        if cartChosen:
+            if addCartChosen:
+                itemToAdd = userInput("Item Code to Add (M2)", True).strip().upper()
+                if customerCartValidItem(itemToAdd):
+                    amountToAdd = str(userInput("Amount", True).strip())
+                    cart = customerCartAddItem(itemToAdd, amountToAdd, cart)
+                    cartChosen, addCartChosen = False, False
+                else:
+                    input("\nERROR: Invalid amount input.")
+                    cartChosen, addCartChosen = False, False
+            else:
+                itemToRemove = userInput("Item code to remove", True).strip().upper()
+                if customerCartValidItem(itemToRemove):
+                    amountToRemove = userInput("Amount to Remove (\"All\" to remove item from cart)", True).strip()
+                    cart = customerCartRemoveItem(itemToRemove, amountToRemove, cart)
+                    cartChosen = False
+                else:
+                    input("ERROR: Invalid amount input.")
+                    cartChosen = False
+        else:
+            print("\n1. Add Item to Cart.\n2. Remove Item from Cart.\n\n0. Back")
+            uInput = userInput("Choice", True).strip().upper()
+            if uInput == "0":
+                return cart
+            elif uInput == "1":
+                cartChosen, addCartChosen = True, True
+            elif uInput == "2":
+                cartChosen = True
+            else:
+                input("ERROR: Invalid selection entered.")
+
+# Print items with details.
+def customerItemPrint(chosenFoodCategoryName: str):
+    while True:
+        try:
+            print(f"{chosenFoodCategoryName.upper()}".center(50))
+            print(f"{'-'*24}{'-'*len(chosenFoodCategoryName)}")
+            print(
+                f"FOOD ITEM ID\tFOOD ITEM PRICE\t FOOD ITEM NAME\n{'-'*12}{' '*4}{'-'*15}{' '*2}{'-'*14}")
+            for data in readFoodDetailsFile():
+                if (chosenFoodCategoryName.replace("FOOD CATEGORY", "").strip().capitalize()) in data:
+                    print('{:<16}{:<15}\t {}'.format(
+                        data[1], data[3], data[2]))
+            break
+        except TypeError:
+            input("ERROR: Please enter a number.")
+
+# Remove item code from list which quantity equivalent to 0 to less.
+def customerCartTidy(cart: list):
+    tempCart = []
+    for i in range(0, len(cart), 2):
+        if cart[i+1] != 0:
+            tempCart.extend([cart[i], cart[i+1]])
+    return tempCart
+
+# Print item code and quantity in cart. (Cart: M1(x), W2(x))
+def customerCartPrint(cart: list):
+    stringToPrint = ""
+    for i in range(0, len(cart), 2):
+        stringToPrint = stringToPrint + cart[i] + "(" + str(cart[i+1]) + ")"
+        if i < (len(cart)-2):
+            stringToPrint = stringToPrint + ", "
+    print(f"\nCart :  {stringToPrint}")
+
+# Validate if item code exist in menu.
+def customerCartValidItem(code: str) -> bool:
+    itemsArray = readFoodDetailsFile()
+    for item in range(len(itemsArray)):
+        if itemsArray[item][1] == code:
+            return True
+    return False
+
+# Add item with quantity to list.
+def customerCartAddItem(item: str, amount: str, cart: list):
+    try:
+        intAmount = int(amount)
+        for i in range(0, len(cart), 2):
+            if cart[i] == item:
+                cart[i+1] += intAmount
+                return cart
+        cart.extend([item, intAmount])
+        return cart
+    except:
+        input("\nERROR: Alphabet/s found in amount entered, please enter numbers only.")
+        return cart
+
+# Deduct item quantity from cart.
+def customerCartRemoveItem(item: str, amount: str, cart: list):
+    if amount.upper() != "ALL":
+        try:
+            intAmount = int(amount)
+        except:
+            input("ERROR: Invalid string found, do you mean \"All\"?")
+            return cart
+    for i in range(0, len(cart), 2):
+        if cart[i] == item:
+            amountFromCart = cart[i+1]
+            if amount.lower() == "all":
+                cart[i+1] = 0
+            elif intAmount <= amountFromCart:
+                cart[i+1] -= intAmount
+            elif intAmount > amountFromCart:
+                input("ERROR: Amount entered is too large.")
+                return cart
+            return cart
+    input("ERROR: Item code entered not found, please try again.")
+    return cart
+
+# Order History
+# Customer order menu for printing current user's historical orders.
+def customerOrderMenu(username: str):
+    clearConsole()
+    pageBanners("  Orders  ", 50)
+    print("")
+    customerOrderPrint(username)
+    input("\nPress enter to return.")
+
+# Print historical orders of current user.
+def customerOrderPrint(username: str):
+        orderDetailArray = customerOrderDetailRead(username)
+        print("{:<9}{:<2}{:<32}{:<2}{:<8}{:<2}{:<7}{:<2}".format(
+            "Order ID", "|", "Items", "|", "Total", "|", "Status", "|"))
+        print("{:<9}{:<2}{:<32}{:<2}{:<8}{:<2}{:<7}{:<2}".format(
+            "", "|", "", "|", "", "|", "", "|"))
+        for i in range(len(orderDetailArray)):
+            print("{:<9}{:<2}{:<32}{:<2}{:<8}{:<2}{:<7}{:<2}".format(
+                orderDetailArray[i][1], "|", orderDetailArray[i][2], "|", orderDetailArray[i][3], "|", orderDetailArray[i][4], "|"))
+
+# Read order details from orders detail file.
+def customerOrderDetailRead(username: str):
+    orderArray = []
+    with open("./orderRecords.txt", mode='r') as orderDetailFile:
+        skipFileLine(6, orderDetailFile)
+        for row in orderDetailFile:
+            order = row.strip("\n").replace(" | ", " ").split(" ")
+            if order[0] == username:
+                orderArray.append(order)
+    return orderArray
+
+# Customer Registration 
+# Customer registration menu for user account registration.
+def customerRegistrationMenu():
+    titleList = ["Username", "Password", "First Name", "Last Name", "House Number", "Street", "State", "Postcode", "Phone Number"]
+    userData = ["", "", "", "", "", "", "", "", ""]
+    while True:
+        for a in range(len(titleList)):
+            clearConsole()
+            pageBanners("Registration", 50)
+            print("")
+            for b in range(9):
+                print("{:<15}{:<2}{:<2}".format(titleList[b], ":", userData[b]))
+            print("\n0. Type \"0\" to cancel registration.")
+            data = userInput(titleList[a], True).strip()
+            if data == "0":
+                return
+            userData[a] = data
+        success = customerRegistrationSubmit(userData)
+        if success:
+            input("\nUser account regsitered successfully, please enter to return.")
+            break
+
+# Add registration data to users detail file.
+def customerRegistrationSubmit(userData:list):
+    for data in userData:
+        if data.strip() == "":
+            input("ERROR: An empty data found, please try again.")
+            return False
+        record = userData[0] + " | " + userData[1] + " | " + userData[2] + " | " + userData[3] + " | " + userData[4] + " | " + userData[5] + " | " + userData[6] + " | " + userData[7] + " | " + userData[8] + "\n"
+    with open("./customerDetails.txt", "a") as custFile:
+        custFile.write(record)
+    return True
+    
 
 '''DECLARING MAIN GREETING PAGE'''
 def main(): #The main module that will be executed first
-    clearConsole()
-    print(" ____   ___  _____ ____".center(78))
-    print("/ ___| / _ \|  ___/ ___|".center(78))
-    print("\___ \| | | | |_  \___ \\".center(78))
-    print(" ___) | |_| |  _|  ___) |".center(80))
-    print("|____/ \___/|_|   |____/".center(78))
-    print("")
-    print(f' {"Welcome to the Online Food Ordering Management System"} '.center(85, '='))
-    time.sleep(1)
-    print("\nWho are you logging in as?\n", "1. Admin", "2. Customer", "3. Quit Program", sep=' \n')
     while True:
+        clearConsole()
+        print(" ____   ___  _____ ____".center(78))
+        print("/ ___| / _ \|  ___/ ___|".center(78))
+        print("\___ \| | | | |_  \___ \\".center(78))
+        print(" ___) | |_| |  _|  ___) |".center(80))
+        print("|____/ \___/|_|   |____/".center(78))
+        print("")
+        print(f' {"Welcome to the Online Food Ordering Management System"} '.center(85, '='))
+        print("\nWho are you logging in as?\n", "1. Admin", "2. Customer", "3. Quit Program", sep=' \n')
         try:
-            input = int(userInput("Login as (Number)",True))
-            if input == 1 :
+            uInput = int(userInput("Login as (Number)",True).strip())
+            if uInput == 1 :
                 clearConsole()
-                pageBanners("ADMIN LOGIN PAGE",50)
+                pageBanners("ADMIN LOGIN PAGE", 50)
                 adminLoginPage()
-            elif input == 2 :
-                guestMenu() 
-            elif input== 3 :
+            elif uInput == 2:
+                userHomepage()
+            elif uInput == 3:
                 quit()
             else:
-                print("ERROR: Number out of choice range")
-                time.sleep(0.2)
-                continue
-            break
+                input("ERROR: Number out of choice range")
         except ValueError:
-            print("ERROR: Foreign character submitted")
-            time.sleep(0.2)
+            input("ERROR: Foreign character submitted")
             
 
 '''EXECUTE MAIN'''
-if __name__ == '__main__': 
+if __name__ == '__main__':
     try:
         initialProgramCheck()
         progressBar("\nLoading program")
@@ -944,30 +1220,3 @@ if __name__ == '__main__':
         main()
     except KeyboardInterrupt:
         quit()
-
-'''Empty functions'''
-def order() :
-    clearConsole()
-    print("\nPlease select any option below.")
-    print("1. Cancel an order","2. Back to Main Menu","0. Back",sep='\n')
-    input = userInput("Choice",True)
-    if input == "1" : 
-        cancelOrder() 
-    elif input == "2" :
-        main()
-    elif input == "0" :
-        adminMenu()
-    else : 
-        # invalidInput()
-        order()
-
-def cancelOrder() : pass
-def checkPayment() : pass
-def viewItemList() : pass
-def registered() : pass
-def viewItemDetail() : pass
-def viewCategoryDetail() : pass
-def addFoodToCart() : pass
-def checkout() : pass
-def logout() : pass
-def customerRegistration() : pass 
