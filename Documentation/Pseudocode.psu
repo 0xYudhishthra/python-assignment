@@ -823,14 +823,14 @@ FUNCTION guestMenu()
 		CALL pageBanners("MENU CATEGORIES", 50)
 		DISPLAY("\n")
 		CALL displayFoodCategories()
-		DISPLAY("\n0. Back To Guest Menu")
+		DISPLAY("\n0. Back To Guest Menu\nSelect the food category that you want to be displayed")
+        categoryTitle = CALL extractFoodCategoryTitles()
 		TRY:
-			DISPLAY("\nSelect the food category that you want to be displayed")
 			chosenCategory = CALL int(userInput("Food category", True).strip())
             IF chosenCategory == 0
                 BREAK LOOP
-			ELSE IF chosenCategory <= 4
-				CALL guestPrintItem((extractFoodCategoryTitles()[chosenCategory-1][0]))
+			ELSE IF chosenCategory <= len(categoryTitle)
+				CALL guestPrintItem(categoryTitle[chosenCategory-1][0])
 			ELSE
                 READ("ERROR: Invalid chosen category.")
         EXCEPT ValueError:
