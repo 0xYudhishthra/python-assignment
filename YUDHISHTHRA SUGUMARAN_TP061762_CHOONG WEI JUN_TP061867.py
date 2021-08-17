@@ -1176,7 +1176,7 @@ def customerRegistrationSubmit(userData:list):
     return True
     
 
-'''DECLARING MAIN GREETING PAGE'''
+# MAIN FUNCTION
 def main(): #The main module that will be executed first
     while True:
         clearConsole()
@@ -1204,7 +1204,7 @@ def main(): #The main module that will be executed first
             input("ERROR: Foreign character submitted")
             
 
-'''EXECUTE MAIN'''
+# EXECUTE MAIN
 if __name__ == '__main__':
     try:
         initialProgramCheck()
