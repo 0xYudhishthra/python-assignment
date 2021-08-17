@@ -1083,7 +1083,9 @@ FUNCTION userHomepage()
             BREAK LOOP
         ELSE
             READ("ERROR: Invalid selected number.")
-
+        ENDIF
+    ENDDO
+ENDFUNCTION
 
 FUNCTION guestMenu()
     DOWHILE True:
@@ -1091,9 +1093,10 @@ FUNCTION guestMenu()
 		CALL pageBanners("MENU CATEGORIES", 50)
 		DISPLAY("\n")
 		CALL displayFoodCategories()
-		DISPLAY("\n0. Back To Guest Menu\nSelect the food category that you want to be displayed")
+		DISPLAY("\n0. Back To Guest Menu")
         categoryTitle = CALL extractFoodCategoryTitles()
 		TRY:
+			DISPLAY("\nSelect the food category that you want to be displayed")
 			chosenCategory = CALL int(userInput("Food category", True).strip())
             IF chosenCategory == 0
                 BREAK LOOP
@@ -1101,312 +1104,423 @@ FUNCTION guestMenu()
 				CALL guestPrintItem(categoryTitle[chosenCategory-1][0])
 			ELSE
                 READ("ERROR: Invalid chosen category.")
+            ENDIF
         EXCEPT ValueError:
             READ("ERROR: Please enter numbers only.")
-
+    ENDDO
+ENDFUNCTION
 
 FUNCTION guestPrintItem(chosenFoodCategoryName)
-    DOWHILE True
-        TRY
-            CALL rogressBar("Retrieving food item records")
-            CALL time.sleep(0.5)
-            DISPLAY newline * 2
-            DISPLAY "REPORT OF FOOD ITEMS IN " + (chosenFoodCategoryName WITH CALL upper())
-            DISPLAY newline
-            DISPLAY '-' * 24 + '-' * (chosenFoodCategoryName LENGTH)
-            DISPLAY "FOOD ITEM ID   FOOD ITEM PRICE FOOD ITEM NAME"
-            DISPLAY newline
-            DISPLAY '-'*12 + ' '*4 + '-'*15 + ' '*2 + '-'*14
-            FOR EACH data IN readFoodDetailsFile()
-                IF (chosenFoodCategoryName WITH CALL replace("FOOD CATEGORY", ""), strip(), capitalize()) IN data THEN
-                    DISPLAY data[1] data[3] data[2]
-                ENDIF
-            BREAK
-            ENDFOR
-        EXCEPT ERROR THEN
-            DISPLAY "Please enter a number"
-        ENDTRY
-    ENDDO
-ENDFUNCTION
-
-FUNCTION updateFoodItemMenu(foodDetailsList)
-    DISPLAY newline
-    DISPLAY "In which category would you like to update the food item?"
-    CALL displayFoodCategories()
-    DISPLAY newline
-    DISPLAY "0. Back to Admin Menu"
-    validCategoryNumber = CALL verifyFoodCategoryNumber()
-    DOWHILE (validCategoryNumber)
-        foodItemId = CALL userInput("Enter the Food Item ID that you would like to update",True) AS upper()
-        IF (CALL verifyFoodItemId(foodItemId, foodDetailsList)) THEN
-            DISPLAY "Food Item ID Selected: " + foodItemId
-            FOR EACH data IN foodDetailsList
-                IF foodItemId IN data[0] THEN
-                    foodItemIdList = data[0] AS split(" | ")
-                    foodItemIdIndex = index(data)
-                ENDIF
-            ENDFOR
-            CALL updateFoodItemRecord(foodDetailsList, foodItemIdList, foodItemIdIndex)
-            BREAK LOOP
-        ELSE
-            DISPLAY "ERROR: Invalid Food Item ID"
+    CALL clearConsole()
+    DISPLAY(f"FOOD ITEMS IN {chosenFoodCategoryName.upper()}\n{'-'*24}{'-'*len(chosenFoodCategoryName)}")
+    FOR data IN readFoodDetailsFile()
+        IF (chosenFoodCategoryName.replace("FOOD CATEGORY", "").strip().capitalize()) IN data
+            DISPLAY(data[2])
         ENDIF
-    ENDDO
+    ENDFOR
+    READ("\nPress Enter to Return")
 ENDFUNCTION
 
-FUNCTION deleteFoodItemMenu(foodDetailsList)
-    DISPLAY newline
-    DISPLAY "In which category would you like to delete the food item?"
-    DISPLAY newline
-    CALL displayFoodCategories()
-    DISPLAY newline
-    DISPLAY "0. Back to Admin Menu"
-    validCategoryNumber = CALL verifyFoodCategoryNumber()
-    validUserConfirmation = False
-    DOWHILE (validCategoryNumber)
-        foodItemId = CALL userInput("Enter the Food Item ID that you would like to delete",True) AS upper()
-        IF (CALL verifyFoodItemId(foodItemId,foodDetailsList)) THEN
-            DISPLAY "Are you sure you want to delete " + foodItemId + "?"
-            DOWHILE (NOT validUserConfirmation)
-                userConfirmation = CALL userInput("(Y)es/(N)o",True) AS upper()
-                IF (userConfirmation IN ('Y', 'N')) THEN
-                    validUserConfirmation = True
-                    validCategoryNumber = False
-                    CALL deleteFoodItemRecord(userConfirmation, foodItemId, foodDetailsList)
-                ELSE 
-                    DISPLAY "ERROR: Invalid input"
+FUNCTION customerLoginMenu()
+    customerDetailsList = CALL customerReadDetailFile()
+    DOWHILE True
+        CALL clearConsole()
+        CALL pageBanners("Login as Customer", 50)
+        DISPLAY("Type \"0\" as username to cancel the login process.")
+        uName = CALL userInput("Username", True).strip()
+        CALL progressBar("Checking IF username exists")
+        IF (authUsername(uName, customerDetailsList))
+            DOWHILE True:
+                CALL clearConsole()
+                CALL pageBanners("Login as Customer", 50)
+                DISPLAY("Username found, please enter password\n")
+                DISPLAY("Type \"0\" as password to cancel the login process.")
+                uPass = CALL userInput("Password", True).strip()
+                IF (authPassword(uName, uPass, customerDetailsList))
+                    CALL progressBar("Logging you in")
+                    RETURN uName
+                ELSE IF uPass == "0"
+                    BREAK LOOP
+                ELSE
+                    READ("Incorrect password, please retry.")
                 ENDIF
             ENDDO
+        ELSE IF uName == "0"
+            BREAK LOOP
         ELSE
-            DISPLAY "ERROR: Invalid Food Item ID"
+            READ("Username NOT found, please retry.")
         ENDIF
     ENDDO
 ENDFUNCTION
 
-'''New customer registration to access other details'''
+FUNCTION customerReadDetailFile()
+    customerDetailsList = []
+    OPEN CUSTOMER_DETAILS_FILE READ AS customerDetailsFile:
+        CALL skipFileLine(6, customerDetailsFile)
+        FOR EACH row IN customerDetailsFile
+            REMOVE "\n" REPLACE " | " to " " SPLIT WITH " " IN rows THEN ADD TO customerDetailsList[]
+        ENDFOR
+    RETURN customerDetailsList
+ENDFUNCTION
 
-
-
-'''DECLARING FUNCTIONS FOR REGISTERED CUSTOMER DASHBOARD'''
-
-'''Login to access system'''
-
-FUNCTION customerLoginPage():
-
-    DOWHILE True:
-
-        clearConsole()
-
-        pageBanners("Login as Customer", 50)
-
-        TRY: 
-
-            uName = userInput("Username",True)
-
-            progressBar("Checking IF username exists")
-
-            time.sleep(0.05)
-
-            IF (authUsername(uName,readCustomerDetailsFile())):
-
-                DISPLAY(" Username found, please enter password\n")
-
-                DOWHILE True:
-                    uPass = CALL userInput("Password", True).strip()
-                    IF (authPassword(uName, uPass, customerDetailsList))
-                        CALL progressBar("Logging you in")
-                        RETURN uName
-                    ELSE
-                        DISPLAY("Incorrect password, please retry\n")
-            ELSE
-                DISPLAY("Username NOT found, please retry")
-        EXCEPT TypeError
-            READ("ERROR: Customers details file is corrupted!")
-            BREAK LOOP
-
-            ELSE 
-
-                DISPLAY(" Username NOT found, please retry")
-
-                continue
-
-            break
-
-        except TypeError:
-
-            DISPLAY("Customers details file is corrupted!")
-
-            break
-
-
-
-FUNCTION regCustomerMenu(): #Customer menu upon successful login
-
-    DOWHILE True:
-
-        clearConsole()
-
-        pageBanners("Customer Menu", 50)
-
-        DISPLAY("\nWelcome!, what would you like to do today?")
-
-        DISPLAY("1. View Item List", "2. View Item Details", "3. Add Food to Cart", "4. Checkout", "\n0. Main Menu", sep='\n')
-
-        READ = userInput("Choice",True)
-
-        IF READ == "1":
-
-            clearConsole()
-
-            viewItemList()
-
-        ELSE IF READ =="2":
-
-            viewItemDetail()
-
-        ELSE IF READ == "3":
-
-            addFoodToCart()
-
-        ELSE IF READ =="4":
-
-            checkout()
-
-        ELSE IF READ == "0":
-
-            break
-
-        else:pass
-
-            # invalidInput()
-
-
-
-'''View detail of food category'''
-
-'''View detail of food items'''
-
-'''Select food item and add to cart'''
-
-'''Do payment to confirm order'''
-
-
-
-'''DECLARING MAIN GREETING PAGE'''
-
-FUNCTION main()
-    CALL clearConsole()
-    DISPLAY(" ____   ___  _____ ____" AS center(78))
-    DISPLAY("/ ___| / _ \|  ___/ ___|" AS center(78))
-    DISPLAY("\___ \| | | | |_  \___ \\" AS center(78))
-    DISPLAY(" ___) | |_| |  _|  ___) |" AS center(80))
-    DISPLAY("|____/ \___/|_|   |____/" AS center(78))
-    DISPLAY("")
-    DISPLAY("Welcome to the Online Food Ordering Management System" AS center(85, '='))
-    CALL time.sleep(1)
-    DISPLAY newline
-    DISPLAY "Who are you logging in as?"
-    DISPLAY "1. Admin"
-    DISPLAY "2. Customer"
-    DISPLAY "3. Quit Program"
+FUNCTION customerMenu(username: str)
+    cart = []
     DOWHILE True
-        TRY
-            input = (CALL userInput("Login as (Number)",True) AS INTEGER)
-            IF (input == 1) THEN
-                CALL clearConsole()
-                CALL pageBanners("ADMIN LOGIN PAGE",50)
-                CALL adminLoginPage()
-            ELSE 
-                IF (input == 2) THEN
-                    CALL guestMenu() 
-                ELSE 
-                    IF (input== 3) THEN
-                        CALL quit()
-                    ELSE
-                        DISPLAY("ERROR: Number out of choice range")
-                        CALL time.sleep(0.2)
-                        CONTINUE LOOP
-                    ENDIF
-                ENDIF
-            ENDIF
+        CALL clearConsole()
+        CALL pageBanners("Customer Menu", 50)
+        DISPLAY("\nWelcome!, what would you like to do today?")
+        DISPLAY("1. View Item By Categories", "2. View Orders", "\n0. Logout", sep='\n')
+        input = CALL userInput("Choice", True).strip()
+        IF input == "1"
+            cart = CALL customerMenuCategory(cart, username)
+        ELSE IF input == "2"
+            CALL customerOrderMenu(username)
+        ELSE IF input == "0"
             BREAK LOOP
-        EXCEPT ERROR THEN
-            DISPLAY "ERROR: Foreign character submitted"
-            CALL time.sleep(0.2)
-        ENDTRY
+        ELSE
+            READ("\nERROR: Please enter a valid selection number.")
+        ENDIF
     ENDDO
 ENDFUNCTION
 
+FUNCTION customerMenuCategory(cart: list, username:str)
+    foodCat = CALL extractFoodCategoryTitles()
+    foodCatLen = CALL len(foodCat)
+    DOWHILE True
+        TRY
+            CALL clearConsole()
+            CALL pageBanners("Food Menu", 50)
+            DISPLAY("\nWhat category of beverage would you like to know more?\n")
+            CALL customerPrintCategoryDetail()
+            IF len(cart) > 0
+                CALL customerCartPrint(cart)
+            ENDIF
+            DISPLAY("\nC. View Cart\n0. Back to Customer Menu")
+            chosenCategory = CALL userInput("Food category", True).strip()
+            IF chosenCategory == "0"
+                RETURN cart
+            ELSE IF chosenCategory.upper() == "C"
+                CALL customerCartMenu(cart, username)
+                cart = []
+            ELSE IF int(chosenCategory) <= foodCatLen
+                cart = CALL customerItemMenu(cart, (extractFoodCategoryTitles()[int(chosenCategory)-1][0]))
+            ELSE
+                READ("\nERROR: Number out of range.")
+            ENDIF
+        EXCEPT ValueError
+            READ("\nERROR: Please enter a valid selection number.")
+    ENDDO
+ENDFUNCTION
 
+FUNCTION customerPrintCategoryDetail()
+    foodCat = CALL extractFoodCategoryTitles()
+    FOR i IN range(len(foodCat)):
+        DISPLAY("{}. {} - {}".format(i+1, foodCat[i][0], foodCat[i][1]))
+    ENDFOR
+ENDFUNCTION
 
-'''EXECUTE MAIN'''
+FUNCTION customerCartMenu(cart: list, username: str)
+	DOWHILE True
+        CALL clearConsole()
+		CALL pageBanners("  Cart  ", 50)
+        cartDetailArray, cartTtl = CALL customerCartDetail(cart)
+        DISPLAY("\n{:<3}{:<2}{:<32}{:<2}{:<9}{:<2}{:<11}{:<2}{:<17}{:<2}".format("N", "|", "Item Name", "|", "Quantity", "|", "Unit Price", "|", "Total Unit Price", "|"))
+		DISPLAY("{:<3}{:<2}{:<32}{:<2}{:<9}{:<2}{:<11}{:<2}{:<17}{:<2}".format("", "|", "", "|", "", "|", "", "|", "", "|"))
+        FOR i IN range(len(cartDetailArray))
+            DISPLAY("{:<3}{:<2}{:<32}{:<2}{:<9}{:<2}{:<11}{:<2}{:<17}{:<2}".format((str(i+1)+"."), "|",
+                  cartDetailArray[i][0], "|", cartDetailArray[i][1], "|", cartDetailArray[i][2], "|", cartDetailArray[i][3], "|"))
+        DISPLAY(f"\nTotal: {cartTtl}\n\n1. Submit Order Cart\n0. Back")
+        option = CALL userInput("Choice", True).strip()
+        IF option == "0"
+            RETURN cart
+        ELSE IF option == "1"
+            CALL customerCartSubmit(cart, username, cartTtl)
+            RETURN []
+        ELSE
+            READ("ERROR: Something went wrong, invalid READ.")
+        ENDIF
+    ENDDO
+ENDFUNCTION
 
+FUNCTION customerCartDetail(cart: list)
+	itemsArray = CALL readFoodDetailsFile()
+	cartDetail = []
+    cartTotal = 0
+    FOR cartItem IN range(0, len(cart), 2)
+        FOR item IN range(len(itemsArray))
+            IF cart[cartItem] == itemsArray[item][1]
+                unitTotal =  CALL float(itemsArray[item][3])*float(cart[cartItem+1])
+                cartTotal += unitTotal
+                detail = [(itemsArray[item][2]), CALL str(cart[cartItem+1]), itemsArray[item][3], CALL str(unitTotal)]
+				CALL cartDetail.append(detail)
+            ENDIF
+        ENDFOR
+    ENDFOR
+    cartTotal = "{:.2f}".format(cartTotal)
+    RETURN (cartDetail, cartTotal)
+ENDFUNCTION
 
+FUNCTION customerCartSubmit(cart: list, username: str, cartTtl: float)
+        IF len(cart) == 0
+            READ("ERROR: Your order cart is empty.")
+            RETURN
+        ENDIF
+        itemString = ""
+        FOR i IN range(0, len(cart), 2)
+            itemString += cart[i] + "(" + CALL str(cart[i + 1]) + ")"
+            IF i < (len(cart)-2)
+                itemString += ","
+            ENDIF
+        ENDFOR
+        record = username + " | " + CALL str(customerOrderDetailFileLen()+1) + " | " + itemString + " | " + CALL str(cartTtl) + " | " + "PAID\n"
+        with open(ORDER_RECORDS_FILE, "a") as orderFile
+            CALL orderFile.write(record)
+        READ("Order placed successfully, please press enter to RETURN.")
+ENDFUNCTION
 
-DISPLAY("File one __name__ is set to: {}" .format(__name__))
+FUNCTION customerOrderDetailFileLen()
+    len = 0
+    READ ORDER_RECORDS_FILE AS orderDetailFile
+        CALL skipFileLine(6, orderDetailFile)
+        FOR row IN orderDetailFile
+            len += 1
+        ENDFOR
+    RETURN len
+ENDFUNCTION
 
+FUNCTION customerItemMenu(cart: list, chosenFoodCategoryName: str)
+    cartChosen, addCartChosen = False, False
+    DOWHILE True:
+        CALL clearConsole()
+        CALL customerItemPrint(chosenFoodCategoryName)
+        TRY
+            cart = CALL customerCartTidy(cart)
+            IF len(cart) > 0
+                CALL customerCartPrint(cart)
+            ENDIF
+        EXCEPT TypeError
+            DISPLAY NOTHING TO PREVENT PROGRAM CRASH
+        IF cartChosen
+            IF addCartChosen
+                itemToAdd = CALL userInput("Item Code to Add (M2)", True).strip().upper()
+                IF customerCartValidItem(itemToAdd)
+                    amountToAdd = CALL str(userInput("Amount", True).strip())
+                    cart = CALL customerCartAddItem(itemToAdd, amountToAdd, cart)
+                ELSE
+                    READ("\nERROR: Invalid amount READ.")
+                ENDIF
+                cartChosen, addCartChosen = False, False
+            ELSE
+                itemToRemove = CALL userInput("Item code to remove", True).strip().upper()
+                IF customerCartValidItem(itemToRemove)
+                    amountToRemove = CALL 	userInput("Amount to Remove (\"All\" to remove item from cart)", True).strip()
+                    cart = CALL customerCartRemoveItem(itemToRemove, amountToRemove, cart)
+                ELSE
+                    READ("ERROR: Invalid amount READ.")
+                ENDIF
+                cartChosen = False
+            ENDIF
+        ELSE
+            DISPLAY("\n1. Add Item to Cart.\n2. Remove Item from Cart.\n\n0. Back")
+            uInput = CALL userInput("Choice", True).strip().upper()
+            IF uInput == "0"
+                RETURN cart
+            ELSE IF uInput == "1":
+                cartChosen, addCartChosen = True, True
+            ELSE IF uInput == "2":
+                cartChosen = True
+            ELSE
+                READ("ERROR: Invalid selection entered.")
+            ENDIF
+        ENDIF
+    ENDDO
+ENDFUNCTION
 
+FUNCTION customerItemPrint(chosenFoodCategoryName: str)
+    DISPLAY(f"{chosenFoodCategoryName.upper()}".center(50))
+    DISPLAY(f"{'-'*24}{'-'*len(chosenFoodCategoryName)}")
+    DISPLAY(f"FOOD ITEM ID\tFOOD ITEM PRICE\t FOOD ITEM NAME\n{'-'*12}{' '*4}{'-'*15}{' '*2}{'-'*14}")
+    FOR data IN readFoodDetailsFile():
+        IF (chosenFoodCategoryName.replace("FOOD CATEGORY", "").strip().capitalize()) IN data
+            DISPLAY('{:<16}{:<15}\t {}'.format(data[1], data[3], data[2]))
+    ENDFOR
+ENDFUNCTION
 
-IF __name__ == '__main__': 
+FUNCTION customerCartTidy(cart: list)
+	tempCart = []
+    FOR i IN range(0, len(cart), 2)
+        IF cart[i+1] != 0
+            tempCart.extend([cart[i], cart[i+1]])
+        ENDIF
+    ENDFOR
+    RETURN tempCart
+ENDFUNCTION
 
-    TRY:
+FUNCTION customerCartPrint(cart: list)
+    stringToPrint = ""
+    FOR i IN range(0, len(cart), 2)
+        stringToPrint = stringToPrint + cart[i] + "(" + CALL str(cart[i+1]) + ")"
+        IF i < (len(cart)-2):
+            stringToPrint = stringToPrint + ", "
+        ENDIF
+    ENDFOR
+    DISPLAY(f"\nCart :  {stringToPrint}")
+ENDFUNCTION
 
-        main()
+FUNCTION customerCartValidItem(code: str)
+    itemsArray = CALL readFoodDetailsFile()
+    FOR item IN range(len(itemsArray))
+        IF itemsArray[item][1] == code
+            RETURN True
+        ENDIF
+    ENDFOR
+    RETURN False
+ENDFUNCTION
 
-    except KeyboardInterrupt:
+FUNCTION customerCartAddItem(item: str, amount: str, cart: list)
+    TRY
+        intAmount = CALL int(amount)
+        FOR i IN range(0, len(cart), 2)
+            IF cart[i] == item
+                cart[i+1] += intAmount
+                RETURN cart
+            ENDIF
+        ENDFOR
+        CALL cart.extend([item, intAmount])
+        RETURN cart
+    EXCEPT
+        READ("\nERROR: Alphabet/s found IN amount entered, please enter numbers only.")
+        RETURN cart
+ENDFUNCTION 		
 
-        quit()
+FUNCTION customerCartRemoveItem(item: str, amount: str, cart: list)
+    IF amount.upper() != "ALL"
+        TRY
+			intAmount = CALL int(amount)
+        EXCEPT
+            READ("ERROR: Invalid string found, do you mean \"All\"?")
+            RETURN cart
+    ENDIF
+    FOR i IN range(0, len(cart), 2)
+        IF cart[i] == item
+            amountFromCart = cart[i+1]
+            IF amount.lower() == "all"
+                cart[i+1] = 0
+            ELSE IF intAmount <= amountFromCart
+                cart[i+1] -= intAmount
+            ELSE IF intAmount > amountFromCart
+                READ ("ERROR: Item code entered not found, please try again.")
+                RETURN cart
+            ENDIF
+        ENDIF
+            RETURN cart
+    ENDFOR
+    READ("ERROR: Item code entered NOT found, please try again.")
+    RETURN cart
+ENDFUNCTION
 
-    
+FUNCTION customerOrderMenu(username: str)
+    CALL clearConsole()
+    CALL pageBanners("  Orders  ", 50)
+    DISPLAY("")
+    CALL customerOrderPrint(username)
+    READ("\nPress enter to RETURN.")
+ENDFUNCTION
 
-'''Empty functions'''
+FUNCTION customerOrderPrint(username: str)
+        orderDetailArray = CALL customerOrderDetailRead(username)
+        DISPLAY("{:<9}{:<2}{:<32}{:<2}{:<8}{:<2}{:<7}{:<2}".format("Order ID", "|", "Items", "|", "Total", "|", "Status", "|"))
+        DISPLAY("{:<9}{:<2}{:<32}{:<2}{:<8}{:<2}{:<7}{:<2}".format("", "|", "", "|", "", "|", "", "|"))
+        FOR i IN range(len(orderDetailArray))
+            DISPLAY("{:<9}{:<2}{:<32}{:<2}{:<8}{:<2}{:<7}{:<2}".format(orderDetailArray[i][1], "|", orderDetailArray[i][2], "|", orderDetailArray[i][3], "|", orderDetailArray[i][4], "|"))
+        ENDFOR
+ENDFUNCTION
 
-FUNCTION order() :
+FUNCTION customerOrderDetailRead(username: str)
+    orderArray = []
+    READ ORDER_RECORDS_FILE AS orderDetailFile
+        CALL skipFileLine(6, orderDetailFile)
+        FOR row IN orderDetailFile
+            order = REMOVE "\n" REPLACE " | " TO " " SPLIT WITH " " IN ROW 
+            IF order[0] == username
+                CALL orderArray.append(order)
+    RETURN orderArray
+ENDFUNCTION
 
-    clearConsole()
+FUNCTION customerRegistrationMenu()
+    titleList = ["Username", "Password", "First Name", "Last Name", "House Number", "Street", "State", "Postcode", "Phone Number"]
+    userData = ["", "", "", "", "", "", "", "", ""]
+    DOWHILE True
+        FOR a IN range(len(titleList))
+            CALL clearConsole()
+            CALL pageBanners("Registration", 50)
+            DISPLAY("")
+            FOR b IN range(9)
+                DISPLAY("{:<15}{:<2}{:<2}".format(titleList[b], ":", userData[b]))
+            ENDFOR
+            DISPLAY("\n0. Type \"0\" to cancel registration.")
+            data = CALL userInput(titleList[a], True).strip()
+            IF data == "0"
+                RETURN
+            ENDIF
+            userData[a] = data
+        ENDFOR
+        success = CALL customerRegistrationSubmit(userData)
+        IF success
+            READ("\nUser account regsitered successfully, please enter to RETURN.")
+            BREAK LOOP
+        ENDIF
+    ENDDO
+ENDFUNCTION
 
-    DISPLAY("\nPlease select any option below.")
+FUNCTION customerRegistrationSubmit(userData:list)
+    FOR data IN userData
+        IF data.strip() == ""
+            READ("ERROR: An empty data found, please try again.")
+            RETURN False
+        ENDIF
+        record = userData[0] + " | " + userData[1] + " | " + userData[2] + " | " + userData[3] + " | " + userData[4] + " | " + userData[5] + " | " + userData[6] + " | " + userData[7] + " | " + userData[8] + "\n"
+    ENDFOR
+    OPEN CUSTOMER_DETAILS_FILE AS custFile
+		CALL custFile.write(record)
+    RETURN True
+ENDFUNCTION	
 
-    DISPLAY("1. Cancel an order","2. Back to Main Menu","0. Back",sep='\n')
+FUNCTION main()
+    DOWHILE True
+        CALL clearConsole()
+        DISPLAY(" ____   ___  _____ ____".center(78))
+        DISPLAY("/ ___| / _ \|  ___/ ___|".center(78))
+        DISPLAY("\___ \| | | | |_  \___ \\".center(78))
+        DISPLAY(" ___) | |_| |  _|  ___) |".center(80))
+        DISPLAY("|____/ \___/|_|   |____/".center(78))
+        DISPLAY("")
+        DISPLAY(f' {"Welcome to the Online Food Ordering Management System"} '.center(85, '='))
+        DISPLAY("\nWho are you logging in as?\n", "1. Admin", "2. Customer", "3. Quit Program", sep=' \n')
+        TRY
+            uInput = CALL int(userInput("Login as (Number)",True).strip())
+            IF uInput == 1 
+                CALL clearConsole()
+                CALL pageBanners("ADMIN LOGIN PAGE", 50)
+                CALL adminLoginPage()
+            ELSE IF uInput == 2
+				CALL userHomepage()
+            ELSE IF uInput == 3
+                CALL quit()
+            ELSE 
+                READ("ERROR: Number out of choice range")
+            ENDIF
+        EXCEPT ValueError
+            READ("ERROR: Foreign character submitted")
+    ENDDO
+ENDFUNCTION
 
-    READ = userInput("Choice",True)
-
-    IF READ == "1" : 
-
-        cancelOrder() 
-
-    ELSE IF READ == "2" :
-
-        main()
-
-    ELSE IF READ == "0" :
-
-        adminMenu()
-
-    else : 
-
-        # invalidInput()
-
-        order()
-
-
-
-FUNCTION cancelOrder() : PASS
-
-FUNCTION checkPayment() : PASS
-
-FUNCTION viewItemList() : PASS
-
-FUNCTION registered() : PASS
-
-FUNCTION viewItemDetail() : PASS
-
-FUNCTION viewCategoryDetail() : PASS
-
-FUNCTION addFoodToCart() : PASS
-
-FUNCTION checkout() : PASS
-
-FUNCTION logout() : PASS
-
-FUNCTION customerRegistration() : PASS 
+IF __name__ == '__main__'
+    TRY	
+        CALL initialProgramCheck()
+        CALL progressBar("\nLoading program")
+        CALL time.sleep(0.1)
+        CALL main()
+    EXCEPT KeyboardInterrupt:
+        CALL quit()
+ENDIF
