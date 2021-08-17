@@ -2,7 +2,16 @@ ________________________________________________________________________________
 SOFS ORDER RECORDS
 
 THIS FILE STORES THE DETAILS OF SOFS ORDERS
-STORE FORMAT: CUSTOMER USERNAME | ORDER ID | FOOD ITEM ID WITH QUANTITY | TOTAL PAYABLE | PAYMENT METHOD | PAYMENT STATUS | PAID ON | ORDER STATUS
+STORE FORMAT: CUSTOMER USERNAME | ORDER ID | FOOD ITEM ID WITH QUANTITY | TOTAL PAYABLE | PAYMENT STATUS
 __________________________________________________________________________________________________________________________________________________
-yudhx | O1 | M1(1), B1(1) | 26.80 | E-Wallet | PAID | 12/7/2021 | DELIVERED
-john | O2 | M1(1), B1(1) | 26.80 | E-Wallet | PAID | 12/7/2021 | DELIVERED
+yudhx | 1 | M1(1),B1(1) | 26.80 | PAID
+john | 2 | M1(1),F1(1) | 26.80 | PAID
+john | 3 | M3(1),W1(1) | 23.60 | PAID
+yudhx | 4 | M2(1),F4(1) | 12.50 | PAID
+john | 5 | M3(1),W2(1) | 14.00 | PAID
+yudhx | 6 | M1(1),W2(1) | 8.00 | PAID
+yudhx | 7 | M4(1),F3(1) | 13.20 | PAID
+john | 8 | M1(3),M2(4),M3(1) | 30.0 | PAID
+yudhx | 9 | M3(2),F1(1) | 28.0 | PAID
+yudhx | 12 | M1(2) | 26.0 | PAID
+yudhx | 11 | M1(1),W3(3),M3(1) | 78.83 | PAID

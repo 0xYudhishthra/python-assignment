@@ -2,6 +2,6 @@ ________________________________________________________________________________
 SOFS CUSTOMER LOGIN DETAILS
 
 THIS FILE STORES THE DETAILS OF SOFS REGISTERED CUSTOMERS.
-STORE FORMAT: USERNAME | PASSWORD | FIRST NAME | LAST NAME | HOUSE NUMBER | STREET | STATE | POSTCODE | PHONE NUMBER | E-WALLET BALANCE 
+STORE FORMAT: USERNAME | PASSWORD | FIRST NAME | LAST NAME | HOUSE NUMBER | STREET | STATE | POSTCODE | PHONE NUMBER
 _______________________________________________________________________________________________________________________________________
-yudhx | 123 | Yudhish | M | 30 | Persiaran Bukit Setiawangsa | W.P.K.L | 54200 | 60132083324 | 1000
+yudhx | 123 | Yudhish | Monster | 30 | Persiaran Bukit Setiawangsa | W.P.K.L | 54200 | 6013208332
