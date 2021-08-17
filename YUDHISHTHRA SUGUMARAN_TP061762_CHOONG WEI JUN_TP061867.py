@@ -101,7 +101,7 @@ def readAdminDetailsFile() -> list: #Function that reads file with admin details
         skipFileLine(6,adminDetailsFile)
         for row in adminDetailsFile:
             #Removes unnecessary foreign elements to only append usernames and password to list
-            adminDetailsList.append(row.strip("\n").replace(" | "," ").split(" ")) 
+            adminDetailsList.append(row.strip("\n").replace(" | "," ").split(" "))
     return adminDetailsList
 
 def adminLoginPage(): #Function that displays login Page for SOFS adminstrators
@@ -206,7 +206,7 @@ def addFoodItemMenu(): #Function that prompts admin to select which category of 
             print("ERROR: Foreign character submitted")
             time.sleep(0.1)
         
-def getNewFoodItemDetails(chosenFoodCategoryName:str) -> str: #Function that gets details of new food item from user before being written to file , to update
+def getNewFoodItemDetails(chosenFoodCategoryName:str) -> str: #Function that gets details of new food item from user before being written to file 
     validFoodItemName = False
     validFoodItemPrice = False
     #Ensures the foodItemName is in a valid format
@@ -433,6 +433,7 @@ def deleteFoodItemMenu(foodDetailsList:list): #Function that displays menu for u
             print("Invalid Food Item ID")
         
 def updateFoodItemRecord(foodDetailsList:list, foodItemIdList:list, foodItemIdIndex:int): #Function that updates a specific record of food item in the food details text file
+    # sourcery skip: switch
     validUpdateChoice = False
     print("\nWhat would you like to update?","1. Food Item Price","2. Food Item Name","3. Both",sep='\n')
     while not validUpdateChoice:
@@ -518,6 +519,7 @@ def extractFoodCategoryTitles(): #Function that gets the title and description o
     return foodCategoryDetails       
 
 def displayRecordsMenu(): #Function to display records main page
+    # sourcery skip: extract-duplicate-method, remove-unnecessary-else, swap-if-else-branches, switch
     validCategoryNumber = False
     foodCategoryList = extractFoodCategoryTitles()
     print("\n1. Food Categories","2. Food Items by Category","3. Customer Orders","4. Customer Payment","\n0. Back to Admin Menu", sep='\n')
@@ -579,19 +581,19 @@ def displayFoodCategoryRecords(): #Function that displays the records of food ca
 
 def displayOrderOrPaymentRecords(displayChoice:str): #Function that displays either order or payment records based on parameters given 
     orderRecordsList = readOrderRecordsFile()
-    print(f"\n\t\t\t\tREPORT OF ALL CUSTOMER {displayChoice.upper()}\n\t\t\t\t{'-'*31}\n")
+    print(f"\n\t\tREPORT OF ALL CUSTOMER {displayChoice.upper()}\n\t\t{'-'*31}\n")
     if displayChoice == 'orders':
         print(
-            f"CUSTOMER USERNAME\tORDER ID\tTOTAL PAYABLE\tORDER STATUS\tFOOD ID (QUANTITY)\n{'-'*17}{' '*7}{'-'*8}{' '*8}{'-'*13}{' '*3}{'-'*12}{' '*4}{'-'*18}")
+            f"CUSTOMER USERNAME\tORDER ID\tFOOD ID (QUANTITY)\n{'-'*17}{' '*7}{'-'*8}{' '*8}{'-'*13}")
         for data in orderRecordsList:
-            print('{:<24}{:<16}{:<16}{:<16}{}'.format(
-                data[0], data[1], data[3], data[7], data[2]))
+            print('{:<24}{:<16}{:<16}'.format(
+                data[0], data[1], data[2]))
     else:
         print(
-            f"CUSTOMER USERNAME\tORDER ID\tTOTAL PAYABLE\tPAYMENT METHOD\tPAYMENT STATUS\tPAID ON\n{'-'*17}{' '*7}{'-'*8}{' '*8}{'-'*13}{' '*3}{'-'*14}{' '*2}{'-'*14}{' '*2}{'-'*7}")
+            f"CUSTOMER USERNAME\tORDER ID\tTOTAL PAYABLE\tPAYMENT STATUS\n{'-'*17}{' '*7}{'-'*8}{' '*8}{'-'*13}{' '*3}{'-'*14}")
         for data in orderRecordsList:
-            print('{:<24}{:<16}{:<16}{:<16}{:<16}{}'.format(
-                data[0], data[1], data[3], data[4], data[5], data[6]))
+            print('{:<24}{:<16}{:<16}{:<16}'.format(
+                data[0], data[1], data[3], data[4]))
 
 # Search Menu Main Page
 def searchPageHeader(section:str): #Standard header for search page 
@@ -673,6 +675,8 @@ def searchOrderByUsername(orderRecordsList:list): #Search customer order by user
             displaySearchResults('orders', username, recordByUsername)
         else:
             print("No order records found for {}".format(username))
+            time.sleep(0.5)
+            adminMenu()
         break
     
 def searchOrderById(orderRecordsList:list): #Search customer order by Order ID
@@ -701,6 +705,8 @@ def searchOrderById(orderRecordsList:list): #Search customer order by Order ID
             displaySearchResults('orders',orderID,recordById)
         else:
             print("No order records found for {}".format(orderID.upper()))
+            time.sleep(0.5)
+            adminMenu()
         break
     
 # Search Specific Customer Payment Record
@@ -727,6 +733,8 @@ def searchPaymentByUsername(paymentList:list): #Search customer order by Usernam
             displaySearchResults('payments', username, recordByUsername)
         else:
             print("No payment records found for {}".format(username))
+            time.sleep(0.5)
+            adminMenu()
         break
 
 def searchPaymentById(paymentList:list): #Search customer order by Order ID
@@ -755,6 +763,8 @@ def searchPaymentById(paymentList:list): #Search customer order by Order ID
             displaySearchResults('payments',orderID,recordById)
         else:
             print("No payment records found for {}".format(orderID.upper()))
+            time.sleep(0.5)
+            adminMenu()
         break
 
 # Display Search Results
