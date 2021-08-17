@@ -827,19 +827,13 @@ def guestMenu():
             input("ERROR: Please enter numbers only.")
 
 # Print items without detail.
-def guestPrintItem(chosenFoodCategoryName):
-    while True:
-        try:
-            clearConsole()
-            print(f"FOOD ITEMS IN {chosenFoodCategoryName.upper()}\n{'-'*24}{'-'*len(chosenFoodCategoryName)}")
-            for data in readFoodDetailsFile():
-                if (chosenFoodCategoryName.replace("FOOD CATEGORY", "").strip().capitalize()) in data:
-                    print(data[2])
-            input("\nPress Enter to Return")
-            break
-        except TypeError:
-            input("ERROR: Please enter numbers only.")
-
+def guestPrintItem(chosenFoodCategoryName:str):
+    clearConsole()
+    print(f"FOOD ITEMS IN {chosenFoodCategoryName.upper()}\n{'-'*24}{'-'*len(chosenFoodCategoryName)}")
+    for data in readFoodDetailsFile():
+        if (chosenFoodCategoryName.replace("FOOD CATEGORY", "").strip().capitalize()) in data:
+            print(data[2])
+    input("\nPress Enter to Return")
 
 # Customer login page.
 def customerLoginMenu():
@@ -981,7 +975,7 @@ def customerCartSubmit(cart: list, username: str, cartTtl: float):
             itemString += cart[i] + "(" + str(cart[i + 1]) + ")"
             if i < (len(cart)-2):
                 itemString += ","
-        record = username + " | " + str(customerOrderDetailFileLen()+1) + " | " + itemString + " | " + str(cartTtl) + " | " + "PAID\n"
+        record = username + " | O" + str(customerOrderDetailFileLen()+1) + " | " + itemString + " | " + str(cartTtl) + " | " + "PAID\n"
         with open("./orderRecords.txt", "a") as orderFile:
             orderFile.write(record)
         input("Order placed successfully, please press enter to return.")

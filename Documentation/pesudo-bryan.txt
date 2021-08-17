@@ -25,13 +25,14 @@ FUNCTION guestMenu()
 		DISPLAY("\n")
 		CALL displayFoodCategories()
 		DISPLAY("\n0. Back To Guest Menu")
+        categoryTitle = CALL extractFoodCategoryTitles()
 		TRY:
 			DISPLAY("\nSelect the food category that you want to be displayed")
 			chosenCategory = CALL int(userInput("Food category", True).strip())
             IF chosenCategory == 0
                 BREAK LOOP
-			ELSE IF chosenCategory <= 4
-				CALL guestPrintItem((extractFoodCategoryTitles()[chosenCategory-1][0]))
+			ELSE IF chosenCategory <= len(categoryTitle)
+				CALL guestPrintItem(categoryTitle[chosenCategory-1][0])
 			ELSE
                 READ("ERROR: Invalid chosen category.")
         EXCEPT ValueError:
@@ -39,17 +40,12 @@ FUNCTION guestMenu()
 
 
 FUNCTION guestPrintItem(chosenFoodCategoryName)
-    DOWHILE True
-        TRY
-			CALL clearConsole()
-            DISPLAY(f"FOOD ITEMS IN {chosenFoodCategoryName.upper()}\n{'-'*24}{'-'*len(chosenFoodCategoryName)}")
-            FOR data IN readFoodDetailsFile()
-                IF (chosenFoodCategoryName.replace("FOOD CATEGORY", "").strip().capitalize()) IN data
-                    DISPLAY(data[2])
-            READ("\nPress Enter to Return")
-            BREAK LOOP
-        EXCEPT TypeError:
-            READ("ERROR: Please enter numbers only.")
+    CALL clearConsole()
+    DISPLAY(f"FOOD ITEMS IN {chosenFoodCategoryName.upper()}\n{'-'*24}{'-'*len(chosenFoodCategoryName)}")
+    FOR data IN readFoodDetailsFile()
+        IF (chosenFoodCategoryName.replace("FOOD CATEGORY", "").strip().capitalize()) IN data
+            DISPLAY(data[2])
+    READ("\nPress Enter to Return")
 
 FUNCTION customerLoginMenu()
     DOWHILE True

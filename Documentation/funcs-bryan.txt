@@ -1,5 +1,5 @@
-userHomepage()
-guestMenu()
+userHomepage()#
+guestMenu()#
 guestPrintItem()
 customerLoginMenu()
 customerReadDetailFile()
