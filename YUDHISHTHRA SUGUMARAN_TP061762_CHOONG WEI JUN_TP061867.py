@@ -1,18 +1,19 @@
+# FILE AUTHORS
 # Yudhishthra A/L S Sugumaran - TP061762
 # Choong Wei Jun - TP061867
 
 #!/usr/bin/env python3
 
-'''IMPORT NECESSARY EXTERNAL MODULES'''
+# EXTERNAL MODULES
 import os
 import time
 
-'''UTILITY FUNCTIONS'''
-def initialProgramCheck(): #Function that ensures all files needed exists and has data, update pseudocode
+# UTILITY FUNCTIONS
+def initialProgramCheck(): #Function that ensures all files needed exists and has data
     print(" PRE-PROGRAM CHECKS ".center(85,"="))
     print(" File Existence Check ".center(85,'='))
     files = ["./foodDetails.txt", "./customerDetails.txt", "./adminDetails.txt", "./orderRecords.txt"]
-    #Iterates thorugh each file in the files list to see if it exists in the given directory
+    #Iterates through each file in the files list to see if it exists in the given directory
     for file in files:
         print(f"Checking if {file} exists", end="") 
         time.sleep(0.5)
@@ -92,10 +93,9 @@ def pageBanners(pageTitle:str,centerLength:int): #Function that displays banner 
     print(f'\t{pageTitle} '.center(centerLength))
     print(f'\t{"_"*len(pageTitle)} '.center(centerLength))
 
-
-'''DECLARING FUNCTIONS FOR ADMIN DASHBOARD'''
-'''Login to access system'''
-def readAdminDetailsFile() -> list: #Function that reads file with admin details, extracts username and passwords without headers and appends it to list, PSEUDOCODE TBC
+#==================================ADMIN SECTION===============================================
+# Login to Access System
+def readAdminDetailsFile() -> list: #Function that reads file with admin details, extracts username and passwords without headers and appends it to list
     adminDetailsList = [] 
     with open ("./adminDetails.txt",mode='r') as adminDetailsFile:
         skipFileLine(6,adminDetailsFile)
@@ -104,7 +104,7 @@ def readAdminDetailsFile() -> list: #Function that reads file with admin details
             adminDetailsList.append(row.strip("\n").replace(" | "," ").split(" ")) 
     return adminDetailsList
 
-def adminLoginPage(): #Function that displays login Page for SOFS adminstrators, TO-DO: show message when user enter without submitting anything
+def adminLoginPage(): #Function that displays login Page for SOFS adminstrators
     adminDetailsList = readAdminDetailsFile()
     usernameExists = False
     #Continuosly ask for username until it user input matches any 1 usernames in the adminDetailsList
@@ -132,7 +132,7 @@ def adminLoginPage(): #Function that displays login Page for SOFS adminstrators,
         else: 
           print(" ERROR: Incorrect password")
 
-def adminMenu(uName:str = 'Admin'): #Function that shows admin Menu upon successful admin login, PSEUDOCODE TO BE CHANGED
+def adminMenu(uName:str = 'Admin'): #Function that shows admin Menu upon successful admin login
     CHOICES = [[1, "ADD NEW FOOD ITEM", addFoodItemMenu], [2, "MODIFY FOOD ITEM", modifyFoodItemMenu], 
                [3, "DISPLAY RECORDS", displayRecordsMenu], [4, "SEARCH RECORDS", searchRecordsMenu]]
     clearConsole()
@@ -160,8 +160,8 @@ def adminMenu(uName:str = 'Admin'): #Function that shows admin Menu upon success
             print("ERROR: Foreign character submitted")
             time.sleep(0.1) 
 
-'''Add food item by category'''
-def readFoodDetailsFile() -> list: #Function that reads file with food details, extract food details without headers and appends it to list, TO-DO: modify try-catch to fit missing files
+# Add food item by category
+def readFoodDetailsFile() -> list: #Function that reads file with food details, extract food details without headers and appends it to list
     foodItemsList=[]
     with open ("./foodDetails.txt", mode='r') as foodDetailsFile:
         skipFileLine(6,foodDetailsFile) 
@@ -171,12 +171,12 @@ def readFoodDetailsFile() -> list: #Function that reads file with food details, 
             foodItemsList.append(row.replace("\n","").replace("_","").split(" | "))
     return removeEmptyList(foodItemsList)
 
-def displayFoodCategories(): #Function that displays list of food categories ONLY as ordered list, update pseudocode, rethink purpose of this function
+def displayFoodCategories(): #Function that displays list of food categories ONLY as ordered list
     foodCategoriesList = extractFoodCategoryTitles()
     for list in foodCategoriesList:
         print(f'{foodCategoriesList.index(list)+1}. {list[0].capitalize()}')
         
-def addFoodItemMenu(): #Function that prompts admin to select which category of food item they want to add or to add new food category, PSEUDOCODE TO BE CHANGED, to update
+def addFoodItemMenu(): #Function that prompts admin to select which category of food item they want to add or to add new food category
     foodCategoryTitles = extractFoodCategoryTitles()
     print(f"\nIn which category would you like to add the food item?\n")
     displayFoodCategories()
@@ -249,7 +249,7 @@ def getNewFoodItemDetails(chosenFoodCategoryName:str) -> str: #Function that get
             continue
         break
             
-def writeNewFoodCategoryToFile(): #Function that adds new food category in food details file and asks user if they want to add a new food item in the new category, update pseudocode
+def writeNewFoodCategoryToFile(): #Function that adds new food category in food details file and asks user if they want to add a new food item in the new category
     #Add new food category to file
     addFoodCategoryConfirmation = False
     foodCategoryName = userInput("\nNew Food Category Name",False).upper()
@@ -321,8 +321,7 @@ def writeNewFoodItemToFile(foodCategoryName:str,foodItemName:str,foodItemPrice:f
             foodDetailsFile.write(data[0])
     print(" Success!")
 
-
-'''Modify food item'''
+# Modify food item 
 def modifyFoodItemMenu(): #Function that displays main page for admins to modify records of food items
     foodDetailsList = []
     with open("./foodDetails.txt", mode='r') as foodDetailsFile:
@@ -355,7 +354,7 @@ def modifyFoodItemMenu(): #Function that displays main page for admins to modify
         except ValueError:
             print("\nERROR: Foreign character submitted")
 
-def verifyFoodItemId(foodItemId:str, foodDetailsList:list) -> bool: #Function that verifies the format and existence of the food item ID that has been received by the user, update pseudocode
+def verifyFoodItemId(foodItemId:str, foodDetailsList:list) -> bool: #Function that verifies the format and existence of the food item ID that has been received by the user
     if foodItemId == '' : 
         return False
     elif (foodItemId[0].isalpha() and foodItemId[1: len(foodItemId)].isdigit()):
@@ -382,7 +381,7 @@ def verifyFoodCategoryNumber() -> bool: #Function that verifies that the food ca
             print("ERROR: Foreign character submitted")
     return validCategoryNumber
 
-def listOutFoodItems(chosenFoodCategoryName:str): #Function that displays the details of all food items in the food details file based on the category chosen by the user, pseudocode TBC
+def listOutFoodItems(chosenFoodCategoryName:str): #Function that displays the details of all food items in the food details file based on the category chosen by the user
     foodItemDetails = readFoodDetailsFile()
     progressBar("Retrieving food item records")
     time.sleep(0.5)
@@ -489,7 +488,7 @@ def deleteFoodItemRecord(userConfirmation:str, foodItemId:str, foodDetailsList:l
         else:
             adminMenu()
             
-'''Main Menu Page for Display'''
+# Displaying Records
 def readOrderRecordsFile() -> list: #Function that reads file with order records, extract order records without headers and append to list
     orderDetailsList = []
     with open("./orderRecords.txt", mode='r') as orderRecordsFile:
@@ -527,7 +526,7 @@ def displayRecordsMenu(): #Function to display records main page
     while not validCategoryNumber:
         try:
             userSelection = int(userInput("Display (Number)",True))
-            if 0 < userSelection < 5:
+            if -1 < userSelection < 5:
                 validCategoryNumber = True
                 break
             else:
@@ -567,6 +566,7 @@ def displayRecordsMenu(): #Function to display records main page
             adminMenu()
         if userSelection == 0 :
             adminMenu()
+        break
     
 def displayFoodCategoryRecords(): #Function that displays the records of food categories and descriptions cleanly
     foodCategoryList = extractFoodCategoryTitles()
@@ -576,7 +576,6 @@ def displayFoodCategoryRecords(): #Function that displays the records of food ca
         f"CATEGORY NAME(S)\t\tCATEGORY DESCRIPTION(S)\n{'-'*15}\t\t\t{'-'*22}")
     for data in foodCategoryList:
         print('{:<32}{}'.format(data[0], data[1]))
-
 
 def displayOrderOrPaymentRecords(displayChoice:str): #Function that displays either order or payment records based on parameters given 
     orderRecordsList = readOrderRecordsFile()
@@ -594,8 +593,7 @@ def displayOrderOrPaymentRecords(displayChoice:str): #Function that displays eit
             print('{:<24}{:<16}{:<16}{:<16}{:<16}{}'.format(
                 data[0], data[1], data[3], data[4], data[5], data[6]))
 
-
-'''Search Menu Main Page'''
+# Search Menu Main Page
 def searchPageHeader(section:str): #Standard header for search page 
     clearConsole()
     pageBanners(section, 50)
@@ -652,8 +650,7 @@ def searchRecordsMenu(): #Main page for users to select type of record search
         except ValueError:
             print("\nERROR: Please enter a number")
 
-
-'''Search Specific Customer Order Record'''
+# Search Specific Customer Order Record
 def searchOrderByUsername(orderRecordsList:list): #Search customer order by username
     validUsername = False
     recordByUsername = []
@@ -667,8 +664,7 @@ def searchOrderByUsername(orderRecordsList:list): #Search customer order by user
     while validUsername:
         for data in orderRecordsList:
             if (username.lower() == data[0]):
-                recordByUsername.append(
-                    [data[0], data[1], data[2], data[3], data[7]])
+                recordByUsername.append([data[0], data[1], data[2]])
                 count += 1
         if count >= 1:
             print("{} order records have been found for {}".format(count, username))
@@ -696,7 +692,7 @@ def searchOrderById(orderRecordsList:list): #Search customer order by Order ID
     while validOrderId:
         for data in orderRecordsList:
             if (orderID.upper() in data):
-                recordById.append([data[0],data[1],data[2],data[3],data[7]])
+                recordById.append([data[0],data[1],data[2]])
                 orderExists = True
         if (orderExists):
             print("1 Order record have been found for Order ID {}".format(orderID.upper()))
@@ -707,7 +703,7 @@ def searchOrderById(orderRecordsList:list): #Search customer order by Order ID
             print("No order records found for {}".format(orderID.upper()))
         break
     
-'''Search Specific Customer Payment Record'''
+# Search Specific Customer Payment Record
 def searchPaymentByUsername(paymentList:list): #Search customer order by Username
     validUsername = False
     recordByUsername = []
@@ -722,7 +718,7 @@ def searchPaymentByUsername(paymentList:list): #Search customer order by Usernam
         for data in paymentList:
             if (username.lower() == data[0]):
                 recordByUsername.append(
-                    [data[0], data[1], data[3], data[4], data[5], data[6]])
+                    [data[0], data[1], data[2], data[3], data[4]])
                 count += 1
         if count >= 1:
             print("{} payment records have been found for {}".format(count, username))
@@ -750,7 +746,7 @@ def searchPaymentById(paymentList:list): #Search customer order by Order ID
     while validOrderId:
         for data in paymentList:
             if (orderID.upper() == data[1]):
-                recordById.append([data[0],data[1],data[3],data[4],data[5],data[6]])
+                recordById.append([data[0],data[1],data[2],data[3],data[4]])
                 orderIdExists = True
         if (orderIdExists):
             print("1 payment record have been found for Order ID {}".format(orderID.upper()))
@@ -761,24 +757,23 @@ def searchPaymentById(paymentList:list): #Search customer order by Order ID
             print("No payment records found for {}".format(orderID.upper()))
         break
 
-
-'''Display Search Results'''
+# Display Search Results
 def displaySearchResults(recordName:str,searchBasis:str,resultsList:list): #Function that gets search results from the earlier search functions and displays it cleanly
     if recordName == 'orders':
         print(
-            f"\n\t\t\t\tORDER REPORT FOR {searchBasis.upper()}\n\t\t\t\t{'-' * len(searchBasis)}{'-'*17}\n")
+            f"\n\t\tORDER REPORT FOR {searchBasis.upper()}\n\t\t{'-' * len(searchBasis)}{'-'*17}\n")
         print(
-            f"CUSTOMER USERNAME\tORDER ID\tTOTAL PAYABLE\tORDER STATUS\tFOOD ID(QUANTITY)\n{'-'*17}{' '*7}{'-'*8}{' '*8}{'-'*13}{' '*3}{'-'*12}{' '*4}{'-'*17}")
+            f"CUSTOMER USERNAME\tORDER ID\tFOOD ID(QUANTITY)\n{'-'*17}{' '*7}{'-'*8}{' '*8}{'-'*13}")
         for data in resultsList:
-            print('{:<24}{:<16}{:<16}{:<16}{}'.format(
-                data[0].upper(), data[1], data[3], data[4], data[2]))
+            print('{:<24}{:<16}{:<16}'.format(
+                data[0].upper(), data[1], data[2]))
     else:
         print(
-            f"\n\t\t\t\tPAYMENT REPORT FOR {searchBasis.upper()}\n\t\t\t\t{'-'*19}{'-' * len(searchBasis)}\n")
+            f"\n\t\t\tPAYMENT REPORT FOR {searchBasis.upper()}\n\t\t\t{'-'*19}{'-' * len(searchBasis)}\n")
         print(
-            f"CUSTOMER USERNAME\tORDER ID\tTOTAL PAYABLE\tPAYMENT METHOD\tPAYMENT STATUS\tPAID ON\n{'-'*17}{' '*7}{'-'*8}{' '*8}{'-'*13}{' '*3}{'-'*14}{' '*2}{'-'*14}{' '*2}{'-'*7}")
+            f"CUSTOMER USERNAME\tORDER ID\tTOTAL PAYABLE\tPAYMENT STATUS\n{'-'*17}{' '*7}{'-'*8}{' '*8}{'-'*13}{' '*3}{'-'*14}")
         for data in resultsList:
-            print('{:<24}{:<16}{:<16}{:<16}{:<16}{}'.format(data[0].upper(),data[1],data[2],data[3],data[4],data[5]))  
+            print('{:<24}{:<16}{:<16}{:<16}'.format(data[0].upper(),data[1],data[3], data[4]))  
     print("\nRedirecting to admin menu in 15 seconds...")
     time.sleep(15)
     adminMenu()
