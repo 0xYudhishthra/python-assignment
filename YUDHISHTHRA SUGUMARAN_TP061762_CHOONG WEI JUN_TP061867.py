@@ -787,15 +787,13 @@ def userHomepage():
         clearConsole()
         pageBanners("GUEST DASHBOARD", 50)
         print("\nPlease select any option below.")
-        print("1. View Menu", "2. Customer Login",
-              "3. New Customer Registration", "\n0. Back to Main Menu", sep='\n')
+        print("1. View Menu", "2. Customer Login", "3. New Customer Registration", "\n0. Back to Main Menu", sep='\n')
         input = userInput("Choice", True).strip()
         if input == "1":
             guestMenu()
         elif input == "2":
             customerMenu(customerLoginMenu())
         elif input == "3":
-            pageBanners("NEW ACCOUNT", 50)
             customerRegistrationMenu()
         elif input == "0":
             break
@@ -810,14 +808,14 @@ def guestMenu():
         pageBanners("MENU CATEGORIES", 50)
         print("\n")
         displayFoodCategories()
-        print("\n0. Back To Guest Menu")
+        print("\n0. Back To Guest Menu\nSelect the food category that you want to be displayed")
+        categoryTitle = extractFoodCategoryTitles()
         try:
-            print("\nSelect the food category that you want to be displayed")
             chosenCategory = int(userInput("Food category", True).strip())
             if chosenCategory == 0:
                 break
-            elif chosenCategory <= 4 :
-                guestPrintItem((extractFoodCategoryTitles()[chosenCategory-1][0]))
+            elif chosenCategory <= len(categoryTitle) :
+                guestPrintItem(categoryTitle[chosenCategory-1][0])
             else :
                 input("ERROR: Invalid chosen category.")
         except ValueError:
