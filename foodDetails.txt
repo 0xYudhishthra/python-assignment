@@ -19,7 +19,7 @@ WESTERN FOOD CATEGORY - We bring the Western to you.
 ________________________________________________________________________________________
 Western | W1 | Mac & Cheese | 9.00
 Western | W2 | Irish Lamb Shank | 40.11
-Western | W3 | Fish & Chips | 20.11
+Western | W3 | Fish and Chips | 34.00
 Western | W4 | Aglio Oglio | 30.00
 Western | W5 | Chicken Cordon Bleu | 22.76
 ________________________________________________________________________________________
