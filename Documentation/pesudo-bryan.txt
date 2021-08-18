@@ -40,6 +40,7 @@ FUNCTION guestMenu()
             ENDIF
         EXCEPT ValueError:
             READ("ERROR: Please enter numbers only.")
+        ENDTRY
     ENDDO
 ENDFUNCTION
 
@@ -162,6 +163,7 @@ FUNCTION customerCartMenu(cart: list, username: str)
         FOR i IN range(len(cartDetailArray))
             DISPLAY("{:<3}{:<2}{:<32}{:<2}{:<9}{:<2}{:<11}{:<2}{:<17}{:<2}".format((str(i+1)+"."), "|",
                   cartDetailArray[i][0], "|", cartDetailArray[i][1], "|", cartDetailArray[i][2], "|", cartDetailArray[i][3], "|"))
+        ENDFOR
         DISPLAY(f"\nTotal: {cartTtl}\n\n1. Submit Order Cart\n0. Back")
         option = CALL userInput("Choice", True).strip()
         IF option == "0"
@@ -206,18 +208,20 @@ FUNCTION customerCartSubmit(cart: list, username: str, cartTtl: float)
             ENDIF
         ENDFOR
         record = username + " | " + CALL str(customerOrderDetailFileLen()+1) + " | " + itemString + " | " + CALL str(cartTtl) + " | " + "PAID\n"
-        with open(ORDER_RECORDS_FILE, "a") as orderFile
+        OPEN "./orderRecords.txt" IN AppendMode AS orderFile 
             CALL orderFile.write(record)
+        CLOSE orderFile
         READ("Order placed successfully, please press enter to RETURN.")
 ENDFUNCTION
 
 FUNCTION customerOrderDetailFileLen()
     len = 0
-    READ ORDER_RECORDS_FILE AS orderDetailFile
+    OPEN "./orderRecords.txt" IN ReadMode AS orderDetailFile
         CALL skipFileLine(6, orderDetailFile)
         FOR row IN orderDetailFile
             len += 1
         ENDFOR
+    CLOSE orderDetailFile
     RETURN len
 ENDFUNCTION
 
@@ -233,6 +237,7 @@ FUNCTION customerItemMenu(cart: list, chosenFoodCategoryName: str)
             ENDIF
         EXCEPT TypeError
             DISPLAY NOTHING TO PREVENT PROGRAM CRASH
+        ENDTRY
         IF cartChosen
             IF addCartChosen
                 itemToAdd = CALL userInput("Item Code to Add (M2)", True).strip().upper()
@@ -324,6 +329,7 @@ FUNCTION customerCartAddItem(item: str, amount: str, cart: list)
     EXCEPT
         READ("\nERROR: Alphabet/s found IN amount entered, please enter numbers only.")
         RETURN cart
+    ENDTRY
 ENDFUNCTION 		
 
 FUNCTION customerCartRemoveItem(item: str, amount: str, cart: list)
@@ -333,6 +339,7 @@ FUNCTION customerCartRemoveItem(item: str, amount: str, cart: list)
         EXCEPT
             READ("ERROR: Invalid string found, do you mean \"All\"?")
             RETURN cart
+        ENDTRY
     ENDIF
     FOR i IN range(0, len(cart), 2)
         IF cart[i] == item
@@ -371,7 +378,7 @@ ENDFUNCTION
 
 FUNCTION customerOrderDetailRead(username: str)
     orderArray = []
-    READ ORDER_RECORDS_FILE AS orderDetailFile
+    READ ""./orderRecords.txt" IN ReadMode AS orderDetailFile
         CALL skipFileLine(6, orderDetailFile)
         FOR row IN orderDetailFile
             order = REMOVE "\n" REPLACE " | " TO " " SPLIT WITH " " IN ROW 
@@ -445,6 +452,7 @@ FUNCTION main()
             ENDIF
         EXCEPT ValueError
             READ("ERROR: Foreign character submitted")
+        ENDTRY
     ENDDO
 ENDFUNCTION
 
