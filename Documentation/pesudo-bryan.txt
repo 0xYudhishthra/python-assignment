@@ -464,4 +464,5 @@ IF __name__ == '__main__'
         CALL main()
     EXCEPT KeyboardInterrupt:
         CALL quit()
+    ENDTRY 
 ENDIF
