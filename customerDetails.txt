@@ -8,3 +8,4 @@ abu | 123 | Abu | Bakar | 30 | Persiaran Bukit Kokonut | W.P.K.L | 23436 | 60132
 willB | 144 | Will | Barnes | 69 | Parit Durian | Labuan | 65009 | 60132531124
 tee | 696 | Soon Tee | Chiam | 40 | Jalan 2 | Bilzen | 06587 | 60196705259
 jag69 | 1001 | Jagdeep | Ramasamy Rajakumar | 22 | Jln Pudu Lama 6 | Selangor | 46618 | 60152476786
+John | 11443 | John | Hill | 30 | Jalan Durian | Kuala Lumpur | 33245 | 0193245546

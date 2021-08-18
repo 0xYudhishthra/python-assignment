@@ -14,3 +14,4 @@ john | O8 | M1(3),M2(4),M3(1) | 30.0 | PAID
 yudhx | O9 | M3(2),F1(1) | 28.0 | PAID
 yudhx | O12 | M1(2) | 26.0 | PAID
 yudhx | O11 | M1(1),W3(3),M3(1) | 78.83 | PAID
+abu | O11 | M1(1),M4(3) | 42.00 | PAID
