@@ -1075,7 +1075,10 @@ FUNCTION userHomepage()
         IF READ == "1"
 			CALL guestMenu()
         ELSE IF READ == "2"
-            CALL customerMenu(customerLoginMenu())
+            username = CALL customerLoginMenu()
+            IF username != ""
+                CALL customerMenu(username)
+            ENDIF
         ELSE IF READ == "3"
             CALL pageBanners("NEW ACCOUNT", 50)
             CALL customerRegistrationMenu()
@@ -1141,15 +1144,15 @@ FUNCTION customerLoginMenu()
                     CALL progressBar("Logging you in")
                     RETURN uName
                 ELSE IF uPass == "0"
-                    BREAK LOOP
+                    RETURN ""
                 ELSE
-                    READ("Incorrect password, please retry.")
+                    READ("\nIncorrect password, please retry.")
                 ENDIF
             ENDDO
         ELSE IF uName == "0"
-            BREAK LOOP
+            RETURN ""
         ELSE
-            READ("Username NOT found, please retry.")
+            READ("\nUsername NOT found, please retry.")
         ENDIF
     ENDDO
 ENDFUNCTION
