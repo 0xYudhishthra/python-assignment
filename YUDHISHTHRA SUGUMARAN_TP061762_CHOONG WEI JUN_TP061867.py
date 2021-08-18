@@ -603,6 +603,7 @@ def searchPageHeader(section:str): #Standard header for search page
     print("\n1. Customer Username","2. Order ID", "\n0. Back to Admin Menu\n", sep='\n')
 
 def searchRecordsMenu(): #Main page for users to select type of record search
+    # sourcery skip: switch
     orderRecordsList = readOrderRecordsFile()
     print("\nWhich record do you want to check?")
     print("\n1. Customer Order Record","2. Customer Payment Record","\n0. Back to Admin Menu\n", sep='\n')
@@ -1169,16 +1170,16 @@ def customerRegistrationSubmit(userData:list):
 
 # MAIN FUNCTION
 def main(): #The main module that will be executed first
-    while True:
-        clearConsole()
-        print(" ____   ___  _____ ____".center(78))
-        print("/ ___| / _ \|  ___/ ___|".center(78))
-        print("\___ \| | | | |_  \___ \\".center(78))
-        print(" ___) | |_| |  _|  ___) |".center(80))
-        print("|____/ \___/|_|   |____/".center(78))
-        print("")
-        print(f' {"Welcome to the Online Food Ordering Management System"} '.center(85, '='))
-        print("\nWho are you logging in as?\n", "1. Admin", "2. Customer", "3. Quit Program", sep=' \n')
+    clearConsole()
+    print(" ____   ___  _____ ____".center(78))
+    print("/ ___| / _ \|  ___/ ___|".center(78))
+    print("\___ \| | | | |_  \___ \\".center(78))
+    print(" ___) | |_| |  _|  ___) |".center(80))
+    print("|____/ \___/|_|   |____/".center(78))
+    print("")
+    print(f' {"Welcome to the Online Food Ordering Management System"} '.center(85, '='))
+    print("\nWho are you logging in as?\n", "1. Admin", "2. Customer", "3. Quit Program", sep=' \n')
+    while True:  
         try:
             uInput = int(userInput("Login as (Number)",True).strip())
             if uInput == 1 :
@@ -1190,9 +1191,9 @@ def main(): #The main module that will be executed first
             elif uInput == 3:
                 quit()
             else:
-                input("ERROR: Number out of choice range")
+                print("ERROR: Number out of choice range")
         except ValueError:
-            input("ERROR: Foreign character submitted")
+            print("ERROR: Foreign character submitted")
             
 
 # EXECUTE MAIN
