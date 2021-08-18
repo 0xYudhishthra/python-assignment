@@ -8,7 +8,7 @@
 import os
 import time
 
-# UTILITY FUNCTIONS
+#================================== UTILITY FUNCTIONS ===============================================
 def initialProgramCheck(): #Function that ensures all files needed exists and has data
     print(" PRE-PROGRAM CHECKS ".center(85,"="))
     print(" File Existence Check ".center(85,'='))
@@ -127,12 +127,12 @@ def adminLoginPage(): #Function that displays login Page for SOFS adminstrators
         time.sleep(0.05)
         passwordMatch = authPassword(uName, uPass,adminDetailsList)
         if (passwordMatch):
-            adminMenu(uName)
+            adminMenu()
             break  
         else: 
           print(" ERROR: Incorrect password")
 
-def adminMenu(uName:str = 'Admin'): #Function that shows admin Menu upon successful admin login
+def adminMenu(): #Function that shows admin Menu upon successful admin login
     CHOICES = [[1, "ADD NEW FOOD ITEM", addFoodItemMenu], [2, "MODIFY FOOD ITEM", modifyFoodItemMenu], 
                [3, "DISPLAY RECORDS", displayRecordsMenu], [4, "SEARCH RECORDS", searchRecordsMenu]]
     clearConsole()
@@ -305,7 +305,7 @@ def writeNewFoodItemToFile(foodCategoryName:str,foodItemName:str,foodItemPrice:f
         for data in foodItemsList:
             if foodCategoryName.upper() == data[0][0:len(foodCategoryName)]:
                 lastFoodItemIndex = foodItemsList.index(data) + 1
-    # #Assigns a new food ID by adding 1 to the last food item ID in the food category
+    #Assigns a new food ID by adding 1 to the last food item ID in the food category
     else: 
         lastFoodItemIndex = foodItemIndexes[-1]
         lastFoodItemRecord = foodItemsList[lastFoodItemIndex][0].split(" | ")
@@ -595,14 +595,14 @@ def displayOrderOrPaymentRecords(displayChoice:str): #Function that displays eit
             print('{:<24}{:<16}{:<16}{:<16}'.format(
                 data[0], data[1], data[3], data[4]))
 
-# Search Menu Main Page
-def searchPageHeader(section:str): #Standard header for search page 
+# Searching records
+def searchPageHeader(section:str): #Function that displays a standard header for the search page 
     clearConsole()
     pageBanners(section, 50)
     print("\nOn what basis should the records be searched?".center(100))
     print("\n1. Customer Username","2. Order ID", "\n0. Back to Admin Menu\n", sep='\n')
 
-def searchRecordsMenu(): #Main page for users to select type of record search
+def searchRecordsMenu(): #Function that displays the main page for users to select type of record search
     # sourcery skip: switch
     orderRecordsList = readOrderRecordsFile()
     print("\nWhich record do you want to check?")
@@ -653,8 +653,7 @@ def searchRecordsMenu(): #Main page for users to select type of record search
         except ValueError:
             print("\nERROR: Please enter a number")
 
-# Search Specific Customer Order Record
-def searchOrderByUsername(orderRecordsList:list): #Search customer order by username
+def searchOrderByUsername(orderRecordsList:list): #Function to search customer order by username
     validUsername = False
     recordByUsername = []
     count = 0
@@ -680,7 +679,7 @@ def searchOrderByUsername(orderRecordsList:list): #Search customer order by user
             adminMenu()
         break
     
-def searchOrderById(orderRecordsList:list): #Search customer order by Order ID
+def searchOrderById(orderRecordsList:list): #Function to search customer order by Order ID
     validOrderId = False
     recordById = []
     orderExists = False
@@ -710,8 +709,7 @@ def searchOrderById(orderRecordsList:list): #Search customer order by Order ID
             adminMenu()
         break
     
-# Search Specific Customer Payment Record
-def searchPaymentByUsername(paymentList:list): #Search customer order by Username
+def searchPaymentByUsername(paymentList:list): #Function to search customer order by Username
     validUsername = False
     recordByUsername = []
     count = 0
@@ -738,7 +736,7 @@ def searchPaymentByUsername(paymentList:list): #Search customer order by Usernam
             adminMenu()
         break
 
-def searchPaymentById(paymentList:list): #Search customer order by Order ID
+def searchPaymentById(paymentList:list): #Function to search customer order by Order ID
     validOrderId = False
     recordById = []
     orderIdExists = False
@@ -768,7 +766,6 @@ def searchPaymentById(paymentList:list): #Search customer order by Order ID
             adminMenu()
         break
 
-# Display Search Results
 def displaySearchResults(recordName:str,searchBasis:str,resultsList:list): #Function that gets search results from the earlier search functions and displays it cleanly
     if recordName == 'orders':
         print(
@@ -1167,7 +1164,7 @@ def customerRegistrationSubmit(userData:list):
         custFile.write(record)
     return True
     
-
+    
 # MAIN FUNCTION
 def main(): #The main module that will be executed first
     clearConsole()
@@ -1195,7 +1192,6 @@ def main(): #The main module that will be executed first
         except ValueError:
             print("ERROR: Foreign character submitted")
             
-
 # EXECUTE MAIN
 if __name__ == '__main__':
     try:
