@@ -10,7 +10,7 @@ MALAYSIAN FOOD CATEGORY - A Variety of Malaysian Foods served here.
 ________________________________________________________________________________________
 Malaysian | M1 | Nasi Lemak Rendang Ayam | 12.00
 Malaysian | M2 | Nasi Kerabu Daging Bakar | 15.60
-Malaysian | M3 | Nasi Goreng Kampung | 6.50
+Malaysian | M3 | Nasi Goreng Ayam | 7.00
 Malaysian | M4 | Penang Asam Laksa | 10.00
 Malaysian | M5 | Mee Goreng Ayam | 11.00
 ________________________________________________________________________________________
@@ -29,5 +29,5 @@ ________________________________________________________________________________
 Fusion | F1 | Sushi Pizza | 15.00
 Fusion | F2 | Donut Grilled Cheese | 4.50
 Fusion | F3 | Ramen Burger | 9.00
-Fusion | F4 | Mac and Cheese Waffles | 5.50
-Fusion | F5 | Ice Cream Trdelnik | 9.00
+Fusion | F4 | Mac and Cheese | 6.00
+Fusion | F5 | Cendol Pizza | 12.00
