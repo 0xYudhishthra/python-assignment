@@ -8,7 +8,10 @@ FUNCTION userHomepage()
         IF READ == "1"
 			CALL guestMenu()
         ELSE IF READ == "2"
-            CALL customerMenu(customerLoginMenu())
+            username = CALL customerLoginMenu()
+            IF username != ""
+                CALL customerMenu(username)
+            ENDIF
         ELSE IF READ == "3"
             CALL pageBanners("NEW ACCOUNT", 50)
             CALL customerRegistrationMenu()
@@ -378,7 +381,7 @@ ENDFUNCTION
 
 FUNCTION customerOrderDetailRead(username: str)
     orderArray = []
-    READ ""./orderRecords.txt" IN ReadMode AS orderDetailFile
+    READ "./orderRecords.txt" IN ReadMode AS orderDetailFile
         CALL skipFileLine(6, orderDetailFile)
         FOR row IN orderDetailFile
             order = REMOVE "\n" REPLACE " | " TO " " SPLIT WITH " " IN ROW 

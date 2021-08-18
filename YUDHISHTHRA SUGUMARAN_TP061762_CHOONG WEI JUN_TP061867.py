@@ -800,7 +800,9 @@ def userHomepage():
         if input == "1":
             guestMenu()
         elif input == "2":
-            customerMenu(customerLoginMenu())
+            username = customerLoginMenu()
+            if username != "":
+                customerMenu(username)
         elif input == "3":
             customerRegistrationMenu()
         elif input == "0":
@@ -858,13 +860,13 @@ def customerLoginMenu():
                     progressBar("Logging you in")
                     return uName
                 elif uPass == "0":
-                    break
+                    return ""
                 else:
-                    input("Incorrect password, please retry.")
+                    input("\nIncorrect password, please retry.")
         elif uName == "0":
-            break
+            return ""
         else:
-            print("Username not found, please retry.")
+            input("\nUsername not found, please retry.")
 
 # Read customer detail file.
 def customerReadDetailFile():
@@ -1167,16 +1169,16 @@ def customerRegistrationSubmit(userData:list):
     
 # MAIN FUNCTION
 def main(): #The main module that will be executed first
-    clearConsole()
-    print(" ____   ___  _____ ____".center(78))
-    print("/ ___| / _ \|  ___/ ___|".center(78))
-    print("\___ \| | | | |_  \___ \\".center(78))
-    print(" ___) | |_| |  _|  ___) |".center(80))
-    print("|____/ \___/|_|   |____/".center(78))
-    print("")
-    print(f' {"Welcome to the Online Food Ordering Management System"} '.center(85, '='))
-    print("\nWho are you logging in as?\n", "1. Admin", "2. Customer", "3. Quit Program", sep=' \n')
-    while True:  
+    while True: 
+        clearConsole()
+        print(" ____   ___  _____ ____".center(78))
+        print("/ ___| / _ \|  ___/ ___|".center(78))
+        print("\___ \| | | | |_  \___ \\".center(78))
+        print(" ___) | |_| |  _|  ___) |".center(80))
+        print("|____/ \___/|_|   |____/".center(78))
+        print("")
+        print(f' {"Welcome to the Online Food Ordering Management System"} '.center(85, '='))
+        print("\nWho are you logging in as?\n", "1. Admin", "2. Customer", "3. Quit Program", sep=' \n') 
         try:
             uInput = int(userInput("Login as (Number)",True).strip())
             if uInput == 1 :
